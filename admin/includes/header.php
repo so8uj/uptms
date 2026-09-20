@@ -1,3 +1,8 @@
+<?php
+require_once( __DIR__ . '/../../vendor/autoload.php');
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,14 +16,14 @@
   <meta name="author" content="Spark Admin Team">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="../assets/images/favicon.ico">
+  <link rel="icon" type="image/png" href="<?= env('ASSET_URL') ?>/images/favicon.ico">
 
   <!-- Local Third-Party Libraries (100% Offline Compatible) -->
-  <link rel="stylesheet" href="../assets/admin_assets/libs/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../assets/admin_assets/libs/bootstrap-icons/bootstrap-icons.css">
+  <link rel="stylesheet" href="<?= env('ASSET_URL') ?>/admin_assets/libs/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="<?= env('ASSET_URL') ?>/admin_assets/libs/bootstrap-icons/bootstrap-icons.css">
 
   <!-- Main Design System & Custom Stylesheet -->
-  <link rel="stylesheet" href="../assets/admin_assets/css/main.css">
+  <link rel="stylesheet" href="<?= env('ASSET_URL') ?>/admin_assets/css/main.css">
 </head>
 
 <body>

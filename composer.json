@@ -1,0 +1,17 @@
+{
+    "name": "university/project-thesis-management",
+    "description": "University Project and Thesis Management System",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "vlucas/phpdotenv": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        },
+        "files": [
+            "app/helpers/helpers.php"
+        ]   
+    }
+}
