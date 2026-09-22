@@ -135,6 +135,12 @@
                                     </a>
                                 </li>
 
+                                <li class="<?= (current_folder() === 'projects' && current_file() === 'manage.php') ? 'active' : '' ?>">
+                                    <a href="<?= url('admin/projects/manage.php?action=create') ?>">
+                                        Add Project
+                                    </a>
+                                </li>
+
                                 <li class="<?= (current_folder() === 'projects' && current_file() === 'proposals.php') ? 'active' : '' ?>">
                                     <a href="<?= url('admin/projects/proposals.php') ?>">
                                         Project Proposals
@@ -350,42 +356,11 @@
                 <ul class="sidebar-menu-list">
 
                     <li class="sidebar-menu-item">
-
-                        <a class="sidebar-menu-link <?= (current_folder() === 'users') ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#userAccessMenu" role="button"
-                            aria-expanded="<?= (current_folder() === 'users') ? 'true' : 'false' ?>"
-                            aria-controls="userAccessMenu">
+                        <a href="<?= url('admin/admins/index.php') ?>"
+                            class="sidebar-menu-link <?= (current_folder() === 'admins') ? 'active' : '' ?>">
                             <i class="bi bi-shield-lock"></i>
-                            <span>Users & Access</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
+                            <span>Admins</span>
                         </a>
-
-                        <div class="collapse <?= (current_folder() === 'users') ? 'show' : '' ?>" id="userAccessMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'users' && current_file() === 'index.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/users/index.php') ?>">
-                                        All Users
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'users' && current_file() === 'admins.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/users/admins.php') ?>">
-                                        Administrators
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'users' && current_file() === 'roles.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/users/roles.php') ?>">
-                                        Roles & Permissions
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
                     </li>
 
                 </ul>
@@ -483,7 +458,7 @@
                     </li>
 
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('logout.php') ?>" class="sidebar-menu-link">
+                        <a href="<?= url('index.php') ?>" class="sidebar-menu-link">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Logout</span>
                         </a>

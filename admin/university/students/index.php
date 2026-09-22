@@ -1,6 +1,7 @@
 <?php
-require_once("../../includes/header.php");
-require_once("../../includes/sidebar.php");
+require_once(__DIR__ . '/../../../app/bootstrap.php');
+require_once(base_path('admin/includes/header.php'));
+require_once(base_path('admin/includes/sidebar.php'));
 
 $pageHeader = "Student Management";
 $showBreadcrumb = true;
@@ -51,7 +52,7 @@ $students = [
 <div class="main-wrapper">
 
     <?php
-    require_once("../../includes/dashboard_header.php");
+    require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
@@ -310,4 +311,4 @@ $students = [
 
 </div>
 
-<?php require_once("../../includes/footer.php"); ?>
+<?php require_once(base_path('admin/includes/footer.php')); ?>

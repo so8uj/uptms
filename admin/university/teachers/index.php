@@ -1,6 +1,7 @@
 <?php
-require_once("../../includes/header.php");
-require_once("../../includes/sidebar.php");
+require_once(__DIR__ . '/../../../app/bootstrap.php');
+require_once(base_path('admin/includes/header.php'));
+require_once(base_path('admin/includes/sidebar.php'));
 
 $pageHeader = "Teacher Management";
 $showBreadcrumb = true;
@@ -15,7 +16,7 @@ $breadcrumbs = [
 <div class="main-wrapper">
 
     <?php
-    require_once("../../includes/dashboard_header.php");
+    require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
@@ -520,4 +521,4 @@ $breadcrumbs = [
 
 </div>
 
-<?php require_once("../../includes/footer.php"); ?>
+<?php require_once(base_path('admin/includes/footer.php')); ?>

@@ -37,7 +37,7 @@
                     <li>
                         <hr class="dropdown-divider">
                     </li>
-                    <li><a class="dropdown-item text-danger" href="page-login.html"><i
+                    <li><a class="dropdown-item text-danger" href="<?= url('index.php') ?>"><i
                                 class="bi bi-box-arrow-right"></i>
                             Logout</a></li>
                 </ul>

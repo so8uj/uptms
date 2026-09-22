@@ -1,5 +1,8 @@
 /vendor
 /vendor*
-/assets
-/assets*
+# /assets
+# /assets*
 .dist
+.md*
+/docs
+/docs*
