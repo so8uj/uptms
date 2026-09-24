@@ -47,12 +47,7 @@ $tagForm = [
 
                         <i class="bi bi-search table-search-icon"></i>
 
-                        <input
-                            type="text"
-                            class="table-search-input"
-                            id="tagSearch"
-                            placeholder="Search tags..."
-                        >
+                        <input type="text" class="table-search-input" id="tagSearch" placeholder="Search tags...">
 
                     </div>
 
@@ -60,11 +55,7 @@ $tagForm = [
 
                         <div class="dropdown">
 
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Status
                             </button>
 
@@ -156,19 +147,12 @@ $tagForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/tags.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/tags.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -220,19 +204,12 @@ $tagForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/tags.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/tags.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -284,19 +261,12 @@ $tagForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/tags.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/tags.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -348,19 +318,12 @@ $tagForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/tags.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/tags.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -412,19 +375,12 @@ $tagForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/tags.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/tags.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -509,15 +465,8 @@ $tagForm = [
                             Name <span class="text-danger">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            class="form-control-custom"
-                            id="itemName"
-                            name="name"
-                            placeholder="Enter tag name"
-                            value="<?= $tagForm['name'] ?>"
-                            required
-                        >
+                        <input type="text" class="form-control-custom" id="itemName" name="name"
+                            placeholder="Enter tag name" value="<?= $tagForm['name'] ?>" required>
 
                     </div>
 
@@ -528,13 +477,8 @@ $tagForm = [
                             Description
                         </label>
 
-                        <textarea
-                            class="form-control-custom"
-                            id="itemDescription"
-                            name="description"
-                            rows="5"
-                            placeholder="Enter a short description..."
-                        ><?= $tagForm['description'] ?></textarea>
+                        <textarea class="form-control-custom" id="itemDescription" name="description" rows="5"
+                            placeholder="Enter a short description..."><?= $tagForm['description'] ?></textarea>
 
                     </div>
 
@@ -545,23 +489,13 @@ $tagForm = [
                             Status
                         </label>
 
-                        <select
-                            class="form-select-custom"
-                            id="itemStatus"
-                            name="status"
-                        >
+                        <select class="form-select-custom" id="itemStatus" name="status">
 
-                            <option
-                                value="1"
-                                <?= $tagForm['status'] == 1 ? 'selected' : '' ?>
-                            >
+                            <option value="1" <?= $tagForm['status'] == 1 ? 'selected' : '' ?>>
                                 Active
                             </option>
 
-                            <option
-                                value="0"
-                                <?= $tagForm['status'] == 0 ? 'selected' : '' ?>
-                            >
+                            <option value="0" <?= $tagForm['status'] == 0 ? 'selected' : '' ?>>
                                 Inactive
                             </option>
 
@@ -572,10 +506,7 @@ $tagForm = [
                     <!-- Form Actions -->
                     <div class="d-flex gap-2">
 
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
+                        <button type="submit" class="btn btn-primary">
 
                             <i class="bi <?= $buttonText == 'Add' ? 'bi-plus-circle' : 'bi-pencil' ?> me-1"></i>
 
@@ -585,12 +516,9 @@ $tagForm = [
 
                         <?php if ($buttonText == 'Update'): ?>
 
-                            <a
-                                href="<?= url('admin/research/tags.php?action=create') ?>"
-                                class="btn btn-light"
-                            >
-                                Cancel
-                            </a>
+                        <a href="<?= url('admin/research/tags.php?action=create') ?>" class="btn btn-light">
+                            Cancel
+                        </a>
 
                         <?php endif; ?>
 

@@ -65,22 +65,18 @@ $studentForm = [
 
             <?php if (!$isCreate && !empty($studentForm['photo'])): ?>
 
-                <!-- Current Student Photo -->
-                <div class="text-center mb-4">
+            <!-- Current Student Photo -->
+            <div class="text-center mb-4">
 
-                    <img
-                        src="<?= htmlspecialchars($studentForm['photo']) ?>"
-                        alt="<?= htmlspecialchars($studentForm['name']) ?>"
-                        width="200"
-                        height="200"
-                        style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;"
-                    >
+                <img src="<?= htmlspecialchars($studentForm['photo']) ?>"
+                    alt="<?= htmlspecialchars($studentForm['name']) ?>" width="200" height="200"
+                    style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;">
 
-                    <div class="mt-2 text-muted small">
-                        Current Student Photo
-                    </div>
-
+                <div class="mt-2 text-muted small">
+                    Current Student Photo
                 </div>
+
+            </div>
 
             <?php endif; ?>
 
@@ -91,15 +87,9 @@ $studentForm = [
                         Student ID <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="text"
-                        name="student_id"
-                        id="student_id"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['student_id']) ?>"
-                        placeholder="Enter student ID"
-                        required
-                    >
+                    <input type="text" name="student_id" id="student_id" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['student_id']) ?>" placeholder="Enter student ID"
+                        required>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -107,15 +97,8 @@ $studentForm = [
                         Student Name <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['name']) ?>"
-                        placeholder="Enter student name"
-                        required
-                    >
+                    <input type="text" name="name" id="name" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['name']) ?>" placeholder="Enter student name" required>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -123,15 +106,9 @@ $studentForm = [
                         Email <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['email']) ?>"
-                        placeholder="Enter email address"
-                        required
-                    >
+                    <input type="email" name="email" id="email" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['email']) ?>" placeholder="Enter email address"
+                        required>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -139,14 +116,8 @@ $studentForm = [
                         Phone
                     </label>
 
-                    <input
-                        type="text"
-                        name="phone"
-                        id="phone"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['phone']) ?>"
-                        placeholder="Enter phone number"
-                    >
+                    <input type="text" name="phone" id="phone" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['phone']) ?>" placeholder="Enter phone number">
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -154,39 +125,22 @@ $studentForm = [
                         Department <span class="text-danger">*</span>
                     </label>
 
-                    <select
-                        name="department_id"
-                        id="department_id"
-                        class="form-select-custom"
-                        required
-                    >
+                    <select name="department_id" id="department_id" class="form-select-custom" required>
                         <option value="">Select Department</option>
 
-                        <option
-                            value="1"
-                            <?= $studentForm['department_id'] == '1' ? 'selected' : '' ?>
-                        >
+                        <option value="1" <?= $studentForm['department_id'] == '1' ? 'selected' : '' ?>>
                             Computer Science & Engineering
                         </option>
 
-                        <option
-                            value="2"
-                            <?= $studentForm['department_id'] == '2' ? 'selected' : '' ?>
-                        >
+                        <option value="2" <?= $studentForm['department_id'] == '2' ? 'selected' : '' ?>>
                             Electrical & Electronic Engineering
                         </option>
 
-                        <option
-                            value="3"
-                            <?= $studentForm['department_id'] == '3' ? 'selected' : '' ?>
-                        >
+                        <option value="3" <?= $studentForm['department_id'] == '3' ? 'selected' : '' ?>>
                             Information Technology
                         </option>
 
-                        <option
-                            value="4"
-                            <?= $studentForm['department_id'] == '4' ? 'selected' : '' ?>
-                        >
+                        <option value="4" <?= $studentForm['department_id'] == '4' ? 'selected' : '' ?>>
                             Business Administration
                         </option>
                     </select>
@@ -197,15 +151,8 @@ $studentForm = [
                         Batch <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="text"
-                        name="batch"
-                        id="batch"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['batch']) ?>"
-                        placeholder="e.g. 65B"
-                        required
-                    >
+                    <input type="text" name="batch" id="batch" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['batch']) ?>" placeholder="e.g. 65B" required>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -213,32 +160,18 @@ $studentForm = [
                         Academic Session <span class="text-danger">*</span>
                     </label>
 
-                    <select
-                        name="academic_session_id"
-                        id="academic_session_id"
-                        class="form-select-custom"
-                        required
-                    >
+                    <select name="academic_session_id" id="academic_session_id" class="form-select-custom" required>
                         <option value="">Select Academic Session</option>
 
-                        <option
-                            value="1"
-                            <?= $studentForm['academic_session_id'] == '1' ? 'selected' : '' ?>
-                        >
+                        <option value="1" <?= $studentForm['academic_session_id'] == '1' ? 'selected' : '' ?>>
                             2025 - 2026
                         </option>
 
-                        <option
-                            value="2"
-                            <?= $studentForm['academic_session_id'] == '2' ? 'selected' : '' ?>
-                        >
+                        <option value="2" <?= $studentForm['academic_session_id'] == '2' ? 'selected' : '' ?>>
                             2024 - 2025
                         </option>
 
-                        <option
-                            value="3"
-                            <?= $studentForm['academic_session_id'] == '3' ? 'selected' : '' ?>
-                        >
+                        <option value="3" <?= $studentForm['academic_session_id'] == '3' ? 'selected' : '' ?>>
                             2023 - 2024
                         </option>
                     </select>
@@ -249,31 +182,18 @@ $studentForm = [
                         Gender
                     </label>
 
-                    <select
-                        name="gender"
-                        id="gender"
-                        class="form-select-custom"
-                    >
+                    <select name="gender" id="gender" class="form-select-custom">
                         <option value="">Select Gender</option>
 
-                        <option
-                            value="Male"
-                            <?= $studentForm['gender'] === 'Male' ? 'selected' : '' ?>
-                        >
+                        <option value="Male" <?= $studentForm['gender'] === 'Male' ? 'selected' : '' ?>>
                             Male
                         </option>
 
-                        <option
-                            value="Female"
-                            <?= $studentForm['gender'] === 'Female' ? 'selected' : '' ?>
-                        >
+                        <option value="Female" <?= $studentForm['gender'] === 'Female' ? 'selected' : '' ?>>
                             Female
                         </option>
 
-                        <option
-                            value="Other"
-                            <?= $studentForm['gender'] === 'Other' ? 'selected' : '' ?>
-                        >
+                        <option value="Other" <?= $studentForm['gender'] === 'Other' ? 'selected' : '' ?>>
                             Other
                         </option>
                     </select>
@@ -284,13 +204,8 @@ $studentForm = [
                         Date of Birth
                     </label>
 
-                    <input
-                        type="date"
-                        name="date_of_birth"
-                        id="date_of_birth"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['date_of_birth']) ?>"
-                    >
+                    <input type="date" name="date_of_birth" id="date_of_birth" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['date_of_birth']) ?>">
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -298,17 +213,10 @@ $studentForm = [
                         Completed Credit Hours <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="number"
-                        name="completed_credit_hours"
-                        id="completed_credit_hours"
+                    <input type="number" name="completed_credit_hours" id="completed_credit_hours"
                         class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['completed_credit_hours']) ?>"
-                        placeholder="e.g. 122"
-                        min="0"
-                        step="1"
-                        required
-                    >
+                        value="<?= htmlspecialchars($studentForm['completed_credit_hours']) ?>" placeholder="e.g. 122"
+                        min="0" step="1" required>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -316,18 +224,9 @@ $studentForm = [
                         CGPA <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="number"
-                        name="cgpa"
-                        id="cgpa"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['cgpa']) ?>"
-                        placeholder="e.g. 3.70"
-                        min="0"
-                        max="4"
-                        step="0.01"
-                        required
-                    >
+                    <input type="number" name="cgpa" id="cgpa" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['cgpa']) ?>" placeholder="e.g. 3.70" min="0" max="4"
+                        step="0.01" required>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -335,42 +234,46 @@ $studentForm = [
                         Current Semester
                     </label>
 
-                    <select
-                        name="current_semester"
-                        id="current_semester"
-                        class="form-select-custom"
-                    >
+                    <select name="current_semester" id="current_semester" class="form-select-custom">
                         <option value="">Select Semester</option>
 
-                        <option value="1st Semester" <?= $studentForm['current_semester'] === '1st Semester' ? 'selected' : '' ?>>
+                        <option value="1st Semester"
+                            <?= $studentForm['current_semester'] === '1st Semester' ? 'selected' : '' ?>>
                             1st Semester
                         </option>
 
-                        <option value="2nd Semester" <?= $studentForm['current_semester'] === '2nd Semester' ? 'selected' : '' ?>>
+                        <option value="2nd Semester"
+                            <?= $studentForm['current_semester'] === '2nd Semester' ? 'selected' : '' ?>>
                             2nd Semester
                         </option>
 
-                        <option value="3rd Semester" <?= $studentForm['current_semester'] === '3rd Semester' ? 'selected' : '' ?>>
+                        <option value="3rd Semester"
+                            <?= $studentForm['current_semester'] === '3rd Semester' ? 'selected' : '' ?>>
                             3rd Semester
                         </option>
 
-                        <option value="4th Semester" <?= $studentForm['current_semester'] === '4th Semester' ? 'selected' : '' ?>>
+                        <option value="4th Semester"
+                            <?= $studentForm['current_semester'] === '4th Semester' ? 'selected' : '' ?>>
                             4th Semester
                         </option>
 
-                        <option value="5th Semester" <?= $studentForm['current_semester'] === '5th Semester' ? 'selected' : '' ?>>
+                        <option value="5th Semester"
+                            <?= $studentForm['current_semester'] === '5th Semester' ? 'selected' : '' ?>>
                             5th Semester
                         </option>
 
-                        <option value="6th Semester" <?= $studentForm['current_semester'] === '6th Semester' ? 'selected' : '' ?>>
+                        <option value="6th Semester"
+                            <?= $studentForm['current_semester'] === '6th Semester' ? 'selected' : '' ?>>
                             6th Semester
                         </option>
 
-                        <option value="7th Semester" <?= $studentForm['current_semester'] === '7th Semester' ? 'selected' : '' ?>>
+                        <option value="7th Semester"
+                            <?= $studentForm['current_semester'] === '7th Semester' ? 'selected' : '' ?>>
                             7th Semester
                         </option>
 
-                        <option value="8th Semester" <?= $studentForm['current_semester'] === '8th Semester' ? 'selected' : '' ?>>
+                        <option value="8th Semester"
+                            <?= $studentForm['current_semester'] === '8th Semester' ? 'selected' : '' ?>>
                             8th Semester
                         </option>
                     </select>
@@ -381,13 +284,8 @@ $studentForm = [
                         Enrollment Date
                     </label>
 
-                    <input
-                        type="date"
-                        name="enrollment_date"
-                        id="enrollment_date"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['enrollment_date']) ?>"
-                    >
+                    <input type="date" name="enrollment_date" id="enrollment_date" class="form-control-custom"
+                        value="<?= htmlspecialchars($studentForm['enrollment_date']) ?>">
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -395,13 +293,8 @@ $studentForm = [
                         <?= $isCreate ? 'Student Photo' : 'Change Student Photo' ?>
                     </label>
 
-                    <input
-                        type="file"
-                        name="photo"
-                        id="photo"
-                        class="form-control-custom"
-                        accept="image/jpeg,image/png,image/webp"
-                    >
+                    <input type="file" name="photo" id="photo" class="form-control-custom"
+                        accept="image/jpeg,image/png,image/webp">
 
                     <small class="text-muted">
                         JPG, PNG or WebP
@@ -413,11 +306,7 @@ $studentForm = [
                         Status
                     </label>
 
-                    <select
-                        name="status"
-                        id="status"
-                        class="form-select-custom"
-                    >
+                    <select name="status" id="status" class="form-select-custom">
                         <option value="1" <?= $studentForm['status'] == 1 ? 'selected' : '' ?>>
                             Active
                         </option>
@@ -433,13 +322,8 @@ $studentForm = [
                         Address
                     </label>
 
-                    <textarea
-                        name="address"
-                        id="address"
-                        rows="2"
-                        class="form-control-custom"
-                        placeholder="Enter student address"
-                    ><?= htmlspecialchars($studentForm['address']) ?></textarea>
+                    <textarea name="address" id="address" rows="2" class="form-control-custom"
+                        placeholder="Enter student address"><?= htmlspecialchars($studentForm['address']) ?></textarea>
                 </div>
 
                 <div class="col-12">
@@ -447,28 +331,17 @@ $studentForm = [
                         Profile / Additional Information
                     </label>
 
-                    <textarea
-                        name="profile"
-                        id="profile"
-                        rows="3"
-                        class="form-control-custom"
-                        placeholder="Enter student profile or additional information"
-                    ><?= htmlspecialchars($studentForm['profile']) ?></textarea>
+                    <textarea name="profile" id="profile" rows="3" class="form-control-custom"
+                        placeholder="Enter student profile or additional information"><?= htmlspecialchars($studentForm['profile']) ?></textarea>
                 </div>
 
                 <div class="col-12 d-flex justify-content-end gap-2 mt-2">
 
-                    <a
-                        href="<?= url('admin/university/students/index.php') ?>"
-                        class="btn btn-light"
-                    >
+                    <a href="<?= url('admin/university/students/index.php') ?>" class="btn btn-light">
                         Cancel
                     </a>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
+                    <button type="submit" class="btn btn-primary">
                         <?= $buttonText ?> Student
                     </button>
 

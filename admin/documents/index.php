@@ -30,8 +30,10 @@ $documents = [
             <div class="row g-3">
                 <div class="col-12 col-md-5">
                     <div class="table-search-box">
-                        <i class="bi bi-search table-search-icon"></i>
-                        <input type="text" class="table-search-input" placeholder="Search document, project, or team...">
+                        <i class="bi bi-search table-search-icon">
+</i>
+                        <input type="text" class="table-search-input"
+                            placeholder="Search document, project, or team...">
                     </div>
                 </div>
                 <div class="col-12 col-md-3">
@@ -78,47 +80,82 @@ $documents = [
                 </thead>
                 <tbody>
                     <?php foreach ($documents as $document): ?>
-                        <tr>
-                            <td>
-                                <div class="table-user-cell">
-                                    <div class="table-btn-action"><i class="bi bi-file-earmark-text"></i></div>
-                                    <div>
-                                        <div class="table-user-name"><?= htmlspecialchars($document['name']) ?></div>
-                                        <div class="table-user-sub"><?= htmlspecialchars($document['id']) ?> · <?= htmlspecialchars($document['team']) ?></div>
-                                    </div>
+<tr>
+                        <td>
+                            <div class="table-user-cell">
+                                <div class="table-btn-action">
+<i class="bi bi-file-earmark-text">
+</i>
+</div>
+                                <div>
+                                    <div class="table-user-name">
+<?= htmlspecialchars($document['name']) ?>
+</div>
+                                    <div class="table-user-sub">
+<?= htmlspecialchars($document['id']) ?> ·
+                                        <?= htmlspecialchars($document['team']) ?>
+</div>
                                 </div>
-                            </td>
-                            <td><?= htmlspecialchars($document['project']) ?></td>
-                            <td><?= htmlspecialchars($document['type']) ?></td>
-                            <td><?= htmlspecialchars($document['uploaded']) ?></td>
-                            <td><?= htmlspecialchars($document['size']) ?></td>
-                            <td>
-                                <?php if ($document['status'] === 'approved'): ?>
-                                    <span class="badge-table success">Approved</span>
-                                <?php else: ?>
-                                    <span class="badge-table pending">Under Review</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <div class="d-flex justify-content-center gap-1">
-                                    <a href="#" class="table-btn-action" title="View document" aria-label="View document"><i class="bi bi-eye"></i></a>
-                                    <a href="#" class="table-btn-action" title="Download document" aria-label="Download document"><i class="bi bi-download"></i></a>
-                                    <button type="button" class="table-btn-action delete" title="Delete document" aria-label="Delete document"><i class="bi bi-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+                            </div>
+                        </td>
+                        <td>
+<?= htmlspecialchars($document['project']) ?>
+</td>
+                        <td>
+<?= htmlspecialchars($document['type']) ?>
+</td>
+                        <td>
+<?= htmlspecialchars($document['uploaded']) ?>
+</td>
+                        <td>
+<?= htmlspecialchars($document['size']) ?>
+</td>
+                        <td>
+                            <?php if ($document['status'] === 'approved'): ?>
+                            <span class="badge-table success">Approved</span>
+                            <?php else: ?>
+                            <span class="badge-table pending">Under Review</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                <a href="#" class="table-btn-action" title="View document" aria-label="View document">
+<i
+                                        class="bi bi-eye">
+</i>
+</a>
+                                <a href="#" class="table-btn-action" title="Download document"
+                                    aria-label="Download document">
+<i class="bi bi-download">
+</i>
+</a>
+                                <button type="button" class="table-btn-action delete" title="Delete document"
+                                    aria-label="Delete document">
+<i class="bi bi-trash">
+</i>
+</button>
+                            </div>
+                        </td>
+                    </tr>
+<?php endforeach; ?>
                 </tbody>
-            </table>
+</table>
         </div>
 
         <div class="table-footer-control">
-            <div class="table-pagination-info">Showing 1 to <?= count($documents) ?> of <?= count($documents) ?> documents</div>
+            <div class="table-pagination-info">Showing 1 to <?= count($documents) ?> of <?= count($documents) ?>
+                documents</div>
             <nav aria-label="Document pagination">
                 <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    <li class="page-item active"><span class="page-link">1</span></li>
-                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    <li class="page-item disabled">
+<span class="page-link">Previous</span>
+</li>
+                    <li class="page-item active">
+<span class="page-link">1</span>
+</li>
+                    <li class="page-item disabled">
+<span class="page-link">Next</span>
+</li>
                 </ul>
             </nav>
         </div>

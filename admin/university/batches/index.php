@@ -49,12 +49,7 @@ $batchForm = [
 
                         <i class="bi bi-search table-search-icon"></i>
 
-                        <input
-                            type="text"
-                            class="table-search-input"
-                            id="batchSearch"
-                            placeholder="Search batches..."
-                        >
+                        <input type="text" class="table-search-input" id="batchSearch" placeholder="Search batches...">
 
                     </div>
 
@@ -63,11 +58,7 @@ $batchForm = [
                         <!-- Department -->
                         <div class="dropdown">
 
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Department
                             </button>
 
@@ -104,11 +95,7 @@ $batchForm = [
                         <!-- Status -->
                         <div class="dropdown">
 
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Status
                             </button>
 
@@ -215,19 +202,12 @@ $batchForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/batches/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/batches/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -291,19 +271,12 @@ $batchForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/batches/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/batches/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -367,19 +340,12 @@ $batchForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/batches/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/batches/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -443,19 +409,12 @@ $batchForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/batches/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/batches/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -540,15 +499,8 @@ $batchForm = [
                             Batch Name <span class="text-danger">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            class="form-control-custom"
-                            id="batchName"
-                            name="name"
-                            placeholder="Enter batch name"
-                            value="<?= $batchForm['name'] ?>"
-                            required
-                        >
+                        <input type="text" class="form-control-custom" id="batchName" name="name"
+                            placeholder="Enter batch name" value="<?= $batchForm['name'] ?>" required>
 
                     </div>
 
@@ -559,15 +511,8 @@ $batchForm = [
                             Batch Code <span class="text-danger">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            class="form-control-custom"
-                            id="batchCode"
-                            name="code"
-                            placeholder="Enter batch code"
-                            value="<?= $batchForm['code'] ?>"
-                            required
-                        >
+                        <input type="text" class="form-control-custom" id="batchCode" name="code"
+                            placeholder="Enter batch code" value="<?= $batchForm['code'] ?>" required>
 
                     </div>
 
@@ -578,15 +523,8 @@ $batchForm = [
                             Academic Session <span class="text-danger">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            class="form-control-custom"
-                            id="batchSession"
-                            name="session"
-                            placeholder="Example: 2025-2026"
-                            value="<?= $batchForm['session'] ?>"
-                            required
-                        >
+                        <input type="text" class="form-control-custom" id="batchSession" name="session"
+                            placeholder="Example: 2025-2026" value="<?= $batchForm['session'] ?>" required>
 
                     </div>
 
@@ -597,42 +535,25 @@ $batchForm = [
                             Department <span class="text-danger">*</span>
                         </label>
 
-                        <select
-                            class="form-select-custom"
-                            id="departmentId"
-                            name="department_id"
-                            required
-                        >
+                        <select class="form-select-custom" id="departmentId" name="department_id" required>
 
                             <option value="">
                                 Select Department
                             </option>
 
-                            <option
-                                value="1"
-                                <?= $batchForm['department_id'] == 1 ? 'selected' : '' ?>
-                            >
+                            <option value="1" <?= $batchForm['department_id'] == 1 ? 'selected' : '' ?>>
                                 Computer Science & Engineering
                             </option>
 
-                            <option
-                                value="2"
-                                <?= $batchForm['department_id'] == 2 ? 'selected' : '' ?>
-                            >
+                            <option value="2" <?= $batchForm['department_id'] == 2 ? 'selected' : '' ?>>
                                 Electrical & Electronic Engineering
                             </option>
 
-                            <option
-                                value="3"
-                                <?= $batchForm['department_id'] == 3 ? 'selected' : '' ?>
-                            >
+                            <option value="3" <?= $batchForm['department_id'] == 3 ? 'selected' : '' ?>>
                                 Information Technology
                             </option>
 
-                            <option
-                                value="4"
-                                <?= $batchForm['department_id'] == 4 ? 'selected' : '' ?>
-                            >
+                            <option value="4" <?= $batchForm['department_id'] == 4 ? 'selected' : '' ?>>
                                 Business Administration
                             </option>
 
@@ -647,13 +568,8 @@ $batchForm = [
                             Description
                         </label>
 
-                        <textarea
-                            class="form-control-custom"
-                            id="batchDescription"
-                            name="description"
-                            rows="3"
-                            placeholder="Enter a short description..."
-                        ><?= $batchForm['description'] ?></textarea>
+                        <textarea class="form-control-custom" id="batchDescription" name="description" rows="3"
+                            placeholder="Enter a short description..."><?= $batchForm['description'] ?></textarea>
 
                     </div>
 
@@ -664,23 +580,13 @@ $batchForm = [
                             Status
                         </label>
 
-                        <select
-                            class="form-select-custom"
-                            id="batchStatus"
-                            name="status"
-                        >
+                        <select class="form-select-custom" id="batchStatus" name="status">
 
-                            <option
-                                value="1"
-                                <?= $batchForm['status'] == 1 ? 'selected' : '' ?>
-                            >
+                            <option value="1" <?= $batchForm['status'] == 1 ? 'selected' : '' ?>>
                                 Active
                             </option>
 
-                            <option
-                                value="0"
-                                <?= $batchForm['status'] == 0 ? 'selected' : '' ?>
-                            >
+                            <option value="0" <?= $batchForm['status'] == 0 ? 'selected' : '' ?>>
                                 Inactive
                             </option>
 
@@ -691,10 +597,7 @@ $batchForm = [
                     <!-- Form Actions -->
                     <div class="d-flex gap-2">
 
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
+                        <button type="submit" class="btn btn-primary">
 
                             <i class="bi <?= $buttonText == 'Add' ? 'bi-plus-circle' : 'bi-pencil' ?> me-1"></i>
 
@@ -704,12 +607,9 @@ $batchForm = [
 
                         <?php if ($buttonText == 'Update'): ?>
 
-                            <a
-                                href="<?= url('admin/university/batches/index.php?action=create') ?>"
-                                class="btn btn-light"
-                            >
-                                Cancel
-                            </a>
+                        <a href="<?= url('admin/university/batches/index.php?action=create') ?>" class="btn btn-light">
+                            Cancel
+                        </a>
 
                         <?php endif; ?>
 

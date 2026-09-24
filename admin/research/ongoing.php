@@ -37,12 +37,8 @@ $breadcrumbs = [
 
                         <i class="bi bi-search table-search-icon"></i>
 
-                        <input
-                            type="text"
-                            class="table-search-input"
-                            id="ongoingResearchSearch"
-                            placeholder="Search ongoing research..."
-                        >
+                        <input type="text" class="table-search-input" id="ongoingResearchSearch"
+                            placeholder="Search ongoing research...">
 
                     </div>
 
@@ -51,11 +47,7 @@ $breadcrumbs = [
                         <!-- Research Type -->
                         <div class="dropdown">
 
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Research Type
                             </button>
 
@@ -92,11 +84,7 @@ $breadcrumbs = [
                         <!-- Department -->
                         <div class="dropdown">
 
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Department
                             </button>
 
@@ -133,11 +121,7 @@ $breadcrumbs = [
                         <!-- Status -->
                         <div class="dropdown">
 
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Status
                             </button>
 
@@ -261,19 +245,13 @@ $breadcrumbs = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=view&id=1') ?>"
-                                            class="table-btn-action"
-                                            title="View"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=1') ?>"
+                                            class="table-btn-action" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=update&id=1') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=1') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
@@ -346,19 +324,13 @@ $breadcrumbs = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=view&id=2') ?>"
-                                            class="table-btn-action"
-                                            title="View"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=2') ?>"
+                                            class="table-btn-action" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=update&id=2') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=2') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
@@ -431,19 +403,13 @@ $breadcrumbs = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=view&id=3') ?>"
-                                            class="table-btn-action"
-                                            title="View"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=3') ?>"
+                                            class="table-btn-action" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=update&id=3') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=3') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
@@ -516,19 +482,13 @@ $breadcrumbs = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=view&id=4') ?>"
-                                            class="table-btn-action"
-                                            title="View"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=4') ?>"
+                                            class="table-btn-action" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=update&id=4') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=4') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
@@ -601,19 +561,13 @@ $breadcrumbs = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=view&id=5') ?>"
-                                            class="table-btn-action"
-                                            title="View"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=5') ?>"
+                                            class="table-btn-action" title="View">
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        <a
-                                            href="<?= url('admin/research/ongoing.php?action=update&id=5') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=5') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 

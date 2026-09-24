@@ -64,22 +64,18 @@ $teacherForm = [
 
             <?php if (!$isCreate && !empty($teacherForm['photo'])): ?>
 
-                <!-- Current Teacher Photo -->
-                <div class="text-center mb-4">
+            <!-- Current Teacher Photo -->
+            <div class="text-center mb-4">
 
-                    <img
-                        src="<?= htmlspecialchars($teacherForm['photo']) ?>"
-                        alt="<?= htmlspecialchars($teacherForm['name']) ?>"
-                        width="200"
-                        height="200"
-                        style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;"
-                    >
+                <img src="<?= htmlspecialchars($teacherForm['photo']) ?>"
+                    alt="<?= htmlspecialchars($teacherForm['name']) ?>" width="200" height="200"
+                    style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;">
 
-                    <div class="mt-2 text-muted small">
-                        Current Teacher Photo
-                    </div>
-
+                <div class="mt-2 text-muted small">
+                    Current Teacher Photo
                 </div>
+
+            </div>
 
             <?php endif; ?>
 
@@ -93,15 +89,8 @@ $teacherForm = [
                         <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($teacherForm['name']) ?>"
-                        placeholder="Enter teacher name"
-                        required
-                    >
+                    <input type="text" name="name" id="name" class="form-control-custom"
+                        value="<?= htmlspecialchars($teacherForm['name']) ?>" placeholder="Enter teacher name" required>
 
                 </div>
 
@@ -113,15 +102,9 @@ $teacherForm = [
                         <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="text"
-                        name="employee_id"
-                        id="employee_id"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($teacherForm['employee_id']) ?>"
-                        placeholder="Enter employee ID"
-                        required
-                    >
+                    <input type="text" name="employee_id" id="employee_id" class="form-control-custom"
+                        value="<?= htmlspecialchars($teacherForm['employee_id']) ?>" placeholder="Enter employee ID"
+                        required>
 
                 </div>
 
@@ -133,15 +116,9 @@ $teacherForm = [
                         <span class="text-danger">*</span>
                     </label>
 
-                    <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($teacherForm['email']) ?>"
-                        placeholder="Enter email address"
-                        required
-                    >
+                    <input type="email" name="email" id="email" class="form-control-custom"
+                        value="<?= htmlspecialchars($teacherForm['email']) ?>" placeholder="Enter email address"
+                        required>
 
                 </div>
 
@@ -152,14 +129,8 @@ $teacherForm = [
                         Phone
                     </label>
 
-                    <input
-                        type="text"
-                        name="phone"
-                        id="phone"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($teacherForm['phone']) ?>"
-                        placeholder="Enter phone number"
-                    >
+                    <input type="text" name="phone" id="phone" class="form-control-custom"
+                        value="<?= htmlspecialchars($teacherForm['phone']) ?>" placeholder="Enter phone number">
 
                 </div>
 
@@ -171,42 +142,25 @@ $teacherForm = [
                         <span class="text-danger">*</span>
                     </label>
 
-                    <select
-                        name="department_id"
-                        id="department_id"
-                        class="form-select-custom"
-                        required
-                    >
+                    <select name="department_id" id="department_id" class="form-select-custom" required>
 
                         <option value="">
                             Select Department
                         </option>
 
-                        <option
-                            value="1"
-                            <?= $teacherForm['department_id'] == '1' ? 'selected' : '' ?>
-                        >
+                        <option value="1" <?= $teacherForm['department_id'] == '1' ? 'selected' : '' ?>>
                             Computer Science & Engineering
                         </option>
 
-                        <option
-                            value="2"
-                            <?= $teacherForm['department_id'] == '2' ? 'selected' : '' ?>
-                        >
+                        <option value="2" <?= $teacherForm['department_id'] == '2' ? 'selected' : '' ?>>
                             Electrical & Electronic Engineering
                         </option>
 
-                        <option
-                            value="3"
-                            <?= $teacherForm['department_id'] == '3' ? 'selected' : '' ?>
-                        >
+                        <option value="3" <?= $teacherForm['department_id'] == '3' ? 'selected' : '' ?>>
                             Information Technology
                         </option>
 
-                        <option
-                            value="4"
-                            <?= $teacherForm['department_id'] == '4' ? 'selected' : '' ?>
-                        >
+                        <option value="4" <?= $teacherForm['department_id'] == '4' ? 'selected' : '' ?>>
                             Business Administration
                         </option>
 
@@ -222,49 +176,32 @@ $teacherForm = [
                         <span class="text-danger">*</span>
                     </label>
 
-                    <select
-                        name="designation"
-                        id="designation"
-                        class="form-select-custom"
-                        required
-                    >
+                    <select name="designation" id="designation" class="form-select-custom" required>
 
                         <option value="">
                             Select Designation
                         </option>
 
-                        <option
-                            value="Professor"
-                            <?= $teacherForm['designation'] === 'Professor' ? 'selected' : '' ?>
-                        >
+                        <option value="Professor" <?= $teacherForm['designation'] === 'Professor' ? 'selected' : '' ?>>
                             Professor
                         </option>
 
-                        <option
-                            value="Associate Professor"
-                            <?= $teacherForm['designation'] === 'Associate Professor' ? 'selected' : '' ?>
-                        >
+                        <option value="Associate Professor"
+                            <?= $teacherForm['designation'] === 'Associate Professor' ? 'selected' : '' ?>>
                             Associate Professor
                         </option>
 
-                        <option
-                            value="Assistant Professor"
-                            <?= $teacherForm['designation'] === 'Assistant Professor' ? 'selected' : '' ?>
-                        >
+                        <option value="Assistant Professor"
+                            <?= $teacherForm['designation'] === 'Assistant Professor' ? 'selected' : '' ?>>
                             Assistant Professor
                         </option>
 
-                        <option
-                            value="Senior Lecturer"
-                            <?= $teacherForm['designation'] === 'Senior Lecturer' ? 'selected' : '' ?>
-                        >
+                        <option value="Senior Lecturer"
+                            <?= $teacherForm['designation'] === 'Senior Lecturer' ? 'selected' : '' ?>>
                             Senior Lecturer
                         </option>
 
-                        <option
-                            value="Lecturer"
-                            <?= $teacherForm['designation'] === 'Lecturer' ? 'selected' : '' ?>
-                        >
+                        <option value="Lecturer" <?= $teacherForm['designation'] === 'Lecturer' ? 'selected' : '' ?>>
                             Lecturer
                         </option>
 
@@ -279,14 +216,9 @@ $teacherForm = [
                         Specialization / Research Area
                     </label>
 
-                    <input
-                        type="text"
-                        name="specialization"
-                        id="specialization"
-                        class="form-control-custom"
+                    <input type="text" name="specialization" id="specialization" class="form-control-custom"
                         value="<?= htmlspecialchars($teacherForm['specialization']) ?>"
-                        placeholder="e.g. Artificial Intelligence"
-                    >
+                        placeholder="e.g. Artificial Intelligence">
 
                 </div>
 
@@ -297,14 +229,9 @@ $teacherForm = [
                         Research Area / Role
                     </label>
 
-                    <input
-                        type="text"
-                        name="research_area"
-                        id="research_area"
-                        class="form-control-custom"
+                    <input type="text" name="research_area" id="research_area" class="form-control-custom"
                         value="<?= htmlspecialchars($teacherForm['research_area']) ?>"
-                        placeholder="Enter research area or role"
-                    >
+                        placeholder="Enter research area or role">
 
                 </div>
 
@@ -315,13 +242,8 @@ $teacherForm = [
                         <?= $isCreate ? 'Teacher Photo' : 'Change Teacher Photo' ?>
                     </label>
 
-                    <input
-                        type="file"
-                        name="photo"
-                        id="photo"
-                        class="form-control-custom"
-                        accept="image/jpeg,image/png,image/webp"
-                    >
+                    <input type="file" name="photo" id="photo" class="form-control-custom"
+                        accept="image/jpeg,image/png,image/webp">
 
                     <small class="text-muted">
                         JPG, PNG or WebP
@@ -336,14 +258,8 @@ $teacherForm = [
                         Faculty Profile URL
                     </label>
 
-                    <input
-                        type="url"
-                        name="profile_url"
-                        id="profile_url"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($teacherForm['profile_url']) ?>"
-                        placeholder="https://..."
-                    >
+                    <input type="url" name="profile_url" id="profile_url" class="form-control-custom"
+                        value="<?= htmlspecialchars($teacherForm['profile_url']) ?>" placeholder="https://...">
 
                 </div>
 
@@ -354,23 +270,13 @@ $teacherForm = [
                         Status
                     </label>
 
-                    <select
-                        name="status"
-                        id="status"
-                        class="form-select-custom"
-                    >
+                    <select name="status" id="status" class="form-select-custom">
 
-                        <option
-                            value="1"
-                            <?= $teacherForm['status'] == 1 ? 'selected' : '' ?>
-                        >
+                        <option value="1" <?= $teacherForm['status'] == 1 ? 'selected' : '' ?>>
                             Active
                         </option>
 
-                        <option
-                            value="0"
-                            <?= $teacherForm['status'] == 0 ? 'selected' : '' ?>
-                        >
+                        <option value="0" <?= $teacherForm['status'] == 0 ? 'selected' : '' ?>>
                             Inactive
                         </option>
 
@@ -385,30 +291,19 @@ $teacherForm = [
                         Profile / Additional Information
                     </label>
 
-                    <textarea
-                        name="profile"
-                        id="profile"
-                        rows="3"
-                        class="form-control-custom"
-                        placeholder="Enter teacher profile or additional information"
-                    ><?= htmlspecialchars($teacherForm['profile']) ?></textarea>
+                    <textarea name="profile" id="profile" rows="3" class="form-control-custom"
+                        placeholder="Enter teacher profile or additional information"><?= htmlspecialchars($teacherForm['profile']) ?></textarea>
 
                 </div>
 
                 <!-- Form Actions -->
                 <div class="col-12 d-flex justify-content-end gap-2 mt-2">
 
-                    <a
-                        href="<?= url('admin/university/teachers/index.php') ?>"
-                        class="btn btn-light"
-                    >
+                    <a href="<?= url('admin/university/teachers/index.php') ?>" class="btn btn-light">
                         Cancel
                     </a>
 
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
+                    <button type="submit" class="btn btn-primary">
                         <?= $buttonText ?> Teacher
                     </button>
 

@@ -138,7 +138,8 @@ $breadcrumbs = [
                                         <div class="table-user-cell">
 
                                             <div class="table-user-avatar">
-                                                <img class="table-user-avatar" src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Dr-Jannatul-Naeem.jpg"
+                                                <img class="table-user-avatar"
+                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Dr-Jannatul-Naeem.jpg"
                                                     alt="Dr. Jannatul Naeem">
                                             </div>
 
@@ -206,7 +207,8 @@ $breadcrumbs = [
                                         <div class="table-user-cell">
 
                                             <div class="table-user-avatar">
-                                                <img class="table-user-avatar" src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/1748539101_01820547352.jpg"
+                                                <img class="table-user-avatar"
+                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/1748539101_01820547352.jpg"
                                                     alt="Kazi H. Robin">
                                             </div>
 
@@ -274,7 +276,8 @@ $breadcrumbs = [
                                         <div class="table-user-cell">
 
                                             <div class="table-user-avatar">
-                                                <img class="table-user-avatar" src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Ahsan-Ullah1.jpg"
+                                                <img class="table-user-avatar"
+                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Ahsan-Ullah1.jpg"
                                                     alt="Ahsan Ullah">
                                             </div>
 
@@ -342,7 +345,8 @@ $breadcrumbs = [
                                         <div class="table-user-cell">
 
                                             <div class="table-user-avatar">
-                                                <img class="table-user-avatar" src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Shamsun-Nahar.jpg"
+                                                <img class="table-user-avatar"
+                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Shamsun-Nahar.jpg"
                                                     alt="Shamsun Nahar">
                                             </div>
 
@@ -410,7 +414,8 @@ $breadcrumbs = [
                                         <div class="table-user-cell">
 
                                             <div class="table-user-avatar">
-                                                <img class="table-user-avatar" src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/4.jpg"
+                                                <img class="table-user-avatar"
+                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/4.jpg"
                                                     alt="Dr. Md Amran Hossen">
                                             </div>
 

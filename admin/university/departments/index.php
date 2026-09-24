@@ -47,12 +47,8 @@ $departmentForm = [
 
                         <i class="bi bi-search table-search-icon"></i>
 
-                        <input
-                            type="text"
-                            class="table-search-input"
-                            id="departmentSearch"
-                            placeholder="Search departments..."
-                        >
+                        <input type="text" class="table-search-input" id="departmentSearch"
+                            placeholder="Search departments...">
 
                     </div>
 
@@ -60,11 +56,7 @@ $departmentForm = [
 
                         <div class="dropdown">
 
-                            <button
-                                class="btn btn-light dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                            >
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Status
                             </button>
 
@@ -161,19 +153,12 @@ $departmentForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/departments/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/departments/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -229,19 +214,12 @@ $departmentForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/departments/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/departments/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -297,19 +275,12 @@ $departmentForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/departments/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/departments/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -365,19 +336,12 @@ $departmentForm = [
 
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a
-                                            href="<?= url('admin/university/departments/index.php?action=update') ?>"
-                                            class="table-btn-action"
-                                            title="Edit"
-                                        >
+                                        <a href="<?= url('admin/university/departments/index.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
-                                        <button
-                                            type="button"
-                                            class="table-btn-action delete"
-                                            title="Delete"
-                                        >
+                                        <button type="button" class="table-btn-action delete" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
 
@@ -456,15 +420,8 @@ $departmentForm = [
                             Department Name <span class="text-danger">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            class="form-control-custom"
-                            id="departmentName"
-                            name="name"
-                            placeholder="Enter department name"
-                            value="<?= $departmentForm['name'] ?>"
-                            required
-                        >
+                        <input type="text" class="form-control-custom" id="departmentName" name="name"
+                            placeholder="Enter department name" value="<?= $departmentForm['name'] ?>" required>
 
                     </div>
 
@@ -475,15 +432,8 @@ $departmentForm = [
                             Department Code <span class="text-danger">*</span>
                         </label>
 
-                        <input
-                            type="text"
-                            class="form-control-custom"
-                            id="departmentCode"
-                            name="code"
-                            placeholder="Enter department code"
-                            value="<?= $departmentForm['code'] ?>"
-                            required
-                        >
+                        <input type="text" class="form-control-custom" id="departmentCode" name="code"
+                            placeholder="Enter department code" value="<?= $departmentForm['code'] ?>" required>
 
                     </div>
 
@@ -494,13 +444,8 @@ $departmentForm = [
                             Description
                         </label>
 
-                        <textarea
-                            class="form-control-custom"
-                            id="departmentDescription"
-                            name="description"
-                            rows="4"
-                            placeholder="Enter a short description..."
-                        ><?= $departmentForm['description'] ?></textarea>
+                        <textarea class="form-control-custom" id="departmentDescription" name="description" rows="4"
+                            placeholder="Enter a short description..."><?= $departmentForm['description'] ?></textarea>
 
                     </div>
 
@@ -511,23 +456,13 @@ $departmentForm = [
                             Status
                         </label>
 
-                        <select
-                            class="form-select-custom"
-                            id="departmentStatus"
-                            name="status"
-                        >
+                        <select class="form-select-custom" id="departmentStatus" name="status">
 
-                            <option
-                                value="1"
-                                <?= $departmentForm['status'] == 1 ? 'selected' : '' ?>
-                            >
+                            <option value="1" <?= $departmentForm['status'] == 1 ? 'selected' : '' ?>>
                                 Active
                             </option>
 
-                            <option
-                                value="0"
-                                <?= $departmentForm['status'] == 0 ? 'selected' : '' ?>
-                            >
+                            <option value="0" <?= $departmentForm['status'] == 0 ? 'selected' : '' ?>>
                                 Inactive
                             </option>
 
@@ -538,10 +473,7 @@ $departmentForm = [
                     <!-- Form Actions -->
                     <div class="d-flex gap-2">
 
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
+                        <button type="submit" class="btn btn-primary">
 
                             <i class="bi <?= $buttonText == 'Add' ? 'bi-plus-circle' : 'bi-pencil' ?> me-1"></i>
 
@@ -551,12 +483,10 @@ $departmentForm = [
 
                         <?php if ($buttonText == 'Update'): ?>
 
-                            <a
-                                href="<?= url('admin/university/departments/index.php?action=create') ?>"
-                                class="btn btn-light"
-                            >
-                                Cancel
-                            </a>
+                        <a href="<?= url('admin/university/departments/index.php?action=create') ?>"
+                            class="btn btn-light">
+                            Cancel
+                        </a>
 
                         <?php endif; ?>
 

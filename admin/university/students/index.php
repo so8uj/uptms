@@ -70,10 +70,7 @@ $students = [
                     </p>
                 </div>
 
-                <a
-                    href="<?= url('admin/university/students/manage.php?action=create') ?>"
-                    class="btn btn-primary"
-                >
+                <a href="<?= url('admin/university/students/manage.php?action=create') ?>" class="btn btn-primary">
                     <i class="bi bi-plus-lg me-1"></i>
                     Add Student
                 </a>
@@ -88,11 +85,7 @@ $students = [
 
                 <div class="col-12 col-md-5">
                     <div class="table-search-box">
-                        <input
-                            type="text"
-                            class="table-search-input"
-                            placeholder="Search student by ID or name..."
-                        >
+                        <input type="text" class="table-search-input" placeholder="Search student by ID or name...">
                     </div>
                 </div>
 
@@ -149,121 +142,109 @@ $students = [
 
                     <?php foreach ($students as $student): ?>
 
-                        <tr>
+                    <tr>
 
-                            <td>
-                                <div class="table-user-cell">
+                        <td>
+                            <div class="table-user-cell">
 
-                                    <div class="table-user-avatar">
+                                <div class="table-user-avatar">
 
-                                        <?php if (!empty($student['photo'])): ?>
+                                    <?php if (!empty($student['photo'])): ?>
 
-                                            <img
-                                                src="<?= htmlspecialchars($student['photo']) ?>"
-                                                alt="<?= htmlspecialchars($student['name']) ?>"
-                                                style="width: 100%; height: 100%; object-fit: cover;"
-                                            >
+                                    <img src="<?= htmlspecialchars($student['photo']) ?>"
+                                        alt="<?= htmlspecialchars($student['name']) ?>"
+                                        style="width: 100%; height: 100%; object-fit: cover;">
 
-                                        <?php else: ?>
+                                    <?php else: ?>
 
-                                            <?= strtoupper(substr($student['name'], 0, 1)) ?>
+                                    <?= strtoupper(substr($student['name'], 0, 1)) ?>
 
-                                        <?php endif; ?>
+                                    <?php endif; ?>
 
+                                </div>
+
+                                <div>
+                                    <div class="table-user-name">
+                                        <?= htmlspecialchars($student['name']) ?>
                                     </div>
 
-                                    <div>
-                                        <div class="table-user-name">
-                                            <?= htmlspecialchars($student['name']) ?>
-                                        </div>
-
-                                        <div class="table-user-sub">
-                                            <?= !empty($student['email'])
+                                    <div class="table-user-sub">
+                                        <?= !empty($student['email'])
                                                 ? htmlspecialchars($student['email'])
                                                 : 'Student'
                                             ?>
-                                        </div>
                                     </div>
-
-                                </div>
-                            </td>
-
-                            <td>
-                                <span class="fw-medium">
-                                    <?= htmlspecialchars($student['id']) ?>
-                                </span>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($student['batch']) ?>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($student['credit_hours']) ?> Credits
-                            </td>
-
-                            <td>
-                                <span class="fw-semibold">
-                                    <?= htmlspecialchars($student['cgpa']) ?>
-                                </span>
-                            </td>
-
-                            <td>
-                                <?= htmlspecialchars($student['department']) ?>
-                            </td>
-
-                            <td>
-
-                                <?php if ($student['status']): ?>
-
-                                    <span class="badge-table success">
-                                        Active
-                                    </span>
-
-                                <?php else: ?>
-
-                                    <span class="badge-table failed">
-                                        Inactive
-                                    </span>
-
-                                <?php endif; ?>
-
-                            </td>
-
-                            <td>
-
-                                <div class="d-flex justify-content-end gap-1">
-
-                                    <a
-                                        href="<?= url('admin/university/students/manage.php?action=update&id=' . $student['id']) ?>"
-                                        class="table-btn-action"
-                                        title="View Student"
-                                    >
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-
-                                    <a
-                                        href="<?= url('admin/university/students/manage.php?action=update&id=' . $student['id']) ?>"
-                                        class="table-btn-action"
-                                        title="Edit Student"
-                                    >
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-
-                                    <a
-                                        href="#"
-                                        class="table-btn-action delete"
-                                        title="Delete Student"
-                                        onclick="return confirm('Are you sure you want to delete this student?');"
-                                    >
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-
                                 </div>
 
-                            </td>
+                            </div>
+                        </td>
 
-                        </tr>
+                        <td>
+                            <span class="fw-medium">
+                                <?= htmlspecialchars($student['id']) ?>
+                            </span>
+                        </td>
+
+                        <td>
+                            <?= htmlspecialchars($student['batch']) ?>
+                        </td>
+
+                        <td>
+                            <?= htmlspecialchars($student['credit_hours']) ?> Credits
+                        </td>
+
+                        <td>
+                            <span class="fw-semibold">
+                                <?= htmlspecialchars($student['cgpa']) ?>
+                            </span>
+                        </td>
+
+                        <td>
+                            <?= htmlspecialchars($student['department']) ?>
+                        </td>
+
+                        <td>
+
+                            <?php if ($student['status']): ?>
+
+                            <span class="badge-table success">
+                                Active
+                            </span>
+
+                            <?php else: ?>
+
+                            <span class="badge-table failed">
+                                Inactive
+                            </span>
+
+                            <?php endif; ?>
+
+                        </td>
+
+                        <td>
+
+                            <div class="d-flex justify-content-end gap-1">
+
+                                <a href="<?= url('admin/university/students/manage.php?action=update&id=' . $student['id']) ?>"
+                                    class="table-btn-action" title="View Student">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a href="<?= url('admin/university/students/manage.php?action=update&id=' . $student['id']) ?>"
+                                    class="table-btn-action" title="Edit Student">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+
+                                <a href="#" class="table-btn-action delete" title="Delete Student"
+                                    onclick="return confirm('Are you sure you want to delete this student?');">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
 
                     <?php endforeach; ?>
 

@@ -369,9 +369,9 @@ a:hover {
 
 
 .sidebar-menu-item .sidebar-menu-link[aria-expanded="true"] {
-    color: #0158ac;
-    background-color: rgb(0 0 0 / 5%);
-    font-weight: 600;
+    color: #344054;
+    background-color: transparent;
+    font-weight: 500;
 }
 
 .sidebar-menu-link .submenu-arrow {

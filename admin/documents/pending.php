@@ -30,8 +30,10 @@ $pendingDocuments = [
             <div class="row g-3">
                 <div class="col-12 col-md-7">
                     <div class="table-search-box">
-                        <i class="bi bi-search table-search-icon"></i>
-                        <input type="text" class="table-search-input" placeholder="Search pending document or project...">
+                        <i class="bi bi-search table-search-icon">
+</i>
+                        <input type="text" class="table-search-input"
+                            placeholder="Search pending document or project...">
                     </div>
                 </div>
                 <div class="col-12 col-md-3">
@@ -67,38 +69,62 @@ $pendingDocuments = [
                 </thead>
                 <tbody>
                     <?php foreach ($pendingDocuments as $document): ?>
-                        <tr>
-                            <td>
-                                <div class="table-user-name"><?= htmlspecialchars($document['name']) ?></div>
-                                <div class="table-user-sub"><?= htmlspecialchars($document['id']) ?> · <?= htmlspecialchars($document['team']) ?></div>
-                            </td>
-                            <td><?= htmlspecialchars($document['project']) ?></td>
-                            <td><?= htmlspecialchars($document['type']) ?></td>
-                            <td><?= htmlspecialchars($document['submitted']) ?></td>
-                            <td><?= htmlspecialchars($document['reviewer']) ?></td>
-                            <td>
-                                <?php if ($document['priority'] === 'high'): ?>
-                                    <span class="badge-table failed">High Priority</span>
-                                <?php else: ?>
-                                    <span class="badge-table pending">Normal</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center">
-                                <a href="#" class="table-btn-action" title="Review document" aria-label="Review document"><i class="bi bi-clipboard-check"></i></a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+<tr>
+                        <td>
+                            <div class="table-user-name">
+<?= htmlspecialchars($document['name']) ?>
+</div>
+                            <div class="table-user-sub">
+<?= htmlspecialchars($document['id']) ?> ·
+                                <?= htmlspecialchars($document['team']) ?>
+</div>
+                        </td>
+                        <td>
+<?= htmlspecialchars($document['project']) ?>
+</td>
+                        <td>
+<?= htmlspecialchars($document['type']) ?>
+</td>
+                        <td>
+<?= htmlspecialchars($document['submitted']) ?>
+</td>
+                        <td>
+<?= htmlspecialchars($document['reviewer']) ?>
+</td>
+                        <td>
+                            <?php if ($document['priority'] === 'high'): ?>
+                            <span class="badge-table failed">High Priority</span>
+                            <?php else: ?>
+                            <span class="badge-table pending">Normal</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-center">
+                            <a href="#" class="table-btn-action" title="Review document" aria-label="Review document">
+<i
+                                    class="bi bi-clipboard-check">
+</i>
+</a>
+                        </td>
+                    </tr>
+<?php endforeach; ?>
                 </tbody>
-            </table>
+</table>
         </div>
 
         <div class="table-footer-control">
-            <div class="table-pagination-info">Showing 1 to <?= count($pendingDocuments) ?> of <?= count($pendingDocuments) ?> pending documents</div>
+            <div class="table-pagination-info">Showing 1 to <?= count($pendingDocuments) ?> of
+                <?= count($pendingDocuments) ?> pending documents</div>
             <nav aria-label="Pending document pagination">
                 <ul class="pagination pagination-sm mb-0">
-                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
-                    <li class="page-item active"><span class="page-link">1</span></li>
-                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    <li class="page-item disabled">
+<span class="page-link">Previous</span>
+</li>
+                    <li class="page-item active">
+<span class="page-link">1</span>
+</li>
+                    <li class="page-item disabled">
+<span class="page-link">Next</span>
+</li>
                 </ul>
             </nav>
         </div>

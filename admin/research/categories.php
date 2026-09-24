@@ -91,7 +91,7 @@ $categoryFrom = [
 
                         <tbody>
 
-                            
+
                             <tr>
                                 <td>
                                     <div class="table-user-cell">
@@ -111,7 +111,7 @@ $categoryFrom = [
                                     </div>
                                 </td>
 
-                               
+
 
                                 <td>
                                     24 Research
@@ -126,7 +126,8 @@ $categoryFrom = [
                                 <td>
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a href="<?= url('admin/research/categories.php?action=update') ?>" class="table-btn-action" title="Edit">
+                                        <a href="<?= url('admin/research/categories.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
@@ -157,7 +158,7 @@ $categoryFrom = [
                                     </div>
                                 </td>
 
-                               
+
 
                                 <td>
                                     18 Research
@@ -172,7 +173,8 @@ $categoryFrom = [
                                 <td>
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a href="<?= url('admin/research/categories.php?action=update') ?>" class="table-btn-action" title="Edit">
+                                        <a href="<?= url('admin/research/categories.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
@@ -203,7 +205,7 @@ $categoryFrom = [
                                     </div>
                                 </td>
 
-                                
+
 
                                 <td>
                                     15 Research
@@ -218,7 +220,8 @@ $categoryFrom = [
                                 <td>
                                     <div class="d-flex justify-content-center gap-1">
 
-                                        <a href="<?= url('admin/research/categories.php?action=update') ?>" class="table-btn-action" title="Edit">
+                                        <a href="<?= url('admin/research/categories.php?action=update') ?>"
+                                            class="table-btn-action" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
 
@@ -332,16 +335,16 @@ $categoryFrom = [
 
                     <!-- Form Actions -->
                     <div class="d-flex gap-2">
-                        
+
                         <button type="submit" class="btn btn-primary">
                             <i class="bi <?= $buttonText == 'Add' ? 'bi-plus-circle' : 'bi-pencil' ?> me-1"></i>
                             <?= $buttonText ?> Category
                         </button>
                         <?php if ($buttonText == 'Update'): ?>
-                            <a href="<?= url('admin/research/categories.php?action=create') ?>" class="btn btn-light">
-                                Cancel
-                            </a>
-                       <?php endif; ?>
+                        <a href="<?= url('admin/research/categories.php?action=create') ?>" class="btn btn-light">
+                            Cancel
+                        </a>
+                        <?php endif; ?>
 
                     </div>
 
