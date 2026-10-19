@@ -1,529 +1,177 @@
 <?php
+
 require_once(__DIR__ . '/../../../app/bootstrap.php');
 require_once(base_path('admin/includes/header.php'));
 require_once(base_path('admin/includes/sidebar.php'));
 
 $pageHeader = "Teacher Management";
 $showBreadcrumb = true;
-
 $breadcrumbs = [
     "Dashboard" => url('admin/index.php'),
     "University" => "",
     "Teacher Management" => ""
 ];
+
 ?>
 
-<div class="main-wrapper">
-
+<div class="main-wrapper" x-data="Sobuj_userList('<?= url('api/users.php') ?>', 'teacher')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
-    <!-- Teacher Management Content -->
-    <div class="row">
-        <div class="col-12">
+    <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
+        x-text="toast.text"></div>
 
-            <div class="card border-light shadow-sm">
+    <div class="table-card-custom">
 
-                <div class="card-body">
+        <div class="table-header-control">
 
-                    <!-- Table Header -->
-                    <div
-                        class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
-
-                        <div>
-                            <h5 class="mb-1">Teachers</h5>
-                            <p class="text-muted mb-0">
-                                Manage university teachers and supervisors.
-                            </p>
-                        </div>
-
-                        <div>
-                            <a href="<?= url('admin/university/teachers/manage.php?action=create') ?>"
-                                class="btn btn-primary">
-                                <i class="bi bi-plus-lg me-1"></i>
-                                Add Teacher
-                            </a>
-                        </div>
-
-                    </div>
-
-                    <!-- Search and Filter -->
-                    <div
-                        class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-3">
-
-                        <div class="table-search-box">
-
-                            <div class="input-group input-group-custom">
-
-                                <span class="input-group-text input-group-text-custom">
-                                    <i class="bi bi-search"></i>
-                                </span>
-
-                                <input type="text" class="form-control form-control-custom table-search-input"
-                                    placeholder="Search teacher...">
-
-                            </div>
-
-                        </div>
-
-                        <div class="table-filter-group d-flex align-items-center gap-2">
-
-                            <div class="dropdown">
-
-                                <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    Status
-                                </button>
-
-                                <ul class="dropdown-menu">
-
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            All
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            Active
-                                        </a>
-                                    </li>
-
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            Inactive
-                                        </a>
-                                    </li>
-
-                                </ul>
-
-                            </div>
-
-                            <button type="button" class="btn btn-light">
-                                <i class="bi bi-download me-1"></i>
-                                Export
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                    <!-- Teacher Table -->
-                    <div class="table-responsive">
-
-                        <table class="table table-custom align-middle mb-0">
-
-                            <thead>
-
-                                <tr>
-                                    <th>Teacher</th>
-                                    <th>Employee ID</th>
-                                    <th>Department</th>
-                                    <th>Designation</th>
-                                    <th>Research Area / Role</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Actions</th>
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                <!-- Dr. Jannatul Naeem -->
-                                <tr>
-
-                                    <td>
-                                        <div class="table-user-cell">
-
-                                            <div class="table-user-avatar">
-                                                <img class="table-user-avatar"
-                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Dr-Jannatul-Naeem.jpg"
-                                                    alt="Dr. Jannatul Naeem">
-                                            </div>
-
-                                            <div>
-                                                <div class="table-user-name">
-                                                    Dr. Jannatul Naeem
-                                                </div>
-
-                                                <div class="table-user-sub">
-                                                    Head of the Department
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        T-1001
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        Assistant Professor
-                                    </td>
-
-                                    <td>
-                                        Head of the Department
-                                    </td>
-
-                                    <td>
-                                        <span class="badge-table success">
-                                            Active
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <div class="d-flex justify-content-end gap-1">
-
-                                            <a href="https://cse.wub.edu.bd/main/faculty_member_details/918"
-                                                target="_blank" class="table-btn-action" title="View Profile">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-
-                                            <a href="<?= url('admin/university/teachers/manage.php?action=update&id=1') ?>"
-                                                class="table-btn-action" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-
-                                            <a href="#" class="table-btn-action delete" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                                <!-- Kazi H. Robin -->
-                                <tr>
-
-                                    <td>
-                                        <div class="table-user-cell">
-
-                                            <div class="table-user-avatar">
-                                                <img class="table-user-avatar"
-                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/1748539101_01820547352.jpg"
-                                                    alt="Kazi H. Robin">
-                                            </div>
-
-                                            <div>
-                                                <div class="table-user-name">
-                                                    Kazi H. Robin
-                                                </div>
-
-                                                <div class="table-user-sub">
-                                                    Associate Professor
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        T-1002
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        Associate Professor
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        <span class="badge-table success">
-                                            Active
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <div class="d-flex justify-content-end gap-1">
-
-                                            <a href="https://cse.wub.edu.bd/main/faculty_member_details/79"
-                                                target="_blank" class="table-btn-action" title="View Profile">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-
-                                            <a href="<?= url('admin/university/teachers/manage.php?action=update&id=2') ?>"
-                                                class="table-btn-action" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-
-                                            <a href="#" class="table-btn-action delete" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                                <!-- Ahsan Ullah -->
-                                <tr>
-
-                                    <td>
-                                        <div class="table-user-cell">
-
-                                            <div class="table-user-avatar">
-                                                <img class="table-user-avatar"
-                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Ahsan-Ullah1.jpg"
-                                                    alt="Ahsan Ullah">
-                                            </div>
-
-                                            <div>
-                                                <div class="table-user-name">
-                                                    Ahsan Ullah
-                                                </div>
-
-                                                <div class="table-user-sub">
-                                                    Assistant Professor
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        T-1003
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        Assistant Professor
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        <span class="badge-table success">
-                                            Active
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <div class="d-flex justify-content-end gap-1">
-
-                                            <a href="https://cse.wub.edu.bd/main/faculty_member_details/354"
-                                                target="_blank" class="table-btn-action" title="View Profile">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-
-                                            <a href="<?= url('admin/university/teachers/manage.php?action=update&id=3') ?>"
-                                                class="table-btn-action" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-
-                                            <a href="#" class="table-btn-action delete" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                                <!-- Shamsun Nahar -->
-                                <tr>
-
-                                    <td>
-                                        <div class="table-user-cell">
-
-                                            <div class="table-user-avatar">
-                                                <img class="table-user-avatar"
-                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/Shamsun-Nahar.jpg"
-                                                    alt="Shamsun Nahar">
-                                            </div>
-
-                                            <div>
-                                                <div class="table-user-name">
-                                                    Shamsun Nahar
-                                                </div>
-
-                                                <div class="table-user-sub">
-                                                    Assistant Professor
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        T-1004
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        Assistant Professor
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        <span class="badge-table success">
-                                            Active
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <div class="d-flex justify-content-end gap-1">
-
-                                            <a href="https://cse.wub.edu.bd/main/faculty_member_details/462"
-                                                target="_blank" class="table-btn-action" title="View Profile">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-
-                                            <a href="<?= url('admin/university/teachers/manage.php?action=update&id=4') ?>"
-                                                class="table-btn-action" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-
-                                            <a href="#" class="table-btn-action delete" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                                <!-- Dr. Md Amran Hossen -->
-                                <tr>
-
-                                    <td>
-                                        <div class="table-user-cell">
-
-                                            <div class="table-user-avatar">
-                                                <img class="table-user-avatar"
-                                                    src="https://wub.edu.bd/admin-assets/images/employeeImg_thumb/4.jpg"
-                                                    alt="Dr. Md Amran Hossen">
-                                            </div>
-
-                                            <div>
-                                                <div class="table-user-name">
-                                                    Dr. Md Amran Hossen
-                                                </div>
-
-                                                <div class="table-user-sub">
-                                                    Assistant Professor
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        T-1005
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        Assistant Professor
-                                    </td>
-
-                                    <td>
-                                        Computer Science & Engineering
-                                    </td>
-
-                                    <td>
-                                        <span class="badge-table success">
-                                            Active
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <div class="d-flex justify-content-end gap-1">
-
-                                            <a href="https://cse.wub.edu.bd/main/faculty_member_details/957"
-                                                target="_blank" class="table-btn-action" title="View Profile">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
-
-                                            <a href="<?= url('admin/university/teachers/manage.php?action=update&id=5') ?>"
-                                                class="table-btn-action" title="Edit">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-
-                                            <a href="#" class="table-btn-action delete" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-
-                                        </div>
-                                    </td>
-
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <!-- Table Footer -->
-                    <div class="table-footer-control mt-4">
-
-                        <div class="table-pagination-info">
-                            Showing 1 to 4 of 4 teachers
-                        </div>
-
-                        <nav>
-
-                            <ul class="pagination mb-0">
-
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#">
-                                        Previous
-                                    </a>
-                                </li>
-
-                                <li class="page-item active">
-                                    <a class="page-link" href="#">
-                                        1
-                                    </a>
-                                </li>
-
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#">
-                                        Next
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </nav>
-
-                    </div>
-
-                </div>
-
+            <div class="table-search-box">
+                <i class="bi bi-search table-search-icon"></i>
+                <input type="text" class="table-search-input" placeholder="Search teachers..." x-model="search"
+                    @input.debounce.400ms="searchChanged()">
             </div>
 
+            <div class="table-filter-group">
+
+                <div class="dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" x-text="statusLabel">
+                    </button>
+
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" @click.prevent="setStatus('')">All Status</a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="setStatus('1')">Active</a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="setStatus('0')">Inactive</a></li>
+                    </ul>
+                </div>
+
+                <a href="<?= url('admin/university/teachers/manage.php?action=create') ?>" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Add Teacher
+                </a>
+
+            </div>
         </div>
+
+        <div class="table-responsive">
+            <table class="table-custom">
+
+                <thead>
+                    <tr>
+                        <th>Teacher</th>
+                        <th>Employee ID</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Research Access</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr x-cloak x-show="loading && items.length === 0">
+                        <td colspan="7" class="text-center text-muted py-4">Loading...</td>
+                    </tr>
+
+                    <tr x-cloak x-show="!loading && items.length === 0">
+                        <td colspan="7" class="text-center text-muted py-4">No teachers found.</td>
+                    </tr>
+
+                    <template x-for="item in items" :key="item.id">
+                        <tr>
+                            <td>
+                                        <div class="table-user-cell">
+                                            <template x-if="item.photo">
+                                                <img class="table-user-avatar" :src="Sobuj_photoUrl(item.photo)" :alt="item.name">
+                                            </template>
+                                            <template x-if="!item.photo">
+                                                <div class="table-user-avatar" x-text="Sobuj_initials(item.name)"></div>
+                                            </template>
+                                            <div>
+                                                <div class="table-user-name" x-text="item.name"></div>
+                                                <div class="table-user-sub" x-text="item.email"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td x-text="item.employee_id || '-'"></td>
+
+                                    <td x-text="item.department_name || '-'"></td>
+
+                                    <td x-text="item.designation || '-'"></td>
+
+                                    <td>
+                                        <span class="badge-table" :class="item.can_add_research == 1 ? 'success' : 'failed'"
+                                            x-text="item.can_add_research == 1 ? 'Allowed' : 'No'"></span>
+                                    </td>
+
+                            <td>
+                                <span class="badge-table" :class="item.status == 1 ? 'success' : 'failed'"
+                                    x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
+                            </td>
+
+                            <td>
+                                <div class="d-flex justify-content-center gap-1">
+
+                                    <a :href="'<?= url('admin/university/teachers/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action"
+                                        title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <button type="button" class="table-btn-action delete" title="Delete" @click="remove(item)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>
+                    </template>
+
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="table-footer-control">
+
+            <span class="table-pagination-info">
+                <template x-if="total > 0">
+                    <span>Showing <span x-text="from"></span> to <span x-text="to"></span> of <span x-text="total"></span> records</span>
+                </template>
+                <template x-if="total === 0">
+                    <span>Showing 0 records</span>
+                </template>
+            </span>
+
+            <nav aria-label="Teacher pagination" x-cloak x-show="pages > 1">
+                <ul class="pagination mb-0">
+
+                    <li class="page-item" :class="page <= 1 ? 'disabled' : ''">
+                        <a class="page-link" href="#" @click.prevent="goTo(page - 1)">Previous</a>
+                    </li>
+
+                    <template x-for="number in pages" :key="number">
+                        <li class="page-item" :class="number === page ? 'active' : ''">
+                            <a class="page-link" href="#" @click.prevent="goTo(number)" x-text="number"></a>
+                        </li>
+                    </template>
+
+                    <li class="page-item" :class="page >= pages ? 'disabled' : ''">
+                        <a class="page-link" href="#" @click.prevent="goTo(page + 1)">Next</a>
+                    </li>
+
+                </ul>
+            </nav>
+
+        </div>
+
     </div>
 
 </div>
+
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

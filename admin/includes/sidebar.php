@@ -195,16 +195,16 @@
 
                     <li class="sidebar-menu-item">
 
-                        <a class="sidebar-menu-link <?= (in_array(current_folder(), ['departments', 'batches', 'teachers', 'students'])) ? '' : 'collapsed' ?>"
+                        <a class="sidebar-menu-link <?= (in_array(current_folder(), ['departments', 'batches', 'sessions', 'teachers', 'students'])) ? '' : 'collapsed' ?>"
                             data-bs-toggle="collapse" href="#universityMenu" role="button"
-                            aria-expanded="<?= (in_array(current_folder(), ['departments', 'batches', 'teachers', 'students'])) ? 'true' : 'false' ?>"
+                            aria-expanded="<?= (in_array(current_folder(), ['departments', 'batches', 'sessions', 'teachers', 'students'])) ? 'true' : 'false' ?>"
                             aria-controls="universityMenu">
                             <i class="bi bi-building"></i>
                             <span>University Structure</span>
                             <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                         </a>
 
-                        <div class="collapse <?= (in_array(current_folder(), ['departments', 'batches', 'teachers', 'students'])) ? 'show' : '' ?>"
+                        <div class="collapse <?= (in_array(current_folder(), ['departments', 'batches', 'sessions', 'teachers', 'students'])) ? 'show' : '' ?>"
                             id="universityMenu">
 
                             <ul class="sidebar-submenu">
@@ -231,6 +231,12 @@
                                 <li class="<?= (current_folder() === 'batches') ? 'active' : '' ?>">
                                     <a href="<?= url('admin/university/batches/index.php') ?>">
                                         Batch Management
+                                    </a>
+                                </li>
+
+                                <li class="<?= (current_folder() === 'sessions') ? 'active' : '' ?>">
+                                    <a href="<?= url('admin/university/sessions/index.php') ?>">
+                                        Academic Sessions
                                     </a>
                                 </li>
 
@@ -458,7 +464,7 @@
                     </li>
 
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('index.php') ?>" class="sidebar-menu-link">
+                        <a href="<?= url('logout.php') ?>" class="sidebar-menu-link">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Logout</span>
                         </a>

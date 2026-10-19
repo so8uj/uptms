@@ -6,3 +6,7 @@
 .md*
 /docs
 /docs*
+# Uploaded files are not committed (the folder and its rules are)
+/uploads/*
+!/uploads/.gitkeep
+!/uploads/.htaccess

@@ -1,0 +1,5 @@
+# Files in this folder are only downloaded, never run, and the folder cannot be listed.
+Options -Indexes
+<FilesMatch "\.(php|phtml|phar|php[0-9])$">
+    Require all denied
+</FilesMatch>

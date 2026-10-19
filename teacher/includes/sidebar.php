@@ -108,7 +108,7 @@
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('index.php') ?>" class="sidebar-menu-link">
+                        <a href="<?= url('logout.php') ?>" class="sidebar-menu-link">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Logout</span>
                         </a>

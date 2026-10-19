@@ -1,13 +1,12 @@
 <?php
 
 require_once(__DIR__ . '/../../app/bootstrap.php');
+
 require_once(base_path('admin/includes/header.php'));
 require_once(base_path('admin/includes/sidebar.php'));
 
 $pageHeader = "Ongoing Research";
-
 $showBreadcrumb = true;
-
 $breadcrumbs = [
     "Dashboard" => url('admin/index.php'),
     "Research Library" => url('admin/research/index.php'),
@@ -16,626 +15,144 @@ $breadcrumbs = [
 
 ?>
 
-<div class="main-wrapper">
-
+<div class="main-wrapper" x-data="Sobuj_researchAdminList('<?= url('api/research.php') ?>', '<?= url('api/research_options.php') ?>', 'ongoing')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
-    <div class="row g-4">
-
-        <!-- Ongoing Research -->
-        <div class="col-12">
-
-            <div class="table-card-custom">
-
-                <!-- Table Header -->
-                <div class="table-header-control">
-
-                    <div class="table-search-box">
-
-                        <i class="bi bi-search table-search-icon"></i>
-
-                        <input type="text" class="table-search-input" id="ongoingResearchSearch"
-                            placeholder="Search ongoing research...">
-
-                    </div>
-
-                    <div class="table-filter-group">
-
-                        <!-- Research Type -->
-                        <div class="dropdown">
-
-                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Research Type
-                            </button>
-
-                            <ul class="dropdown-menu">
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        All Types
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Thesis
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Research Project
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Research Paper
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                        <!-- Department -->
-                        <div class="dropdown">
-
-                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Department
-                            </button>
-
-                            <ul class="dropdown-menu">
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        All Departments
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Computer Science & Engineering
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Electrical & Electronic Engineering
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Information Technology
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                        <!-- Status -->
-                        <div class="dropdown">
-
-                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Status
-                            </button>
-
-                            <ul class="dropdown-menu">
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        All Status
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        In Progress
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        On Hold
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Completed
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- Table -->
-                <div class="table-responsive">
-
-                    <table class="table-custom">
-
-                        <thead>
-
-                            <tr>
-                                <th>Research</th>
-                                <th>Researchers</th>
-                                <th>Supervisor</th>
-                                <th>Category</th>
-                                <th>Department</th>
-                                <th>Start Date</th>
-                                <th>Progress</th>
-                                <th>Status</th>
-                                <th class="text-center">Actions</th>
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            <!-- Research 1 -->
-                            <tr>
-
-                                <td>
-
-                                    <div class="table-user-cell">
-
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-flask"></i>
-                                        </div>
-
-                                        <div>
-
-                                            <div class="table-user-name">
-                                                AI-Based Student Performance Prediction
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                Research Project
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    Mohammad Sobuj, Nusrat Jahan
-                                </td>
-
-                                <td>
-                                    Dr. Rahman
-                                </td>
-
-                                <td>
-                                    Artificial Intelligence
-                                </td>
-
-                                <td>
-                                    Computer Science & Engineering
-                                </td>
-
-                                <td>
-                                    Jan 10, 2026
-                                </td>
-
-                                <td>
-                                    68%
-                                </td>
-
-                                <td>
-
-                                    <span class="badge-table success">
-                                        In Progress
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=1') ?>"
-                                            class="table-btn-action" title="View">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=1') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <!-- Research 2 -->
-                            <tr>
-
-                                <td>
-
-                                    <div class="table-user-cell">
-
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-flask"></i>
-                                        </div>
-
-                                        <div>
-
-                                            <div class="table-user-name">
-                                                Smart Campus IoT Monitoring System
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                Research Project
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    Nusrat Jahan, Fahim Ahmed
-                                </td>
-
-                                <td>
-                                    Prof. Karim
-                                </td>
-
-                                <td>
-                                    Internet of Things
-                                </td>
-
-                                <td>
-                                    Computer Science & Engineering
-                                </td>
-
-                                <td>
-                                    Feb 05, 2026
-                                </td>
-
-                                <td>
-                                    52%
-                                </td>
-
-                                <td>
-
-                                    <span class="badge-table success">
-                                        In Progress
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=2') ?>"
-                                            class="table-btn-action" title="View">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=2') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <!-- Research 3 -->
-                            <tr>
-
-                                <td>
-
-                                    <div class="table-user-cell">
-
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-flask"></i>
-                                        </div>
-
-                                        <div>
-
-                                            <div class="table-user-name">
-                                                Blockchain Academic Certificate Verification
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                Thesis
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    Tanvir Hasan
-                                </td>
-
-                                <td>
-                                    Dr. Ahmed
-                                </td>
-
-                                <td>
-                                    Blockchain
-                                </td>
-
-                                <td>
-                                    Computer Science & Engineering
-                                </td>
-
-                                <td>
-                                    Mar 12, 2026
-                                </td>
-
-                                <td>
-                                    41%
-                                </td>
-
-                                <td>
-
-                                    <span class="badge-table pending">
-                                        In Progress
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=3') ?>"
-                                            class="table-btn-action" title="View">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=3') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <!-- Research 4 -->
-                            <tr>
-
-                                <td>
-
-                                    <div class="table-user-cell">
-
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-flask"></i>
-                                        </div>
-
-                                        <div>
-
-                                            <div class="table-user-name">
-                                                Cyber Threat Detection Using Machine Learning
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                Research Project
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    Fahim Ahmed, Sadia Akter
-                                </td>
-
-                                <td>
-                                    Prof. Hasan
-                                </td>
-
-                                <td>
-                                    Cyber Security
-                                </td>
-
-                                <td>
-                                    Computer Science & Engineering
-                                </td>
-
-                                <td>
-                                    Apr 20, 2026
-                                </td>
-
-                                <td>
-                                    35%
-                                </td>
-
-                                <td>
-
-                                    <span class="badge-table pending">
-                                        In Progress
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=4') ?>"
-                                            class="table-btn-action" title="View">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=4') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                            <!-- Research 5 -->
-                            <tr>
-
-                                <td>
-
-                                    <div class="table-user-cell">
-
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-flask"></i>
-                                        </div>
-
-                                        <div>
-
-                                            <div class="table-user-name">
-                                                Automated Medical Image Classification
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                Research Project
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td>
-                                    Sadia Akter
-                                </td>
-
-                                <td>
-                                    Dr. Mahmud
-                                </td>
-
-                                <td>
-                                    Machine Learning
-                                </td>
-
-                                <td>
-                                    Electrical & Electronic Engineering
-                                </td>
-
-                                <td>
-                                    May 15, 2026
-                                </td>
-
-                                <td>
-                                    27%
-                                </td>
-
-                                <td>
-
-                                    <span class="badge-table pending">
-                                        In Progress
-                                    </span>
-
-                                </td>
-
-                                <td>
-
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=view&id=5') ?>"
-                                            class="table-btn-action" title="View">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-
-                                        <a href="<?= url('admin/research/ongoing.php?action=update&id=5') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-                <!-- Table Footer -->
-                <div class="table-footer-control">
-
-                    <span class="table-pagination-info">
-                        Showing 1 to 5 of 16 research
-                    </span>
-
-                    <nav aria-label="Ongoing research pagination">
-
-                        <ul class="pagination mb-0">
-
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                    Previous
-                                </a>
-                            </li>
-
-                            <li class="page-item active">
-                                <a class="page-link" href="#">
-                                    1
-                                </a>
-                            </li>
-
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    2
-                                </a>
-                            </li>
-
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    3
-                                </a>
-                            </li>
-
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    Next
-                                </a>
-                            </li>
-
-                        </ul>
-
-                    </nav>
-
-                </div>
+    <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
+        x-text="toast.text"></div>
+
+
+    <div class="table-card-custom">
+
+        <div class="table-header-control">
+
+            <div class="table-search-box">
+                <i class="bi bi-search table-search-icon"></i>
+                <input type="text" class="table-search-input" placeholder="Search title, code, tag or student..." x-model="search"
+                    @input.debounce.400ms="filtersChanged()">
+            </div>
+
+            <div class="table-filter-group">
+                <select class="form-select-custom" style="width: auto;" x-model="categoryId" @change="filtersChanged()">
+                    <option value="">All categories</option>
+                    <template x-for="category in options.categories" :key="category.id">
+                        <option :value="String(category.id)" x-text="category.name"></option>
+                    </template>
+                </select>
+
+                <select class="form-select-custom" style="width: auto;" x-model="type" @change="filtersChanged()">
+                    <option value="">All types</option>
+                    <template x-for="typeName in options.types" :key="typeName">
+                        <option :value="typeName" x-text="typeName"></option>
+                    </template>
+                </select>
+
+                <a href="<?= url('admin/research/manage.php?action=create') ?>" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Add Research
+                </a>
 
             </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-custom">
+
+                <thead>
+                    <tr>
+                        <th>Research</th>
+                        <th>Category</th>
+                        <th>People</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr x-cloak x-show="loading && items.length === 0">
+                        <td colspan="4" class="text-center text-muted py-4">Loading...</td>
+                    </tr>
+
+                    <tr x-cloak x-show="!loading && items.length === 0">
+                        <td colspan="4" class="text-center text-muted py-4">No ongoing research.</td>
+                    </tr>
+
+                    <template x-for="item in items" :key="item.id">
+                        <tr>
+                        <td style="max-width: 340px; white-space: normal;">
+                            <div class="table-user-name" x-text="item.title"></div>
+                            <div class="table-user-sub" x-text="item.code + ' · ' + item.type + ' · ' + item.year"></div>
+                        </td>
+
+                        <td x-text="item.category_name"></td>
+
+                        <td>
+                            <div class="table-user-name" x-text="Sobuj_authors(item)"></div>
+                            <div class="table-user-sub" x-text="item.supervisor_name ? 'Supervisor: ' + item.supervisor_name : 'No supervisor yet'"></div>
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
+                                <button type="button" class="table-btn-action" title="Mark as completed" @click="complete(item)">
+                                    <i class="bi bi-check2-circle"></i>
+                                </button>
+                                <a :href="'<?= url('admin/research/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="table-btn-action delete" title="Delete" @click="remove(item)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                        </tr>
+                    </template>
+
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="table-footer-control">
+
+            <span class="table-pagination-info">
+                <template x-if="total > 0">
+                    <span>Showing <span x-text="rangeFrom()"></span> to <span x-text="rangeTo()"></span> of <span x-text="total"></span> records</span>
+                </template>
+                <template x-if="total === 0">
+                    <span>Showing 0 records</span>
+                </template>
+            </span>
+
+            <nav aria-label="Research pagination" x-cloak x-show="pages > 1">
+                <ul class="pagination mb-0">
+
+                    <li class="page-item" :class="page <= 1 ? 'disabled' : ''">
+                        <a class="page-link" href="#" @click.prevent="goTo(page - 1)">Previous</a>
+                    </li>
+
+                    <template x-for="number in pages" :key="number">
+                        <li class="page-item" :class="number === page ? 'active' : ''">
+                            <a class="page-link" href="#" @click.prevent="goTo(number)" x-text="number"></a>
+                        </li>
+                    </template>
+
+                    <li class="page-item" :class="page >= pages ? 'disabled' : ''">
+                        <a class="page-link" href="#" @click.prevent="goTo(page + 1)">Next</a>
+                    </li>
+
+                </ul>
+            </nav>
 
         </div>
 
     </div>
 
 </div>
+
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

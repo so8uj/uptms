@@ -2368,6 +2368,11 @@ span.flatpickr-weekday {
     border-radius: var(--radius-lg);
     object-fit: cover;
     background-color: var(--brand-forest-medium);
+    color: #fff;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .table-user-name {
@@ -3310,3 +3315,8 @@ span.flatpickr-weekday {
     border: none;
 }
 
+
+/* Alpine: hide elements marked x-cloak until Alpine has started, so nothing flashes on load */
+[x-cloak] {
+    display: none !important;
+}

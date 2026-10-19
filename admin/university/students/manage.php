@@ -1,104 +1,79 @@
 <?php
+
 require_once(__DIR__ . '/../../../app/bootstrap.php');
+
+$listUrl = url('admin/university/students/index.php');
+$id = (int) ($_GET['id'] ?? 0);
+$isEdit = page_action() === 'update' && $id > 0;
+
+if (page_action() === 'update' && $id < 1) {
+    header('Location: ' . $listUrl);
+    exit;
+}
+
 require_once(base_path('admin/includes/header.php'));
 require_once(base_path('admin/includes/sidebar.php'));
 
-$isCreate = page_action() === 'create';
-
-$pageType = $isCreate ? "Add Student" : "Edit Student";
-$buttonText = $isCreate ? "Add" : "Update";
-
-$pageHeader = $pageType;
+$pageHeader = $isEdit ? "Edit Student" : "Add Student";
 $showBreadcrumb = true;
-
 $breadcrumbs = [
     "Dashboard" => url('admin/index.php'),
     "University" => "",
     "Student Management" => url('admin/university/students/index.php'),
-    $pageType => ""
+    $pageHeader => ""
 ];
 
-$studentForm = [
-    "student_id" => $isCreate ? "" : "3917",
-    "name" => $isCreate ? "" : "Sobuj",
-    "email" => $isCreate ? "" : "",
-    "phone" => $isCreate ? "" : "",
-    "department_id" => $isCreate ? "" : "1",
-    "batch" => $isCreate ? "" : "65B",
-    "academic_session_id" => $isCreate ? "" : "1",
-    "gender" => $isCreate ? "" : "Male",
-    "date_of_birth" => $isCreate ? "" : "",
-    "completed_credit_hours" => $isCreate ? "" : "122",
-    "cgpa" => $isCreate ? "" : "3.70",
-    "current_semester" => $isCreate ? "" : "",
-    "enrollment_date" => $isCreate ? "" : "",
-    "photo" => $isCreate ? "" : "",
-    "address" => $isCreate ? "" : "",
-    "profile" => $isCreate ? "" : "",
-    "status" => $isCreate ? 1 : 1,
-];
 ?>
 
-<div class="main-wrapper">
-
+<div class="main-wrapper" x-data="Sobuj_userForm('<?= url('api/users.php') ?>', '<?= url('api/options.php') ?>', 'student', <?= $isEdit ? $id : 0 ?>, '<?= $listUrl ?>')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
-    <form action="" method="post" enctype="multipart/form-data">
+    <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
+        x-text="toast.text"></div>
 
-        <!-- Student Information -->
-        <div class="card border-light shadow-sm p-4 mb-4">
+    <div class="card border-light shadow-sm">
+        <div class="card-body p-4">
 
-            <div class="mb-3">
+            <form @submit.prevent="save()" novalidate x-cloak x-show="!loading">
 
-                <h5 class="mb-1">
-                    <?= $pageType ?>
-                </h5>
+                <div class="d-flex align-items-center gap-4 mb-4">
 
-                <p class="text-muted mb-0">
-                    Enter student information and academic details.
-                </p>
+                    <template x-if="shownPhoto">
+                        <img class="table-user-avatar" style="width: 110px; height: 110px;" :src="shownPhoto" alt="Photo">
+                    </template>
+                    <template x-if="!shownPhoto">
+                        <div class="table-user-avatar" style="width: 110px; height: 110px; font-size: 2rem;" x-text="Sobuj_initials(form.name)"></div>
+                    </template>
 
-            </div>
+                    <div>
+                        <label for="photo" class="form-label-custom">Photo</label>
+                        <input type="file" class="form-control-custom" id="photo" x-ref="photoInput"
+                            accept="image/jpeg,image/png,image/webp" @change="photoChosen($event)">
+                        <small class="text-muted d-block">JPG, PNG or WebP, up to 2 MB. Without a photo the initials are shown.</small>
+                        <template x-for="message in (errors.photo || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
+                        <button type="button" class="btn btn-link btn-sm p-0 mt-1" x-cloak x-show="photoFile"
+                            @click="clearPhoto()">Remove the selected photo</button>
+                    </div>
 
-            <?php if (!$isCreate && !empty($studentForm['photo'])): ?>
-
-            <!-- Current Student Photo -->
-            <div class="text-center mb-4">
-
-                <img src="<?= htmlspecialchars($studentForm['photo']) ?>"
-                    alt="<?= htmlspecialchars($studentForm['name']) ?>" width="200" height="200"
-                    style="width: 200px; height: 200px; object-fit: cover; border-radius: 10px;">
-
-                <div class="mt-2 text-muted small">
-                    Current Student Photo
                 </div>
 
-            </div>
-
-            <?php endif; ?>
-
-            <div class="row g-3">
-
-                <div class="col-12 col-md-6">
-                    <label for="student_id" class="form-label-custom">
-                        Student ID <span class="text-danger">*</span>
-                    </label>
-
-                    <input type="text" name="student_id" id="student_id" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['student_id']) ?>" placeholder="Enter student ID"
-                        required>
-                </div>
+                <div class="row g-3">
 
                 <div class="col-12 col-md-6">
                     <label for="name" class="form-label-custom">
-                        Student Name <span class="text-danger">*</span>
+                        Full Name <span class="text-danger">*</span>
                     </label>
 
-                    <input type="text" name="name" id="name" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['name']) ?>" placeholder="Enter student name" required>
+                    <input type="text" class="form-control-custom" id="name" placeholder="Enter full name"
+                            x-model="form.name">
+                    <template x-for="message in (errors.name || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -106,9 +81,11 @@ $studentForm = [
                         Email <span class="text-danger">*</span>
                     </label>
 
-                    <input type="email" name="email" id="email" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['email']) ?>" placeholder="Enter email address"
-                        required>
+                    <input type="email" class="form-control-custom" id="email" placeholder="name@example.com"
+                            x-model="form.email" autocomplete="off">
+                    <template x-for="message in (errors.email || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -116,8 +93,36 @@ $studentForm = [
                         Phone
                     </label>
 
-                    <input type="text" name="phone" id="phone" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['phone']) ?>" placeholder="Enter phone number">
+                    <input type="text" class="form-control-custom" id="phone" placeholder="Enter phone number"
+                            x-model="form.phone">
+                    <template x-for="message in (errors.phone || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label for="password" class="form-label-custom">
+                        Password <span class="text-danger" x-show="!isEdit">*</span>
+                    </label>
+
+                    <input type="password" class="form-control-custom" id="password" autocomplete="new-password"
+                        placeholder="At least 8 characters" x-model="form.password">
+                    <small class="text-muted" x-show="isEdit">Leave empty to keep the current password.</small>
+                    <template x-for="message in (errors.password || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label for="student_id" class="form-label-custom">
+                        Student ID <span class="text-danger">*</span>
+                    </label>
+
+                    <input type="text" class="form-control-custom" id="student_id" placeholder="For example 3917"
+                            x-model="form.student_id">
+                    <template x-for="message in (errors.student_id || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -125,56 +130,31 @@ $studentForm = [
                         Department <span class="text-danger">*</span>
                     </label>
 
-                    <select name="department_id" id="department_id" class="form-select-custom" required>
-                        <option value="">Select Department</option>
-
-                        <option value="1" <?= $studentForm['department_id'] == '1' ? 'selected' : '' ?>>
-                            Computer Science & Engineering
-                        </option>
-
-                        <option value="2" <?= $studentForm['department_id'] == '2' ? 'selected' : '' ?>>
-                            Electrical & Electronic Engineering
-                        </option>
-
-                        <option value="3" <?= $studentForm['department_id'] == '3' ? 'selected' : '' ?>>
-                            Information Technology
-                        </option>
-
-                        <option value="4" <?= $studentForm['department_id'] == '4' ? 'selected' : '' ?>>
-                            Business Administration
-                        </option>
-                    </select>
+                    <select class="form-select-custom" id="department_id" x-model="form.department_id" @change="departmentChanged()">
+                            <option value="">Select department</option>
+                            <template x-for="department in departments" :key="department.id">
+                                <option :value="String(department.id)" x-text="department.name"></option>
+                            </template>
+                        </select>
+                    <template x-for="message in (errors.department_id || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
-                    <label for="batch" class="form-label-custom">
+                    <label for="batch_id" class="form-label-custom">
                         Batch <span class="text-danger">*</span>
                     </label>
 
-                    <input type="text" name="batch" id="batch" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['batch']) ?>" placeholder="e.g. 65B" required>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label for="academic_session_id" class="form-label-custom">
-                        Academic Session <span class="text-danger">*</span>
-                    </label>
-
-                    <select name="academic_session_id" id="academic_session_id" class="form-select-custom" required>
-                        <option value="">Select Academic Session</option>
-
-                        <option value="1" <?= $studentForm['academic_session_id'] == '1' ? 'selected' : '' ?>>
-                            2025 - 2026
-                        </option>
-
-                        <option value="2" <?= $studentForm['academic_session_id'] == '2' ? 'selected' : '' ?>>
-                            2024 - 2025
-                        </option>
-
-                        <option value="3" <?= $studentForm['academic_session_id'] == '3' ? 'selected' : '' ?>>
-                            2023 - 2024
-                        </option>
-                    </select>
+                    <select class="form-select-custom" id="batch_id" x-model="form.batch_id" :disabled="!form.department_id">
+                            <option value="">Select batch</option>
+                            <template x-for="batch in batchOptions" :key="batch.id">
+                                <option :value="String(batch.id)" x-text="batch.name + ' (' + batch.shift + ' · ' + Sobuj_termLabel(batch.term_system, batch.current_term_no, batch.total_terms) + ')'"></option>
+                            </template>
+                        </select>
+                    <template x-for="message in (errors.batch_id || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -182,123 +162,39 @@ $studentForm = [
                         Gender
                     </label>
 
-                    <select name="gender" id="gender" class="form-select-custom">
-                        <option value="">Select Gender</option>
-
-                        <option value="Male" <?= $studentForm['gender'] === 'Male' ? 'selected' : '' ?>>
-                            Male
-                        </option>
-
-                        <option value="Female" <?= $studentForm['gender'] === 'Female' ? 'selected' : '' ?>>
-                            Female
-                        </option>
-
-                        <option value="Other" <?= $studentForm['gender'] === 'Other' ? 'selected' : '' ?>>
-                            Other
-                        </option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label for="date_of_birth" class="form-label-custom">
-                        Date of Birth
-                    </label>
-
-                    <input type="date" name="date_of_birth" id="date_of_birth" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['date_of_birth']) ?>">
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label for="completed_credit_hours" class="form-label-custom">
-                        Completed Credit Hours <span class="text-danger">*</span>
-                    </label>
-
-                    <input type="number" name="completed_credit_hours" id="completed_credit_hours"
-                        class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['completed_credit_hours']) ?>" placeholder="e.g. 122"
-                        min="0" step="1" required>
+                    <select class="form-select-custom" id="gender" x-model="form.gender">
+                            <option value="">Select gender</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                    <template x-for="message in (errors.gender || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
                     <label for="cgpa" class="form-label-custom">
-                        CGPA <span class="text-danger">*</span>
+                        CGPA
                     </label>
 
-                    <input type="number" name="cgpa" id="cgpa" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['cgpa']) ?>" placeholder="e.g. 3.70" min="0" max="4"
-                        step="0.01" required>
+                    <input type="number" class="form-control-custom" id="cgpa" placeholder="For example 3.70"
+                            x-model="form.cgpa" step="0.01" min="0" max="4">
+                    <template x-for="message in (errors.cgpa || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
-                    <label for="current_semester" class="form-label-custom">
-                        Current Semester
+                    <label for="completed_credit_hours" class="form-label-custom">
+                        Completed Credit Hours
                     </label>
 
-                    <select name="current_semester" id="current_semester" class="form-select-custom">
-                        <option value="">Select Semester</option>
-
-                        <option value="1st Semester"
-                            <?= $studentForm['current_semester'] === '1st Semester' ? 'selected' : '' ?>>
-                            1st Semester
-                        </option>
-
-                        <option value="2nd Semester"
-                            <?= $studentForm['current_semester'] === '2nd Semester' ? 'selected' : '' ?>>
-                            2nd Semester
-                        </option>
-
-                        <option value="3rd Semester"
-                            <?= $studentForm['current_semester'] === '3rd Semester' ? 'selected' : '' ?>>
-                            3rd Semester
-                        </option>
-
-                        <option value="4th Semester"
-                            <?= $studentForm['current_semester'] === '4th Semester' ? 'selected' : '' ?>>
-                            4th Semester
-                        </option>
-
-                        <option value="5th Semester"
-                            <?= $studentForm['current_semester'] === '5th Semester' ? 'selected' : '' ?>>
-                            5th Semester
-                        </option>
-
-                        <option value="6th Semester"
-                            <?= $studentForm['current_semester'] === '6th Semester' ? 'selected' : '' ?>>
-                            6th Semester
-                        </option>
-
-                        <option value="7th Semester"
-                            <?= $studentForm['current_semester'] === '7th Semester' ? 'selected' : '' ?>>
-                            7th Semester
-                        </option>
-
-                        <option value="8th Semester"
-                            <?= $studentForm['current_semester'] === '8th Semester' ? 'selected' : '' ?>>
-                            8th Semester
-                        </option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label for="enrollment_date" class="form-label-custom">
-                        Enrollment Date
-                    </label>
-
-                    <input type="date" name="enrollment_date" id="enrollment_date" class="form-control-custom"
-                        value="<?= htmlspecialchars($studentForm['enrollment_date']) ?>">
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label for="photo" class="form-label-custom">
-                        <?= $isCreate ? 'Student Photo' : 'Change Student Photo' ?>
-                    </label>
-
-                    <input type="file" name="photo" id="photo" class="form-control-custom"
-                        accept="image/jpeg,image/png,image/webp">
-
-                    <small class="text-muted">
-                        JPG, PNG or WebP
-                    </small>
+                    <input type="number" class="form-control-custom" id="completed_credit_hours" placeholder="For example 122"
+                            x-model="form.completed_credit_hours" min="0" max="400">
+                    <template x-for="message in (errors.completed_credit_hours || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -306,53 +202,37 @@ $studentForm = [
                         Status
                     </label>
 
-                    <select name="status" id="status" class="form-select-custom">
-                        <option value="1" <?= $studentForm['status'] == 1 ? 'selected' : '' ?>>
-                            Active
-                        </option>
-
-                        <option value="0" <?= $studentForm['status'] == 0 ? 'selected' : '' ?>>
-                            Inactive
-                        </option>
-                    </select>
+                    <select class="form-select-custom" id="status" x-model="form.status">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    <template x-for="message in (errors.status || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                 </div>
 
-                <div class="col-12">
-                    <label for="address" class="form-label-custom">
-                        Address
-                    </label>
-
-                    <textarea name="address" id="address" rows="2" class="form-control-custom"
-                        placeholder="Enter student address"><?= htmlspecialchars($studentForm['address']) ?></textarea>
                 </div>
 
-                <div class="col-12">
-                    <label for="profile" class="form-label-custom">
-                        Profile / Additional Information
-                    </label>
+                <div class="d-flex gap-2 mt-4">
 
-                    <textarea name="profile" id="profile" rows="3" class="form-control-custom"
-                        placeholder="Enter student profile or additional information"><?= htmlspecialchars($studentForm['profile']) ?></textarea>
-                </div>
-
-                <div class="col-12 d-flex justify-content-end gap-2 mt-2">
-
-                    <a href="<?= url('admin/university/students/index.php') ?>" class="btn btn-light">
-                        Cancel
-                    </a>
-
-                    <button type="submit" class="btn btn-primary">
-                        <?= $buttonText ?> Student
+                    <button type="submit" class="btn btn-primary" :disabled="saving">
+                        <i class="bi me-1" :class="isEdit ? 'bi-pencil' : 'bi-plus-circle'"></i>
+                        <span x-text="(isEdit ? 'Update' : 'Add') + ' Student'"></span>
                     </button>
 
+                    <a href="<?= $listUrl ?>" class="btn btn-light">Cancel</a>
+
                 </div>
 
-            </div>
+            </form>
 
         </div>
-
-    </form>
+    </div>
 
 </div>
+
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/term.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

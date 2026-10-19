@@ -1,12 +1,9 @@
-<?php 
+<?php
 
 require_once(__DIR__ . '/../../app/bootstrap.php');
 require_once(base_path('admin/includes/header.php'));
 require_once(base_path('admin/includes/sidebar.php'));
 
-
-$pageType = page_action() == 'create' ? "Add Thesis/Research " : "Edit Thesis/Research ";
-$buttonText = page_action() == 'create' ? "Add" : "Update";
 $pageHeader = "Research Category Management";
 $showBreadcrumb = true;
 $breadcrumbs = [
@@ -15,68 +12,47 @@ $breadcrumbs = [
     "Research Category Management" => ""
 ];
 
-$categoryFrom = [
-    "name" => page_action() == 'create' ? "" : "Artificial Intelligence",
-    "description" => page_action() == 'create' ? "" : "Artificial Intelligence related research",
-    "status" =>  page_action() == 'create' ? 1 : 1,
-];
-
 ?>
 
-<div class="main-wrapper">
-    <?php  
+<div class="main-wrapper" x-data="Sobuj_categoryPage('<?= url('api/categories.php') ?>')">
+    <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
-      require_once(base_path('includes/admin/page_header_breadcrumb.php')); 
+    require_once(base_path('includes/admin/page_header_breadcrumb.php'));
+    ?>
 
-      
-
-   ?>
+    <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
+        x-text="toast.text"></div>
 
     <div class="row g-4">
 
-        <!-- Research Library Management -->
         <div class="col-12 col-lg-8">
             <div class="table-card-custom">
 
-                <!-- Table Header -->
                 <div class="table-header-control">
 
                     <div class="table-search-box">
                         <i class="bi bi-search table-search-icon"></i>
                         <input type="text" class="table-search-input" id="categorySearch"
-                            placeholder="Search categories or tags...">
+                            placeholder="Search categories..." x-model="search" @input.debounce.400ms="searchChanged()">
                     </div>
 
                     <div class="table-filter-group">
 
                         <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Status
+                            <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                                x-text="statusLabel">
                             </button>
 
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        All Status
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Active
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">
-                                        Inactive
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item" href="#" @click.prevent="setStatus('')">All Status</a></li>
+                                <li><a class="dropdown-item" href="#" @click.prevent="setStatus('1')">Active</a></li>
+                                <li><a class="dropdown-item" href="#" @click.prevent="setStatus('0')">Inactive</a></li>
                             </ul>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- Table -->
                 <div class="table-responsive">
                     <table class="table-custom">
 
@@ -91,191 +67,78 @@ $categoryFrom = [
 
                         <tbody>
 
-
-                            <tr>
-                                <td>
-                                    <div class="table-user-cell">
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-folder"></i>
-                                        </div>
-
-                                        <div>
-                                            <div class="table-user-name">
-                                                Artificial Intelligence
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                artificial-intelligence
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-
-
-                                <td>
-                                    24 Research
-                                </td>
-
-                                <td>
-                                    <span class="badge-table success">
-                                        Active
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/categories.php?action=update') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                        <button type="button" class="table-btn-action delete" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-
-                                    </div>
-                                </td>
+                            <tr x-cloak x-show="loading && items.length === 0">
+                                <td colspan="4" class="text-center text-muted py-4">Loading...</td>
                             </tr>
 
-                            <tr>
-                                <td>
-                                    <div class="table-user-cell">
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-folder"></i>
-                                        </div>
-
-                                        <div>
-                                            <div class="table-user-name">
-                                                Machine Learning
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                machine-learning
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-
-
-                                <td>
-                                    18 Research
-                                </td>
-
-                                <td>
-                                    <span class="badge-table success">
-                                        Active
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/categories.php?action=update') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                        <button type="button" class="table-btn-action delete" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-
-                                    </div>
-                                </td>
+                            <tr x-cloak x-show="!loading && items.length === 0">
+                                <td colspan="4" class="text-center text-muted py-4">No categories found.</td>
                             </tr>
 
-                            <tr>
-                                <td>
-                                    <div class="table-user-cell">
-                                        <div class="table-user-avatar">
-                                            <i class="bi bi-folder"></i>
+                            <template x-for="item in items" :key="item.id">
+                                <tr>
+                                    <td>
+                                        <div class="table-user-name" x-text="item.name"></div>
+                                        <div class="table-user-sub" x-text="shorten(item.description)"></div>
+                                    </td>
+
+                                    <td>
+                                        <span x-text="item.research_count"></span> Research
+                                    </td>
+
+                                    <td>
+                                        <span class="badge-table" :class="item.status == 1 ? 'success' : 'failed'"
+                                            x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-1">
+
+                                            <button type="button" class="table-btn-action" title="Edit" @click="edit(item)">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+
+                                            <button type="button" class="table-btn-action delete" title="Delete"
+                                                @click="remove(item)">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+
                                         </div>
-
-                                        <div>
-                                            <div class="table-user-name">
-                                                Cyber Security
-                                            </div>
-
-                                            <div class="table-user-sub">
-                                                cyber-security
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-
-
-
-                                <td>
-                                    15 Research
-                                </td>
-
-                                <td>
-                                    <span class="badge-table failed">
-                                        Inactive
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <div class="d-flex justify-content-center gap-1">
-
-                                        <a href="<?= url('admin/research/categories.php?action=update') ?>"
-                                            class="table-btn-action" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-
-                                        <button type="button" class="table-btn-action delete" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
+                            </template>
 
                         </tbody>
 
                     </table>
                 </div>
 
-                <!-- Table Footer -->
                 <div class="table-footer-control">
 
                     <span class="table-pagination-info">
-                        Showing 1 to 5 of 32 records
+                        <template x-if="total > 0">
+                            <span>Showing <span x-text="from"></span> to <span x-text="to"></span> of <span x-text="total"></span> records</span>
+                        </template>
+                        <template x-if="total === 0">
+                            <span>Showing 0 records</span>
+                        </template>
                     </span>
 
-                    <nav aria-label="Research category pagination">
+                    <nav aria-label="Research category pagination" x-cloak x-show="pages > 1">
                         <ul class="pagination mb-0">
 
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">
-                                    Previous
-                                </a>
+                            <li class="page-item" :class="page <= 1 ? 'disabled' : ''">
+                                <a class="page-link" href="#" @click.prevent="goTo(page - 1)">Previous</a>
                             </li>
 
-                            <li class="page-item active">
-                                <a class="page-link" href="#">
-                                    1
-                                </a>
-                            </li>
+                            <template x-for="number in pages" :key="number">
+                                <li class="page-item" :class="number === page ? 'active' : ''">
+                                    <a class="page-link" href="#" @click.prevent="goTo(number)" x-text="number"></a>
+                                </li>
+                            </template>
 
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    2
-                                </a>
-                            </li>
-
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    3
-                                </a>
-                            </li>
-
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    Next
-                                </a>
+                            <li class="page-item" :class="page >= pages ? 'disabled' : ''">
+                                <a class="page-link" href="#" @click.prevent="goTo(page + 1)">Next</a>
                             </li>
 
                         </ul>
@@ -286,65 +149,61 @@ $categoryFrom = [
             </div>
         </div>
 
-
-        <!-- Add Research Category -->
         <div class="col-12 col-lg-4">
             <div class="card border-light shadow-sm p-4">
 
-                <h5 class="card-title mb-4">
-                    <?= $buttonText ?> Category
-                </h5>
+                <h5 class="card-title mb-4" x-text="(isEdit ? 'Update' : 'Add') + ' Category'"></h5>
 
-                <form action="" method="post">
+                <form @submit.prevent="save()" novalidate>
 
-                    <!-- Name -->
                     <div class="mb-3">
                         <label for="itemName" class="form-label-custom">
                             Name <span class="text-danger">*</span>
                         </label>
 
-                        <input type="text" class="form-control-custom" id="itemName" name="name"
-                            placeholder="Enter category or tag name" value="<?= $categoryFrom['name'] ?>" required>
+                        <input type="text" class="form-control-custom" id="itemName" placeholder="Enter category name"
+                            x-model="form.name">
+                        <template x-for="message in (errors.name || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                     </div>
 
-                    <!-- Description -->
                     <div class="mb-3">
                         <label for="itemDescription" class="form-label-custom">
                             Description
                         </label>
 
-                        <textarea class="form-control-custom" id="itemDescription" name="description" rows="5"
-                            placeholder="Enter a short description..."></textarea>
+                        <textarea class="form-control-custom" id="itemDescription" rows="5"
+                            placeholder="Enter a short description..." x-model="form.description"></textarea>
+                        <template x-for="message in (errors.description || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                     </div>
 
-                    <!-- Status -->
                     <div class="mb-4">
                         <label for="itemStatus" class="form-label-custom">
                             Status
                         </label>
 
-                        <select class="form-select-custom" id="itemStatus" name="status">
-                            <option value="1" selected>
-                                Active
-                            </option>
-                            <option value="0">
-                                Inactive
-                            </option>
+                        <select class="form-select-custom" id="itemStatus" x-model="form.status">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
                         </select>
+                        <template x-for="message in (errors.status || [])">
+                            <div class="text-danger small mt-1" x-text="message"></div>
+                        </template>
                     </div>
 
-                    <!-- Form Actions -->
                     <div class="d-flex gap-2">
 
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi <?= $buttonText == 'Add' ? 'bi-plus-circle' : 'bi-pencil' ?> me-1"></i>
-                            <?= $buttonText ?> Category
+                        <button type="submit" class="btn btn-primary" :disabled="saving">
+                            <i class="bi me-1" :class="isEdit ? 'bi-pencil' : 'bi-plus-circle'"></i>
+                            <span x-text="(isEdit ? 'Update' : 'Add') + ' Category'"></span>
                         </button>
-                        <?php if ($buttonText == 'Update'): ?>
-                        <a href="<?= url('admin/research/categories.php?action=create') ?>" class="btn btn-light">
+
+                        <button type="button" class="btn btn-light" x-cloak x-show="isEdit" @click="resetForm()">
                             Cancel
-                        </a>
-                        <?php endif; ?>
+                        </button>
 
                     </div>
 
@@ -355,9 +214,169 @@ $categoryFrom = [
 
     </div>
 
-
-
-
 </div>
+
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
+<script>
+function Sobuj_fetchCategories(apiUrl, filters) {
+    return Sobuj_api(apiUrl + '?' + new URLSearchParams(filters));
+}
+
+function Sobuj_saveCategory(apiUrl, form) {
+    return Sobuj_api(apiUrl, { method: 'POST', body: { op: 'save', ...form } });
+}
+
+function Sobuj_deleteCategory(apiUrl, id) {
+    return Sobuj_api(apiUrl, { method: 'POST', body: { op: 'delete', id: id } });
+}
+
+function Sobuj_categoryPage(apiUrl) {
+    return {
+
+        items: [],
+        total: 0,
+        page: 1,
+        pages: 1,
+        perPage: 10,
+        loading: false,
+
+        search: '',
+        status: '',
+
+        form: { id: null, name: '', description: '', status: '1' },
+        errors: {},
+        saving: false,
+
+        toast: { text: '', type: 'success' },
+
+        toastTimer: null,
+        requestId: 0,
+
+        init() {
+            this.load();
+        },
+
+        get isEdit() {
+            return this.form.id !== null;
+        },
+
+        get statusLabel() {
+            return { '': 'All Status', '1': 'Active', '0': 'Inactive' }[this.status];
+        },
+
+        get from() {
+            return this.total === 0 ? 0 : (this.page - 1) * this.perPage + 1;
+        },
+        get to() {
+            return (this.page - 1) * this.perPage + this.items.length;
+        },
+
+        shorten(text, length = 60) {
+            text = text || '';
+            return text.length > length ? text.slice(0, length) + '...' : text;
+        },
+
+        notify(text, type = 'success') {
+            clearTimeout(this.toastTimer);
+            this.toast = { text, type };
+            this.toastTimer = setTimeout(() => { this.toast.text = ''; }, 4000);
+        },
+
+        async load() {
+            const myRequest = ++this.requestId;
+            this.loading = true;
+
+            const res = await Sobuj_fetchCategories(apiUrl, { q: this.search, status: this.status, page: this.page });
+
+            if (myRequest !== this.requestId) {
+                return;
+            }
+            this.loading = false;
+
+            if (!res.ok) {
+                this.notify(res.data.message || 'Could not load the categories.', 'error');
+                return;
+            }
+
+            this.items   = res.data.categories;
+            this.total   = res.data.total;
+            this.page    = res.data.page;
+            this.pages   = res.data.pages;
+            this.perPage = res.data.perPage;
+        },
+
+        searchChanged() {
+            this.page = 1;
+            this.load();
+        },
+
+        setStatus(value) {
+            this.status = value;
+            this.page = 1;
+            this.load();
+        },
+
+        goTo(number) {
+            if (number < 1 || number > this.pages || number === this.page) {
+                return;
+            }
+            this.page = number;
+            this.load();
+        },
+
+        edit(item) {
+            this.errors = {};
+            this.form = {
+                id: item.id,
+                name: item.name,
+                description: item.description || '',
+                status: String(item.status),
+            };
+        },
+
+        resetForm() {
+            this.errors = {};
+            this.form = { id: null, name: '', description: '', status: '1' };
+        },
+
+        async save() {
+            this.saving = true;
+            this.errors = {};
+
+            const res = await Sobuj_saveCategory(apiUrl, this.form);
+            this.saving = false;
+
+            if (res.ok) {
+                this.notify(res.data.message);
+                this.resetForm();
+                this.load();
+                return;
+            }
+
+            this.errors = res.data.errors || {};
+            this.notify(res.data.message || 'Could not save the category.', 'error');
+
+            if (Object.keys(this.errors).length === 0) {
+                this.load();
+            }
+        },
+
+        async remove(item) {
+            if (!confirm('Delete the category "' + item.name + '"?')) {
+                return;
+            }
+
+            const res = await Sobuj_deleteCategory(apiUrl, item.id);
+
+            this.notify(res.data.message || 'Could not delete the category.', res.ok ? 'success' : 'error');
+
+            if (res.ok && this.form.id === item.id) {
+                this.resetForm();
+            }
+            this.load();
+        },
+    };
+}
+</script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

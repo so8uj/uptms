@@ -1,0 +1,20 @@
+# UPTMS - which URLs a visitor may open.
+# Everything here works from this folder, so it keeps working if the project is moved.
+
+# 1. Never show a list of the files inside a folder
+Options -Indexes
+
+RewriteEngine On
+
+# 2. Hidden files and folders: .env, .git, .gitignore ...
+RewriteRule (^|/)\. - [F,L]
+
+# 3. Private folders: code, libraries, database files, documents and page parts
+RewriteRule ^(app|vendor|database|docs|src|includes)(/|$) - [F,L]
+RewriteRule ^(admin|student|teacher)/includes(/|$) - [F,L]
+
+# 4. Private files in the project root
+RewriteRule ^(composer\.json|composer\.lock|migrate\.php)$ - [F,L]
+
+# 5. File types that should never be downloaded from the site
+RewriteRule \.(md|sql|log|bak|ini|dist|example)$ - [F,L]

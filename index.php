@@ -1,5 +1,29 @@
 <?php
-require_once( __DIR__ . '/vendor/autoload.php');
+
+require_once(__DIR__ . '/app/bootstrap.php');
+
+use App\Controllers\Auth;
+use App\Services\Role;
+
+Auth::redirectIfLoggedIn();
+
+$roles = Role::get_roles();
+$errors = [];
+$selectedRole = old('role', 'student');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $authAttempt = Auth::attempt($_POST);
+
+    if ($authAttempt['success']) {
+        header('Location: ' . $authAttempt['redirect']);
+        exit;
+    }
+
+    $errors = $authAttempt['errors'];
+
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -35,35 +59,32 @@ require_once( __DIR__ . '/vendor/autoload.php');
         <div class="login-card">
 
 
-            <a href="index.html" class="login-brand text-decoration-none">
+            <a href="<?= url('index.php') ?>" class="login-brand text-decoration-none">
                 <img src="<?= env('ASSET_URL') ?>/images/wub-logo.png" alt="WORLD UNIVERSITY OF BANGLADESH" width="400" />
             </a>
 
-
             <!-- Login Form -->
-            <form action="index.html" method="GET" id="loginForm" class="needs-validation" novalidate>
-                <div class="login-form-group d-flex justify-content-center column-gap-2">
+            <form method="POST" id="loginForm" class="needs-validation">
+                <?php csrf_field(); ?>
+                <?php error('csrf', $errors); ?>
 
-                    <div class="user-type">
-                        <input type="radio" class="btn-check" name="options" id="Admin" autocomplete="off">
-                        <label class="btn btn-secondary" for="Admin">Admin</label>
-                    </div>
-                    <div class="user-type">
-                        <input type="radio" class="btn-check" name="options" id="Supervisor" autocomplete="off">
-                        <label class="btn btn-secondary" for="Supervisor">Supervisor</label>
-                    </div>
-                    <div class="user-type">
-                        <input type="radio" class="btn-check" name="options" id="Student" autocomplete="off" checked>
-                        <label class="btn btn-secondary" for="Student">Student</label>
-                    </div>
+                <div class="login-form-group d-flex justify-content-center column-gap-2">
+                    <?php foreach ($roles as $value => $label): ?>
+                        <div class="user-type">
+                            <input type="radio" class="btn-check" name="role" id="<?= $value ?>" value="<?= $value ?>"
+                                autocomplete="off" <?= $selectedRole === $value ? 'checked' : '' ?>>
+                            <label class="btn btn-secondary" for="<?= $value ?>"><?= $label ?></label>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
                 <!-- Email Input Group -->
                 <div class="login-form-group">
                     <label for="email" class="login-form-label">Email Address</label>
                     <div class="login-input-group">
                         <i class="bi bi-envelope input-icon"></i>
-                        <input type="email" id="email" class="login-input" placeholder="name@company.com" required>
+                        <input type="email" id="email" name="email" class="login-input" placeholder="name@company.com" required autocomplete="username" value="<?= old('email') ?>">
                     </div>
+                    <?php error('email', $errors); ?>
                 </div>
 
                 <!-- Password Input Group -->
@@ -71,13 +92,14 @@ require_once( __DIR__ . '/vendor/autoload.php');
                     <label for="password" class="login-form-label">Password</label>
                     <div class="login-input-group">
                         <i class="bi bi-shield-lock input-icon"></i>
-                        <input type="password" id="password" class="login-input login-input-password"
-                            placeholder="••••••••" required>
+                        <input type="password" id="password" name="password" class="login-input login-input-password"
+                            placeholder="••••••••" required autocomplete="current-password">
                         <button type="button" class="password-toggle-btn" id="toggle-password"
                             aria-label="Show password">
                             <i class="bi bi-eye"></i>
                         </button>
                     </div>
+                    <?php error('password', $errors); ?>
                 </div>
 
                 <!-- Submit Button -->
