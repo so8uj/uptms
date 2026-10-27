@@ -13,18 +13,28 @@ $breadcrumbs = [
 
 ?>
 
+<?php $multi = multi_department(); ?>
+
 <div class="main-wrapper" x-data="Sobuj_departmentPage('<?= url('api/departments.php') ?>')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/university_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
+    <?php if (!$multi): ?>
+        <div class="alert alert-info py-2">
+            This project works for one department, so departments are view only.
+        </div>
+    <?php endif; ?>
+
     <div class="row g-4">
 
-        <div class="col-12 col-lg-8">
+        <div class="col-12 <?= $multi ? 'col-lg-8' : '' ?>">
             <div class="table-card-custom">
 
                 <div class="table-header-control">
@@ -35,6 +45,7 @@ $breadcrumbs = [
                             placeholder="Search departments..." x-model="search" @input.debounce.400ms="searchChanged()">
                     </div>
 
+                    <?php if ($multi): ?>
                     <div class="table-filter-group">
 
                         <div class="dropdown">
@@ -50,6 +61,7 @@ $breadcrumbs = [
                         </div>
 
                     </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="table-responsive">
@@ -60,19 +72,19 @@ $breadcrumbs = [
                                 <th>Department</th>
                                 <th>Code</th>
                                 <th>Students</th>
-                                <th>Status</th>
-                                <th class="text-center">Actions</th>
+                                <?php if ($multi): ?><th>Status</th><?php endif; ?>
+                                <?php if ($multi): ?><th class="text-center col-actions">Actions</th><?php endif; ?>
                             </tr>
                         </thead>
 
                         <tbody>
 
                             <tr x-cloak x-show="loading && items.length === 0">
-                                <td colspan="5" class="text-center text-muted py-4">Loading...</td>
+                                <td colspan="<?= $multi ? 5 : 3 ?>" class="text-center text-muted py-4">Loading...</td>
                             </tr>
 
                             <tr x-cloak x-show="!loading && items.length === 0">
-                                <td colspan="5" class="text-center text-muted py-4">No departments found.</td>
+                                <td colspan="<?= $multi ? 5 : 3 ?>" class="text-center text-muted py-4">No departments found.</td>
                             </tr>
 
                             <template x-for="item in items" :key="item.id">
@@ -88,14 +100,16 @@ $breadcrumbs = [
                                         <span x-text="item.student_count"></span> Students
                                     </td>
 
+                                    <?php if ($multi): ?>
                                     <td>
                                         <span class="badge-table" :class="item.status == 1 ? 'success' : 'failed'"
                                             x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
                                     </td>
+                                    <?php endif; ?>
 
-                                    <td>
+                                    <?php if ($multi): ?>
+                                    <td class="col-actions">
                                         <div class="d-flex justify-content-center gap-1">
-
                                             <button type="button" class="table-btn-action" title="Edit" @click="edit(item)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
@@ -104,9 +118,9 @@ $breadcrumbs = [
                                                 @click="remove(item)">
                                                 <i class="bi bi-trash"></i>
                                             </button>
-
                                         </div>
                                     </td>
+                                    <?php endif; ?>
                                 </tr>
                             </template>
 
@@ -151,6 +165,7 @@ $breadcrumbs = [
             </div>
         </div>
 
+        <?php if ($multi): ?>
         <div class="col-12 col-lg-4">
             <div class="card border-light shadow-sm p-4">
 
@@ -225,12 +240,14 @@ $breadcrumbs = [
 
             </div>
         </div>
+        <?php endif; ?>
 
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
 <script>
 function Sobuj_fetchDepartments(apiUrl, filters) {
     return Sobuj_api(apiUrl + '?' + new URLSearchParams(filters));
@@ -377,7 +394,7 @@ function Sobuj_departmentPage(apiUrl) {
         },
 
         async remove(item) {
-            if (!confirm('Delete the department "' + item.name + '"?')) {
+            if (!await Sobuj_confirm('Delete the department "' + item.name + '"?', { title: 'Delete department', confirmText: 'Delete', danger: true })) {
                 return;
             }
 

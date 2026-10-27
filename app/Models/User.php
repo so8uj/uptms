@@ -14,7 +14,7 @@ class User
     private const PROFILES = [
         'teacher' => [
             'table'  => 'teacher_profiles',
-            'fields' => ['employee_id', 'department_id', 'designation', 'specialization', 'research_area', 'can_add_research'],
+            'fields' => ['employee_id', 'department_id', 'designation', 'specialization', 'research_area', 'research_management'],
         ],
         'student' => [
             'table'  => 'student_profiles',
@@ -87,6 +87,20 @@ class User
         return (int) $this->db->lastInsertId();
     }
 
+    // "My Account": the phone number, and the photo only when a new one is given.
+    public function updateProfile(int $id, string $name, ?string $phone): void
+    {
+        $this->db->prepare('UPDATE users SET name = :name, phone = :phone WHERE id = :id AND deleted_at IS NULL')
+            ->execute(['name' => $name, 'phone' => $phone, 'id' => $id]);
+    }
+
+    // The profile picture: the path inside the uploads folder.
+    public function updatePhoto(int $id, string $path): void
+    {
+        $this->db->prepare('UPDATE users SET photo = :photo WHERE id = :id AND deleted_at IS NULL')
+            ->execute(['photo' => $path, 'id' => $id]);
+    }
+
     public function updatePasswordHash(int $id, string $hash): void
     {
         $stmt = $this->db->prepare('UPDATE users SET password = :password WHERE id = :id');
@@ -112,7 +126,7 @@ class User
 
         if ($role === 'teacher') {
             $columns .= ', tp.employee_id, tp.department_id, tp.designation, tp.specialization, tp.research_area,
-                          tp.can_add_research, d.name AS department_name';
+                          tp.research_management, d.name AS department_name';
             $joins = 'LEFT JOIN teacher_profiles tp ON tp.user_id = u.id
                       LEFT JOIN departments d ON d.id = tp.department_id';
             $search[] = 'tp.employee_id';
@@ -121,19 +135,42 @@ class User
         if ($role === 'student') {
             $columns .= ', sp.student_id, sp.department_id, sp.batch_id, sp.gender, sp.cgpa, sp.completed_credit_hours,
                           d.name AS department_name, b.name AS batch_name, b.shift AS batch_shift,
-                          b.term_system AS batch_term_system, b.total_terms AS batch_total_terms,
-                          b.current_term_no AS batch_current_term_no, cs.name AS batch_session_name';
+                          cs.name AS batch_session_name';
             $joins = 'LEFT JOIN student_profiles sp ON sp.user_id = u.id
                       LEFT JOIN departments d ON d.id = sp.department_id
                       LEFT JOIN batches b ON b.id = sp.batch_id
-                      LEFT JOIN academic_sessions cs ON cs.id = b.current_session_id';
+                      LEFT JOIN academic_sessions cs ON cs.id = b.admission_session_id';
             $search[] = 'sp.student_id';
         }
 
         return [$columns, $joins, $search];
     }
 
-    private function filters(string $role, string $search, string $status, array $searchColumns): array
+    // The columns a list may be sorted by: the name the page sends => the SQL. Anything else is ignored.
+    private const SORTS = [
+        'admin'   => ['name' => 'u.name', 'email' => 'u.email', 'last_login' => 'u.last_login_at', 'status' => 'u.status'],
+        'teacher' => [
+            'name' => 'u.name', 'status' => 'u.status', 'employee' => 'tp.employee_id', 'department' => 'd.name',
+            'designation' => "FIELD(tp.designation, 'Professor', 'Associate Professor', 'Assistant Professor', 'Senior Lecturer', 'Lecturer')",
+        ],
+        'student' => [
+            'name' => 'u.name', 'status' => 'u.status', 'roll' => 'CAST(sp.student_id AS UNSIGNED)', 'batch' => 'b.name',
+            'credits' => 'sp.completed_credit_hours', 'cgpa' => 'sp.cgpa', 'department' => 'd.name',
+        ],
+    ];
+
+    // "ORDER BY ..." for the sort the page asked for; newest first when there is none.
+    private function orderBy(string $role, array $options): string
+    {
+        $column = self::SORTS[$role][$options['sort'] ?? ''] ?? null;
+        if ($column === null) {
+            return 'u.id DESC';
+        }
+
+        return $column . (($options['dir'] ?? '') === 'desc' ? ' DESC' : ' ASC') . ', u.id DESC';
+    }
+
+    private function filters(string $role, string $search, string $status, array $searchColumns, array $options = []): array
     {
         $where = 'u.role = :role AND u.deleted_at IS NULL';
         $bind = ['role' => $role];
@@ -152,27 +189,37 @@ class User
             $bind['status'] = $status;
         }
 
+        // only the students of one batch
+        if ($role === 'student' && (int) ($options['batch_id'] ?? 0) > 0) {
+            $where .= ' AND sp.batch_id = :batch_id';
+            $bind['batch_id'] = (int) $options['batch_id'];
+        }
+
         return [$where, $bind];
     }
 
-    // One page of users of one role, newest first. Deleted users are never returned.
-    public function paginate(string $role, string $search, string $status, int $limit, int $offset): array
+    /**
+     * One page of users of one role. Deleted users are never returned.
+     * $options: batch_id (students only), sort (a key of SORTS), dir (asc | desc). Without a sort: newest first.
+     */
+    public function paginate(string $role, string $search, string $status, int $limit, int $offset, array $options = []): array
     {
         [$columns, $joins, $searchColumns] = $this->parts($role);
-        [$where, $bind] = $this->filters($role, $search, $status, $searchColumns);
+        [$where, $bind] = $this->filters($role, $search, $status, $searchColumns, $options);
+        $order = $this->orderBy($role, $options);
 
         $stmt = $this->db->prepare(
-            "SELECT {$columns} FROM users u {$joins} WHERE {$where} ORDER BY u.id DESC LIMIT {$limit} OFFSET {$offset}"
+            "SELECT {$columns} FROM users u {$joins} WHERE {$where} ORDER BY {$order} LIMIT {$limit} OFFSET {$offset}"
         );
         $stmt->execute($bind);
 
         return $stmt->fetchAll();
     }
 
-    public function count(string $role, string $search, string $status): int
+    public function count(string $role, string $search, string $status, array $options = []): int
     {
         [, $joins, $searchColumns] = $this->parts($role);
-        [$where, $bind] = $this->filters($role, $search, $status, $searchColumns);
+        [$where, $bind] = $this->filters($role, $search, $status, $searchColumns, $options);
 
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM users u {$joins} WHERE {$where}");
         $stmt->execute($bind);
@@ -329,21 +376,6 @@ class User
         )->fetchAll();
     }
 
-    // Active students whose name or student id matches the search (at most $limit), for the student picker.
-    public function searchStudents(string $search, int $limit = 10): array
-    {
-        $stmt = $this->db->prepare(
-            "SELECT u.id, u.name, sp.student_id FROM users u
-             LEFT JOIN student_profiles sp ON sp.user_id = u.id
-             WHERE u.role = 'student' AND u.status = 1 AND u.deleted_at IS NULL
-               AND (u.name LIKE :q1 OR sp.student_id LIKE :q2)
-             ORDER BY u.name LIMIT {$limit}"
-        );
-        $stmt->execute(['q1' => '%' . $search . '%', 'q2' => '%' . $search . '%']);
-
-        return $stmt->fetchAll();
-    }
-
     // How many of these ids are active students. Used to reject a tampered list.
     public function countActiveStudents(array $ids): int
     {
@@ -359,11 +391,11 @@ class User
         )->fetchColumn();
     }
 
-    // Is this user an active teacher who has been allowed to add research by the admin?
-    public function canAddResearch(int $id): bool
+    // Is this user an active teacher who has the research management permission (given by the admin)?
+    public function hasResearchManagement(int $id): bool
     {
         $stmt = $this->db->prepare(
-            "SELECT tp.can_add_research FROM teacher_profiles tp JOIN users u ON u.id = tp.user_id
+            "SELECT tp.research_management FROM teacher_profiles tp JOIN users u ON u.id = tp.user_id
              WHERE tp.user_id = :id AND u.role = 'teacher' AND u.status = 1 AND u.deleted_at IS NULL"
         );
         $stmt->execute(['id' => $id]);

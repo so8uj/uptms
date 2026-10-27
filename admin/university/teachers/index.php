@@ -20,8 +20,12 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/university_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
+
+    <?php $importType = 'teachers'; require(base_path('includes/import/panel.php')); ?>
 
     <div class="table-card-custom">
 
@@ -46,6 +50,11 @@ $breadcrumbs = [
                     </ul>
                 </div>
 
+                <button type="button" class="btn btn-outline-primary" @click="$dispatch('toggle-import')">
+                    <i class="bi bi-file-earmark-arrow-up me-1"></i>
+                    Import CSV
+                </button>
+
                 <a href="<?= url('admin/university/teachers/manage.php?action=create') ?>" class="btn btn-primary">
                     <i class="bi bi-plus-circle me-1"></i>
                     Add Teacher
@@ -55,28 +64,28 @@ $breadcrumbs = [
         </div>
 
         <div class="table-responsive">
-            <table class="table-custom">
+            <table class="table-custom table-compact">
 
                 <thead>
                     <tr>
-                        <th>Teacher</th>
-                        <th>Employee ID</th>
-                        <th>Department</th>
-                        <th>Designation</th>
-                        <th>Research Access</th>
+                        <th class="sortable" @click="setSort('name')">Teacher <i class="bi" :class="sortIcon('name')"></i></th>
+                        <th class="sortable" @click="setSort('employee')">Employee ID <i class="bi" :class="sortIcon('employee')"></i></th>
+                        <?php if (multi_department()): ?><th class="sortable" @click="setSort('department')">Department <i class="bi" :class="sortIcon('department')"></i></th><?php endif; ?>
+                        <th class="sortable" @click="setSort('designation')">Designation <i class="bi" :class="sortIcon('designation')"></i></th>
+                        <th>Research Management</th>
                         <th>Status</th>
-                        <th class="text-center">Actions</th>
+                        <th class="text-center col-actions">Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
                     <tr x-cloak x-show="loading && items.length === 0">
-                        <td colspan="7" class="text-center text-muted py-4">Loading...</td>
+                        <td colspan="<?= multi_department() ? 7 : 6 ?>" class="text-center text-muted py-4">Loading...</td>
                     </tr>
 
                     <tr x-cloak x-show="!loading && items.length === 0">
-                        <td colspan="7" class="text-center text-muted py-4">No teachers found.</td>
+                        <td colspan="<?= multi_department() ? 7 : 6 ?>" class="text-center text-muted py-4">No teachers found.</td>
                     </tr>
 
                     <template x-for="item in items" :key="item.id">
@@ -98,13 +107,13 @@ $breadcrumbs = [
 
                                     <td x-text="item.employee_id || '-'"></td>
 
-                                    <td x-text="item.department_name || '-'"></td>
+                                    <?php if (multi_department()): ?><td x-text="item.department_name || '-'"></td><?php endif; ?>
 
                                     <td x-text="item.designation || '-'"></td>
 
                                     <td>
-                                        <span class="badge-table" :class="item.can_add_research == 1 ? 'success' : 'failed'"
-                                            x-text="item.can_add_research == 1 ? 'Allowed' : 'No'"></span>
+                                        <span class="badge-table" :class="item.research_management == 1 ? 'success' : 'failed'"
+                                            x-text="item.research_management == 1 ? 'Yes' : 'No'"></span>
                                     </td>
 
                             <td>
@@ -112,7 +121,7 @@ $breadcrumbs = [
                                     x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
                             </td>
 
-                            <td>
+                            <td class="col-actions">
                                 <div class="d-flex justify-content-center gap-1">
 
                                     <a :href="'<?= url('admin/university/teachers/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action"
@@ -169,9 +178,11 @@ $breadcrumbs = [
 
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/import.js?v=<?= filemtime(base_path('assets/admin_assets/js/import.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js?v=<?= filemtime(base_path('assets/admin_assets/js/users.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

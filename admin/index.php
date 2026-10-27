@@ -18,274 +18,57 @@ $pageHeader = "Dashboard";
 
 
 
-    <!-- Dashboard Overview -->
-    <div class="row g-4 mb-4">
-
-        <!-- Total Students -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Total Students</p>
-                            <h3 class="mb-1">1,248</h3>
-                            <small class="text-success">
-                                <i class="bi bi-arrow-up"></i>
-                                12% this year
-                            </small>
-                        </div>
-
-                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                            <i class="bi bi-people fs-4"></i>
-                        </div>
-                    </div>
-                </div>
+    <div x-data="Sobuj_adminNotice('<?= url('api/menu_counts.php') ?>')" x-cloak x-show="newRequests > 0 || needSupervisor > 0 || completion > 0"
+        class="alert alert-warning">
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <div><i class="bi bi-bell me-2"></i><strong x-text="message()"></strong></div>
+            <div class="d-flex gap-2">
+                <a href="<?= url('admin/research/pending.php') ?>" class="btn btn-sm btn-primary" x-show="newRequests > 0">Review requests</a>
+                <a href="<?= url('admin/research/ongoing.php') ?>" class="btn btn-sm btn-primary" x-show="needSupervisor > 0">Assign supervisors</a>
+                <a href="<?= url('admin/research/completion.php') ?>" class="btn btn-sm btn-primary" x-show="completion > 0">Complete research</a>
             </div>
         </div>
-
-        <!-- Total Teachers -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Teachers / Supervisors</p>
-                            <h3 class="mb-1">86</h3>
-                            <small class="text-muted">
-                                Academic faculty
-                            </small>
-                        </div>
-
-                        <div class="bg-success bg-opacity-10 text-success rounded-3 p-3">
-                            <i class="bi bi-person-workspace fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Departments -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Departments</p>
-                            <h3 class="mb-1">12</h3>
-                            <small class="text-muted">
-                                Active departments
-                            </small>
-                        </div>
-
-                        <div class="bg-info bg-opacity-10 text-info rounded-3 p-3">
-                            <i class="bi bi-building fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Batches -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Batches</p>
-                            <h3 class="mb-1">24</h3>
-                            <small class="text-muted">
-                                Active batches
-                            </small>
-                        </div>
-
-                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3">
-                            <i class="bi bi-collection fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <div class="row g-4 mb-4">
+    <?php
+    // One card: the label, the number (a key of api/dashboard.php), a short line, the icon, the colour and the page it opens.
+    $cards = [
+        ["Students", "students", "Active students", "bi-people", "primary", "admin/university/students/index.php"],
+        ["Teachers / Supervisors", "teachers", "Active teachers", "bi-person-workspace", "success", "admin/university/teachers/index.php"],
+        ["Departments", "departments", "Active departments", "bi-building", "info", "admin/university/departments/index.php"],
+        ["Batches", "batches", "Active batches", "bi-collection", "warning", "admin/university/batches/index.php"],
 
-        <!-- Active Projects -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Active Projects</p>
-                            <h3 class="mb-1">186</h3>
-                            <small class="text-primary">
-                                Currently in progress
-                            </small>
-                        </div>
+        ["New Requests", "new_requests", "Waiting for review", "bi-inbox", "danger", "admin/research/pending.php"],
+        ["Need a Supervisor", "need_supervisor", "Approved, no supervisor yet", "bi-person-exclamation", "warning", "admin/research/ongoing.php"],
+        ["Ongoing Research", "ongoing", "Supervisor assigned", "bi-activity", "success", "admin/research/ongoing.php"],
+        ["Completed Research", "completed", "Finished research", "bi-check2-circle", "primary", "admin/research/index.php"],
 
-                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                            <i class="bi bi-kanban fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        ["Milestones", "milestones", "Created in all projects", "bi-flag", "primary", "admin/research/ongoing.php"],
+        ["Open Tasks", "open_tasks", "Still to finish", "bi-list-check", "warning", "admin/research/ongoing.php"],
+        ["Finished Tasks", "done_tasks", "Done by teams and supervisors", "bi-check2-square", "success", "admin/research/ongoing.php"],
+        ["Evaluations", "evaluations", "Written by supervisors", "bi-clipboard-check", "info", "admin/research/ongoing.php"],
+    ];
+    ?>
 
-        <!-- Pending Proposals -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Pending Proposals</p>
-                            <h3 class="mb-1">28</h3>
-                            <small class="text-warning">
-                                Waiting for review
-                            </small>
-                        </div>
+    <div x-data="Sobuj_adminDashboard('<?= url('api/dashboard.php') ?>')" class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
 
-                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3">
-                            <i class="bi bi-file-earmark-text fs-4"></i>
+        <?php foreach ($cards as [$label, $key, $detail, $icon, $color, $page]): ?>
+            <div class="col">
+                <a href="<?= url($page) ?>" class="text-decoration-none" title="<?= htmlspecialchars($detail) ?>">
+                    <div class="card border-light border-start border-3 shadow-sm h-100 p-0 mb-0 rounded-3" style="border-left-color: var(--bs-<?= $color ?>) !important;">
+                        <div class="card-body d-flex justify-content-between align-items-center gap-2 py-2 px-3">
+                            <span class="d-flex align-items-center gap-2 overflow-hidden">
+                                <i class="bi <?= $icon ?> text-<?= $color ?>"></i>
+                                <span class="small text-muted text-truncate"><?= htmlspecialchars($label) ?></span>
+                            </span>
+                            <span class="fs-5 fw-bold text-dark lh-1" x-text="value('<?= $key ?>')">0</span>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
-        </div>
-
-        <!-- Pending Submissions -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Pending Submissions</p>
-                            <h3 class="mb-1">17</h3>
-                            <small class="text-danger">
-                                Requires attention
-                            </small>
-                        </div>
-
-                        <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-3">
-                            <i class="bi bi-clock-history fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ongoing Research -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Ongoing Research</p>
-                            <h3 class="mb-1">42</h3>
-                            <small class="text-success">
-                                Active research
-                            </small>
-                        </div>
-
-                        <div class="bg-success bg-opacity-10 text-success rounded-3 p-3">
-                            <i class="bi bi-search fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <?php endforeach; ?>
 
     </div>
-
-    <div class="row g-4">
-
-        <!-- Research Library -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Research Library</p>
-                            <h3 class="mb-1">324</h3>
-                            <small class="text-muted">
-                                Total theses & research
-                            </small>
-                        </div>
-
-                        <div class="bg-info bg-opacity-10 text-info rounded-3 p-3">
-                            <i class="bi bi-journal-bookmark fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Published Research -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Published Research</p>
-                            <h3 class="mb-1">286</h3>
-                            <small class="text-success">
-                                Available in library
-                            </small>
-                        </div>
-
-                        <div class="bg-success bg-opacity-10 text-success rounded-3 p-3">
-                            <i class="bi bi-journal-check fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Research Review -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Research Review</p>
-                            <h3 class="mb-1">11</h3>
-                            <small class="text-warning">
-                                Awaiting review
-                            </small>
-                        </div>
-
-                        <div class="bg-warning bg-opacity-10 text-warning rounded-3 p-3">
-                            <i class="bi bi-journal-arrow-up fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Completed Projects -->
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="text-muted mb-2">Completed Projects</p>
-                            <h3 class="mb-1">512</h3>
-                            <small class="text-muted">
-                                Successfully completed
-                            </small>
-                        </div>
-
-                        <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3">
-                            <i class="bi bi-check2-circle fs-4"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-
-
 
 </div>
 

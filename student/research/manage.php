@@ -24,7 +24,7 @@ $breadcrumbs = [
 
 ?>
 
-<div class="main-wrapper" x-data="Sobuj_researchOwnerForm('<?= url('api/my_research.php') ?>', '<?= url('api/research_options.php') ?>', 'student', <?= $isEdit ? $id : 0 ?>, '<?= $listUrl ?>')">
+<div class="main-wrapper" x-data="Sobuj_researchOwnerForm('<?= url('api/my_research.php') ?>', '<?= url('api/research_options.php') ?>', 'student', <?= $isEdit ? $id : 0 ?>, '<?= $listUrl ?>', '<?= url('api/teams.php') ?>')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
@@ -40,9 +40,25 @@ $breadcrumbs = [
                 Your request is reviewed by the administrator. The administrator may approve it and assign a supervisor, or reject it with a reason.
             </div>
 
-            <div class="alert alert-danger py-2" x-cloak x-show="savedStatus === 'rejected' && reviewNote">
-                <strong>Rejected:</strong> <span x-text="reviewNote"></span><br>
-                <span class="small">Improve it and save, and it goes back to the administrator.</span>
+            <div class="alert alert-warning py-2" x-cloak x-show="savedStatus === 'correction' && reviewNote">
+                <strong>Correction needed:</strong> <span x-text="reviewNote"></span><br>
+                <span class="small">Correct it and save, and it goes back to the administrator.</span>
+            </div>
+
+            <div class="alert alert-warning py-2" x-cloak x-show="!loading && !team">
+                A research is done by an approved group/team of 2 to 3 students. Please
+                <a href="<?= url('student/team.php') ?>" class="alert-link">request your group/team</a> first,
+                or wait until the administrator approves it.
+            </div>
+
+            <div class="mb-3" x-cloak x-show="team">
+                <div class="form-label-custom">Your group/team</div>
+                <div class="fw-semibold" x-text="team ? team.name : ''"></div>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                    <template x-for="member in (team ? team.members : [])" :key="member.id">
+                        <span class="badge-table pending" x-text="member.name"></span>
+                    </template>
+                </div>
             </div>
 
             <form @submit.prevent="save()" novalidate x-cloak x-show="!loading">
@@ -127,7 +143,7 @@ $breadcrumbs = [
                 </div>
 
                 <div class="d-flex gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary" :disabled="saving">
+                    <button type="submit" class="btn btn-primary" :disabled="saving || !team">
                         <i class="bi me-1" :class="isEdit ? 'bi-pencil' : 'bi-send'"></i>
                         <span x-text="isEdit ? 'Save changes' : 'Send request'"></span>
                     </button>
@@ -141,7 +157,7 @@ $breadcrumbs = [
 
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js?v=<?= filemtime(base_path('assets/admin_assets/js/research.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

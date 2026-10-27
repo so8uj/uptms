@@ -10,3 +10,6 @@
 /uploads/*
 !/uploads/.gitkeep
 !/uploads/.htaccess
+
+# Database backups (they hold password hashes)
+/database/backups/

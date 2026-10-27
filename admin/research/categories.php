@@ -20,6 +20,8 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/research_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
@@ -214,9 +216,10 @@ $breadcrumbs = [
 
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
 <script>
 function Sobuj_fetchCategories(apiUrl, filters) {
     return Sobuj_api(apiUrl + '?' + new URLSearchParams(filters));
@@ -362,7 +365,7 @@ function Sobuj_categoryPage(apiUrl) {
         },
 
         async remove(item) {
-            if (!confirm('Delete the category "' + item.name + '"?')) {
+            if (!await Sobuj_confirm('Delete the category "' + item.name + '"?', { title: 'Delete category', confirmText: 'Delete', danger: true })) {
                 return;
             }
 

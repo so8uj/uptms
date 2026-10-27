@@ -20,6 +20,8 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/research_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
@@ -41,6 +43,8 @@ $breadcrumbs = [
 
     <div class="table-card-custom">
 
+        <?php require(base_path('includes/research/type_tabs.php')); ?>
+
         <div class="table-header-control">
 
             <div class="table-search-box">
@@ -55,20 +59,15 @@ $breadcrumbs = [
                     <option value="completed">Completed</option>
                     <option value="ongoing">Ongoing</option>
                     <option value="review">Waiting for review</option>
-                    <option value="rejected">Rejected</option>
+                    <option value="approved">Approved (needs supervisor)</option>
+                    <option value="correction">Needs correction</option>
+                    <option value="rejected">Rejected (final)</option>
                 </select>
 
                 <select class="form-select-custom" style="width: auto;" x-model="categoryId" @change="filtersChanged()">
                     <option value="">All categories</option>
                     <template x-for="category in options.categories" :key="category.id">
                         <option :value="String(category.id)" x-text="category.name"></option>
-                    </template>
-                </select>
-
-                <select class="form-select-custom" style="width: auto;" x-model="type" @change="filtersChanged()">
-                    <option value="">All types</option>
-                    <template x-for="typeName in options.types" :key="typeName">
-                        <option :value="typeName" x-text="typeName"></option>
                     </template>
                 </select>
 
@@ -87,20 +86,21 @@ $breadcrumbs = [
                     <tr>
                         <th>Research</th>
                         <th>Category</th>
-                        <th>People</th>
+                        <th>Group/Team</th>
+                        <th>Batch</th>
                         <th>Status</th>
-                        <th class="text-center">Actions</th>
+                        <th class="text-center col-actions">Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
                     <tr x-cloak x-show="loading && items.length === 0">
-                        <td colspan="5" class="text-center text-muted py-4">Loading...</td>
+                        <td colspan="6" class="text-center text-muted py-4">Loading...</td>
                     </tr>
 
                     <tr x-cloak x-show="!loading && items.length === 0">
-                        <td colspan="5" class="text-center text-muted py-4">No research found.</td>
+                        <td colspan="6" class="text-center text-muted py-4">No research found.</td>
                     </tr>
 
                     <template x-for="item in items" :key="item.id">
@@ -112,15 +112,33 @@ $breadcrumbs = [
 
                         <td x-text="item.category_name"></td>
 
+                        <td style="max-width: 230px; white-space: normal;">
+                                <div class="table-user-name" x-text="item.team_name || 'No group/team'"></div>
+                                <div class="table-user-sub" x-text="Sobuj_authors(item)"></div>
+                                <div class="table-user-sub" x-show="item.supervisor_name" x-text="'Supervisor: ' + item.supervisor_name"></div>
+                            </td>
+                            <td x-text="item.batch_name || '-'"></td>
+
                         <td>
-                            <div class="table-user-name" x-text="Sobuj_authors(item)"></div>
-                            <div class="table-user-sub" x-text="item.supervisor_name ? 'Supervisor: ' + item.supervisor_name : 'No supervisor yet'"></div>
+                            <a :href="'<?= url('admin/research/pending.php?q=') ?>' + encodeURIComponent(item.code)" class="text-decoration-none"
+                                x-show="['requested', 'pending'].includes(item.status)" title="Open Pending Submissions to review it">
+                                <span class="badge-table" :class="Sobuj_statusBadge(item.status)">
+                                    <span x-text="Sobuj_statusText(item.status)"></span> <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                </span>
+                                <div class="table-user-sub">Click to review</div>
+                            </a>
+                            <span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"
+                                x-show="!['requested', 'pending'].includes(item.status)"></span>
                         </td>
 
-                        <td><span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span></td>
-
-                        <td>
+                        <td class="col-actions">
                             <div class="d-flex justify-content-center gap-1">
+                                <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id" class="table-btn-action" title="Full details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id + '#activity'" class="table-btn-action" title="Activity">
+                                    <i class="bi bi-clock-history"></i>
+                                </a>
                                 <a :href="'<?= url('admin/research/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
@@ -172,9 +190,10 @@ $breadcrumbs = [
 
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js?v=<?= filemtime(base_path('assets/admin_assets/js/research.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

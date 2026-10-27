@@ -36,6 +36,10 @@ class DepartmentController {
     // $id is null when adding and the department id when editing.
     public static function save($request, $id = null){
 
+        if (!multi_department()) {
+            return ['success' => false, 'errors' => [], 'message' => 'Departments cannot be added or changed. This project works for one department.'];
+        }
+
         if ($id !== null && !(new Department())->find((int) $id)) {
             return ['success' => false, 'errors' => [], 'message' => 'This department no longer exists.'];
         }
@@ -72,6 +76,10 @@ class DepartmentController {
 
     // Soft deletes a department, unless batches, teachers or students still use it.
     public static function delete($request){
+
+        if (!multi_department()) {
+            return ['success' => false, 'message' => 'Departments cannot be deleted. This project works for one department.'];
+        }
 
         $id    = (int) ($request['id'] ?? 0);
         $model = new Department();

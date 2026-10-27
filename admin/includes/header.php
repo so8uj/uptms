@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="<?= env('ASSET_URL') ?>/admin_assets/libs/bootstrap-icons/bootstrap-icons.css">
 
   <!-- Main Design System & Custom Stylesheet -->
-  <link rel="stylesheet" href="<?= env('ASSET_URL') ?>/admin_assets/css/main.css">
+  <link rel="stylesheet" href="<?= env('ASSET_URL') ?>/admin_assets/css/main.css?v=<?= filemtime(base_path('assets/admin_assets/css/main.css')) ?>">
 
   <!-- Alpine.js (local copy). "defer" is required so Alpine starts after the page HTML is ready. -->
   <script defer src="<?= env('ASSET_URL') ?>/admin_assets/libs/alpinejs/alpine.min.js"></script>

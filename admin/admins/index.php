@@ -13,6 +13,8 @@ $breadcrumbs = [
 
 ?>
 
+<?php $meId = (int) (App\Controllers\Auth::currentUser()['id'] ?? 0); ?>
+
 <div class="main-wrapper" x-data="Sobuj_userList('<?= url('api/users.php') ?>', 'admin')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
@@ -62,7 +64,7 @@ $breadcrumbs = [
                         <th>Phone</th>
                         <th>Last Login</th>
                         <th>Status</th>
-                        <th class="text-center">Actions</th>
+                        <th class="text-center col-actions">Actions</th>
                     </tr>
                 </thead>
 
@@ -102,11 +104,11 @@ $breadcrumbs = [
                                     x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
                             </td>
 
-                            <td>
+                            <td class="col-actions">
                                 <div class="d-flex justify-content-center gap-1">
 
-                                    <a :href="'<?= url('admin/admins/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action"
-                                        title="Edit">
+                                    <a :href="item.id == <?= $meId ?> ? '<?= url('admin/profile.php') ?>' : '<?= url('admin/admins/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action"
+                                        :title="item.id == <?= $meId ?> ? 'Edit Profile' : 'Edit'">
                                         <i class="bi bi-pencil"></i>
                                     </a>
 
@@ -161,7 +163,7 @@ $breadcrumbs = [
 
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js?v=<?= filemtime(base_path('assets/admin_assets/js/users.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

@@ -1,5 +1,8 @@
 <?php
 require_once(__DIR__ . '/../app/bootstrap.php');
+
+$me = App\Controllers\Auth::currentUser();
+
 require_once(base_path('admin/includes/header.php'));
 require_once(base_path('student/includes/sidebar.php'));
 
@@ -9,124 +12,94 @@ $breadcrumbs = [
     "Dashboard" => "",
 ];
 
-$metrics = [
-    ["label" => "Active Project", "value" => "01", "detail" => "Current semester work", "icon" => "bi-kanban", "color" => "primary"],
-    ["label" => "Pending Milestones", "value" => "03", "detail" => "Need submission", "icon" => "bi-flag", "color" => "warning"],
-    ["label" => "Documents", "value" => "06", "detail" => "Submitted & reviewed", "icon" => "bi-file-earmark-arrow-up", "color" => "danger"],
-    ["label" => "Supervisor Feedback", "value" => "04", "detail" => "Recent updates", "icon" => "bi-chat-left-text", "color" => "success"],
-];
-
-$projects = [
-    ["title" => "University Thesis Management System", "supervisor" => "Dr. Mahmud Hasan", "progress" => 72, "milestone" => "Requirement Analysis", "status" => "On Track"],
-    ["title" => "Smart Campus Resource Platform", "supervisor" => "Dr. Rezaul Karim", "progress" => 48, "milestone" => "System Design", "status" => "On Track"],
-    ["title" => "Machine Learning Based Crop Forecasting", "supervisor" => "Dr. Tahmina Akter", "progress" => 18, "milestone" => "Proposal Revision", "status" => "Needs Attention"],
-];
-
-$tasks = [
-    ["type" => "Milestone", "title" => "Submit requirement analysis report", "date" => "Sep 28, 2026", "icon" => "bi-flag"],
-    ["type" => "Document", "title" => "Upload project proposal draft", "date" => "Sep 30, 2026", "icon" => "bi-file-earmark-arrow-up"],
-    ["type" => "Feedback", "title" => "Review supervisor comments on prototype", "date" => "Oct 02, 2026", "icon" => "bi-chat-left-text"],
-];
+$projectUrl = url('student/project.php?id=');
+$researchUrl = url('student/research/my_research.php');
+$alertRole = 'student';
 ?>
 
-<div class="main-wrapper">
+<div class="main-wrapper" x-data="Sobuj_studentDashboard('<?= url('api/library.php') ?>', '<?= url('api/my_research.php') ?>', '<?= url('student/research/view.php?id=') ?>', '<?= url('student/research/index.php') ?>', '<?= url('api/research_options.php') ?>', '<?= url('api/project.php') ?>')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
-    <div class="row g-4 mb-4">
-        <?php foreach ($metrics as $metric): ?>
-            <div class="col-12 col-sm-6 col-xl-3">
-                <div class="card border-light shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="text-muted mb-2"><?= htmlspecialchars($metric['label']) ?></p>
-                                <h3 class="mb-1"><?= htmlspecialchars($metric['value']) ?></h3>
-                                <small class="text-<?= htmlspecialchars($metric['color']) ?>"><?= htmlspecialchars($metric['detail']) ?></small>
-                            </div>
-                            <div class="bg-<?= htmlspecialchars($metric['color']) ?> bg-opacity-10 text-<?= htmlspecialchars($metric['color']) ?> rounded-3 p-3">
-                                <i class="bi <?= htmlspecialchars($metric['icon']) ?> fs-4"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
+    <p class="text-muted">Welcome, <strong><?= htmlspecialchars($me['name']) ?></strong>.</p>
+
+    <?php require(base_path('includes/project/alerts.php')); ?>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card border-light shadow-sm p-3"><div class="small text-muted">Total research</div><div class="fs-4 fw-bold" x-text="counts.completed + counts.ongoing"></div></div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card border-light shadow-sm p-3"><div class="small text-muted">Ongoing research</div><div class="fs-4 fw-bold" x-text="counts.ongoing"></div></div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card border-light shadow-sm p-3"><div class="small text-muted">My research requests</div><div class="fs-4 fw-bold" x-text="mineTotal"></div></div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card border-light shadow-sm p-3"><div class="small text-muted">My projects</div><div class="fs-4 fw-bold" x-text="projectTotal"></div></div>
+        </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-12 col-xl-8">
-            <div class="card border-light shadow-sm">
-                <div class="card-header">
-                    <h5 class="card-title">My Project Progress</h5>
-                    <a href="<?= url('student/projects.php') ?>" class="btn btn-sm btn-light">View All</a>
-                </div>
-                <div class="table-responsive">
-                    <table class="table-custom">
-                        <thead>
-                            <tr>
-                                <th>Project</th>
-                                <th>Supervisor</th>
-                                <th>Progress</th>
-                                <th>Milestone</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($projects as $project): ?>
-                                <tr>
-                                    <td>
-                                        <div class="table-user-name"><?= htmlspecialchars($project['title']) ?></div>
-                                    </td>
-                                    <td><?= htmlspecialchars($project['supervisor']) ?></td>
-                                    <td style="min-width: 130px;">
-                                        <div class="small mb-1"><?= $project['progress'] ?>%</div>
-                                        <div class="progress" style="height: 6px;">
-                                            <div class="progress-bar bg-primary" style="width: <?= $project['progress'] ?>%;"></div>
-                                        </div>
-                                    </td>
-                                    <td><?= htmlspecialchars($project['milestone']) ?></td>
-                                    <td>
-                                        <?php if ($project['status'] === 'Needs Attention'): ?>
-                                            <span class="badge-table pending">Needs Attention</span>
-                                        <?php else: ?>
-                                            <span class="badge-table success">On Track</span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="card border-light shadow-sm">
+        <div class="card-header">
+            <h5 class="card-title">Search Research</h5>
         </div>
+        <div class="card-body" @click.outside="showSuggestions = false">
 
-        <div class="col-12 col-xl-4">
-            <div class="card border-light shadow-sm h-100">
-                <div class="card-header">
-                    <h5 class="card-title">Upcoming Tasks</h5>
-                    <i class="bi bi-clock-history text-muted"></i>
+            <div>
+                <div class="table-search-box" style="max-width: none;">
+                    <i class="bi bi-search table-search-icon"></i>
+                    <input type="text" class="table-search-input" placeholder="Search by title, code, tag, student or keyword..."
+                        x-model="search" autocomplete="off"
+                        @input.debounce.300ms="suggest()"
+                        @focus="showSuggestions = suggestions.length > 0"
+                        @keydown.arrow-down.prevent="move(1)"
+                        @keydown.arrow-up.prevent="move(-1)"
+                        @keydown.escape="showSuggestions = false"
+                        @keydown.enter.prevent="submit()">
                 </div>
-                <div class="list-group list-group-flush">
-                    <?php foreach ($tasks as $task): ?>
-                        <a href="#" class="list-group-item list-group-item-action px-0">
-                            <div class="d-flex align-items-start gap-3">
-                                <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2">
-                                    <i class="bi <?= htmlspecialchars($task['icon']) ?>"></i>
+
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <?php require(base_path('includes/research/search_filters.php')); ?>
+                </div>
+
+                <div class="list-group mt-2" x-cloak x-show="showSuggestions">
+
+                    <div class="list-group-item text-muted small" x-show="suggestions.length === 0">No research found for "<span x-text="search"></span>".</div>
+
+                    <template x-for="(item, index) in suggestions" :key="item.id">
+                        <a :href="'<?= url('student/research/view.php?id=') ?>' + item.id" class="list-group-item list-group-item-action"
+                            :class="index === active ? 'active' : ''">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
+                                <div>
+                                    <div class="fw-semibold" x-text="item.title"></div>
+                                    <div class="small opacity-75" x-text="item.code + ' · ' + item.type + ' · ' + item.category_name + ' · ' + item.year"></div>
+                                    <div class="small opacity-75 mt-1" x-text="overview(item)"></div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <div class="small text-muted"><?= htmlspecialchars($task['type']) ?> · <?= htmlspecialchars($task['date']) ?></div>
-                                    <div class="fw-semibold text-dark"><?= htmlspecialchars($task['title']) ?></div>
-                                </div>
+                                <span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span>
                             </div>
                         </a>
-                    <?php endforeach; ?>
+                    </template>
+
+                    <button type="button" class="list-group-item list-group-item-action text-primary small" x-show="suggestionTotal > suggestions.length" @click="showAll()">
+                        Show all <span x-text="suggestionTotal"></span> results in the Research Library
+                    </button>
                 </div>
             </div>
+
+            <div class="small text-muted mt-2">
+                Type to see suggestions, choose a category or tags to narrow them, and press Enter to see all results.
+                <a href="<?= url('student/research/index.php') ?>">Browse the whole library</a>
+            </div>
+
         </div>
     </div>
 </div>
+
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js?v=<?= filemtime(base_path('assets/admin_assets/js/research.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/project.js?v=<?= filemtime(base_path('assets/admin_assets/js/project.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

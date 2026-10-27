@@ -66,7 +66,7 @@ function Sobuj_photoUrl(path) {
 // PART 2 - The list page (admins, teachers or students)
 // =====================================================================
 
-function Sobuj_userList(apiUrl, role) {
+function Sobuj_userList(apiUrl, role, batchesUrl) {
     return {
 
         items: [],
@@ -78,6 +78,10 @@ function Sobuj_userList(apiUrl, role) {
 
         search: '',
         status: '',
+        batchId: '',
+        batches: [],
+        sort: '',
+        dir: 'asc',
 
         toast: { text: '', type: 'success' },
         toastTimer: null,
@@ -88,6 +92,50 @@ function Sobuj_userList(apiUrl, role) {
             if (message) {
                 this.notify(message);
             }
+
+            // a link from the batch list opens this page with ?batch_id=3
+            this.batchId = new URLSearchParams(window.location.search).get('batch_id') || '';
+
+            this.load();
+            this.loadBatches();
+        },
+
+        async loadBatches() {
+            if (!batchesUrl) {
+                return;
+            }
+            const res = await Sobuj_api(batchesUrl);
+            if (res.ok) {
+                this.batches = res.data.batches;
+
+                // the options exist now: set the chosen batch again so the dropdown shows it
+                const chosen = this.batchId;
+                this.batchId = '';
+                this.$nextTick(() => { this.batchId = chosen; });
+            }
+        },
+
+        // a click on a column title: sort by it, a second click turns the direction
+        setSort(key) {
+            if (this.sort === key) {
+                this.dir = this.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                this.sort = key;
+                this.dir = 'asc';
+            }
+            this.page = 1;
+            this.load();
+        },
+
+        sortIcon(key) {
+            if (this.sort !== key) {
+                return 'bi-arrow-down-up text-muted';
+            }
+            return this.dir === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
+        },
+
+        batchChanged() {
+            this.page = 1;
             this.load();
         },
 
@@ -112,7 +160,7 @@ function Sobuj_userList(apiUrl, role) {
             const myRequest = ++this.requestId;
             this.loading = true;
 
-            const res = await Sobuj_fetchUsers(apiUrl, role, { q: this.search, status: this.status, page: this.page });
+            const res = await Sobuj_fetchUsers(apiUrl, role, { q: this.search, status: this.status, batch_id: this.batchId, sort: this.sort, dir: this.dir, page: this.page });
 
             if (myRequest !== this.requestId) {
                 return;
@@ -151,7 +199,7 @@ function Sobuj_userList(apiUrl, role) {
         },
 
         async remove(item) {
-            if (!confirm('Delete "' + item.name + '"?')) {
+            if (!await Sobuj_confirm('Delete "' + item.name + '"?', { title: 'Delete', confirmText: 'Delete', danger: true })) {
                 return;
             }
 
@@ -171,7 +219,7 @@ function Sobuj_userList(apiUrl, role) {
 const Sobuj_userFields = {
     admin:   ['name', 'email', 'phone', 'password', 'status'],
     teacher: ['name', 'email', 'phone', 'password', 'status', 'employee_id', 'department_id', 'designation',
-              'specialization', 'research_area', 'can_add_research'],
+              'specialization', 'research_area', 'research_management'],
     student: ['name', 'email', 'phone', 'password', 'status', 'student_id', 'department_id', 'batch_id', 'gender',
               'cgpa', 'completed_credit_hours'],
 };
@@ -181,7 +229,7 @@ function Sobuj_userForm(apiUrl, optionsUrl, role, id, listUrl) {
 
         form: {
             name: '', email: '', phone: '', password: '', status: '1',
-            employee_id: '', department_id: '', designation: '', specialization: '', research_area: '', can_add_research: '0',
+            employee_id: '', department_id: '', designation: '', specialization: '', research_area: '', research_management: '0',
             student_id: '', batch_id: '', gender: '', cgpa: '', completed_credit_hours: '',
         },
         errors: {},

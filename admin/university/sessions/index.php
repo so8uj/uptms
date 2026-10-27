@@ -20,6 +20,8 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/university_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
@@ -59,34 +61,28 @@ $breadcrumbs = [
                         <thead>
                             <tr>
                                 <th>Session</th>
-                                <th>Period</th>
                                 <th>Current</th>
                                 <th>Batches</th>
                                 <th>Status</th>
-                                <th class="text-center">Actions</th>
+                                <th class="text-center col-actions">Actions</th>
                             </tr>
                         </thead>
 
                         <tbody>
 
                             <tr x-cloak x-show="loading && items.length === 0">
-                                <td colspan="6" class="text-center text-muted py-4">Loading...</td>
+                                <td colspan="5" class="text-center text-muted py-4">Loading...</td>
                             </tr>
 
                             <tr x-cloak x-show="!loading && items.length === 0">
-                                <td colspan="6" class="text-center text-muted py-4">No sessions found.</td>
+                                <td colspan="5" class="text-center text-muted py-4">No sessions found.</td>
                             </tr>
 
                             <template x-for="item in items" :key="item.id">
                                 <tr>
                                     <td>
                                         <div class="table-user-name" x-text="item.name"></div>
-                                        <div class="table-user-sub" x-text="item.term_type.charAt(0).toUpperCase() + item.term_type.slice(1) + ' · ' + item.year"></div>
-                                    </td>
-
-                                    <td>
-                                        <div class="table-user-name" x-text="item.start_date"></div>
-                                        <div class="table-user-sub" x-text="'to ' + item.end_date"></div>
+                                        <div class="table-user-sub" x-text="item.year"></div>
                                     </td>
 
                                     <td>
@@ -100,7 +96,7 @@ $breadcrumbs = [
                                             x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
                                     </td>
 
-                                    <td>
+                                    <td class="col-actions">
                                         <div class="d-flex justify-content-center gap-1">
 
                                             <button type="button" class="table-btn-action" title="Edit" @click="edit(item)">
@@ -170,25 +166,9 @@ $breadcrumbs = [
                             Name <span class="text-danger">*</span>
                         </label>
 
-                        <input type="text" class="form-control-custom" id="itemName" placeholder="For example Spring 2026 or 2026"
+                        <input type="text" class="form-control-custom" id="itemName" placeholder="For example Spring 2026"
                             x-model="form.name">
                         <template x-for="message in (errors.name || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="itemType" class="form-label-custom">
-                            Type <span class="text-danger">*</span>
-                        </label>
-
-                        <select class="form-select-custom" id="itemType" x-model="form.term_type">
-                            <option value="yearly">Yearly</option>
-                            <option value="semester">Semester</option>
-                            <option value="trimester">Trimester</option>
-                        </select>
-                        
-                        <template x-for="message in (errors.term_type || [])">
                             <div class="text-danger small mt-1" x-text="message"></div>
                         </template>
                     </div>
@@ -206,30 +186,6 @@ $breadcrumbs = [
                     </div>
 
                     <div class="mb-3">
-                        <label for="itemStart" class="form-label-custom">
-                            Start date <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="date" class="form-control-custom" id="itemStart" placeholder="" x-model="form.start_date">
-                        
-                        <template x-for="message in (errors.start_date || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="itemEnd" class="form-label-custom">
-                            End date <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="date" class="form-control-custom" id="itemEnd" placeholder="" x-model="form.end_date">
-                        
-                        <template x-for="message in (errors.end_date || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                    </div>
-
-                    <div class="mb-3">
                         <label for="itemCurrent" class="form-label-custom">
                             Current session
                         </label>
@@ -238,7 +194,7 @@ $breadcrumbs = [
                             <option value="0">No</option>
                             <option value="1">Yes</option>
                         </select>
-                        <small class="text-muted">Only one session of each type can be current. Choosing Yes replaces the old one.</small>
+                        <small class="text-muted">Only one session can be current. Choosing Yes replaces the old one.</small>
                         <template x-for="message in (errors.is_current || [])">
                             <div class="text-danger small mt-1" x-text="message"></div>
                         </template>
@@ -278,9 +234,10 @@ $breadcrumbs = [
 
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
 <script>
 function Sobuj_fetchSessions(apiUrl, filters) {
     return Sobuj_api(apiUrl + '?' + new URLSearchParams(filters));
@@ -307,7 +264,7 @@ function Sobuj_sessionPage(apiUrl) {
         search: '',
         status: '',
 
-        form: { id: null, name: '', term_type: 'semester', year: new Date().getFullYear(), start_date: '', end_date: '', is_current: '0', status: '1' },
+        form: { id: null, name: '', year: new Date().getFullYear(), is_current: '0', status: '1' },
         errors: {},
         saving: false,
 
@@ -393,10 +350,7 @@ function Sobuj_sessionPage(apiUrl) {
             this.form = {
                 id: item.id,
                 name: item.name,
-                term_type: item.term_type,
                 year: String(item.year),
-                start_date: item.start_date,
-                end_date: item.end_date,
                 is_current: String(item.is_current),
                 status: String(item.status),
             };
@@ -404,7 +358,7 @@ function Sobuj_sessionPage(apiUrl) {
 
         resetForm() {
             this.errors = {};
-            this.form = { id: null, name: '', term_type: 'semester', year: new Date().getFullYear(), start_date: '', end_date: '', is_current: '0', status: '1' };
+            this.form = { id: null, name: '', year: new Date().getFullYear(), is_current: '0', status: '1' };
         },
 
         async save() {
@@ -430,7 +384,7 @@ function Sobuj_sessionPage(apiUrl) {
         },
 
         async remove(item) {
-            if (!confirm('Delete the session "' + item.name + '"?')) {
+            if (!await Sobuj_confirm('Delete the session "' + item.name + '"?', { title: 'Delete session', confirmText: 'Delete', danger: true })) {
                 return;
             }
 

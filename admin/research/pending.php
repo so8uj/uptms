@@ -21,6 +21,8 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/research_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
@@ -68,7 +70,7 @@ $breadcrumbs = [
                         <th>Category</th>
                         <th>Wants to be</th>
                         <th>Status</th>
-                        <th class="text-center">Actions</th>
+                        <th class="text-center col-actions">Actions</th>
                     </tr>
                 </thead>
 
@@ -100,14 +102,25 @@ $breadcrumbs = [
 
                         <td><span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span></td>
 
-                        <td>
-                            <div class="d-flex justify-content-center gap-1">
-                                <button type="button" class="table-btn-action" title="Approve" @click="openReview(item, 'approve')">
-                                    <i class="bi bi-check-lg"></i>
+                        <td class="col-actions" style="min-width: 300px;">
+                            <div class="d-flex flex-wrap justify-content-end gap-1 mb-1">
+                                <button type="button" class="btn btn-success btn-sm" title="Accept this research" @click="openReview(item, 'approve')">
+                                    <i class="bi bi-check-lg me-1"></i> Approve
                                 </button>
-                                <button type="button" class="table-btn-action delete" title="Reject" @click="openReview(item, 'reject')">
-                                    <i class="bi bi-x-lg"></i>
+                                <button type="button" class="btn btn-warning btn-sm" title="Send it back: the owner can fix it and send it again" @click="openReview(item, 'correction')">
+                                    <i class="bi bi-pencil-square me-1"></i> Correction
                                 </button>
+                                <button type="button" class="btn btn-danger btn-sm" title="Refuse it for good: nothing more can be done" @click="openReview(item, 'reject')">
+                                    <i class="bi bi-x-lg me-1"></i> Reject
+                                </button>
+                            </div>
+                            <div class="d-flex flex-wrap justify-content-end gap-1">
+                                <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id" class="btn btn-light btn-sm" title="Full details of this research">
+                                    <i class="bi bi-eye me-1"></i> View
+                                </a>
+                                <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id + '#activity'" class="btn btn-light btn-sm" title="Everything that happened to this research">
+                                    <i class="bi bi-clock-history me-1"></i> Activity
+                                </a>
                             </div>
                         </td>
                         </tr>
@@ -153,83 +166,12 @@ $breadcrumbs = [
 
     </div>
 
-    <div x-cloak x-show="review.open" class="position-fixed top-0 start-0 w-100 h-100"
-        style="background: rgba(0, 0, 0, 0.45); z-index: 2000;" @keydown.escape.window="closeReview()">
+    <?php require(base_path('includes/research/review_modal.php')); ?>
 
-        <div class="card shadow p-4 position-absolute top-50 start-50 translate-middle"
-            style="max-width: 560px; width: calc(100% - 2rem); max-height: 92vh; overflow-y: auto;">
-
-            <template x-if="review.item">
-                <div>
-                    <div class="small text-muted" x-text="review.item.code + ' · ' + review.item.type + ' · ' + review.item.category_name"></div>
-                    <h5 class="mb-2" x-text="review.item.title"></h5>
-                    <p class="text-muted small mb-1" x-text="review.item.abstract"></p>
-                    <div class="small mb-3">Submitted by <strong x-text="review.item.creator_name"></strong>,
-                        wants it as <strong x-text="Sobuj_statusText(review.item.target_status)"></strong>.</div>
-                </div>
-            </template>
-
-            <div class="btn-group w-100 mb-3" role="group">
-                <button type="button" class="btn" :class="review.decision === 'approve' ? 'btn-primary' : 'btn-light'"
-                    @click="review.decision = 'approve'; review.errors = {}">Approve</button>
-                <button type="button" class="btn" :class="review.decision === 'reject' ? 'btn-danger' : 'btn-light'"
-                    @click="review.decision = 'reject'; review.errors = {}">Reject</button>
-            </div>
-
-            <div x-show="review.decision === 'approve'">
-
-                <div class="mb-3">
-                    <label for="reviewStatus" class="form-label-custom">It becomes</label>
-                    <select class="form-select-custom" id="reviewStatus" x-model="review.status">
-                        <option value="ongoing">Ongoing</option>
-                        <option value="completed">Completed</option>
-                    </select>
-                    <template x-for="message in (review.errors.status || [])">
-                        <div class="text-danger small mt-1" x-text="message"></div>
-                    </template>
-                </div>
-
-                <div class="mb-3">
-                    <label for="reviewSupervisor" class="form-label-custom">
-                        Supervisor <span class="text-danger" x-show="review.status === 'ongoing'">*</span>
-                    </label>
-                    <select class="form-select-custom" id="reviewSupervisor" x-model="review.supervisor_id">
-                        <option value="">No supervisor</option>
-                        <template x-for="teacher in options.teachers" :key="teacher.id">
-                            <option :value="String(teacher.id)" x-text="teacher.name + (teacher.employee_id ? ' (' + teacher.employee_id + ')' : '')"></option>
-                        </template>
-                    </select>
-                    <template x-for="message in (review.errors.supervisor_id || [])">
-                        <div class="text-danger small mt-1" x-text="message"></div>
-                    </template>
-                </div>
-
-            </div>
-
-            <div class="mb-3">
-                <label for="reviewNote" class="form-label-custom">
-                    Note <span x-text="review.decision === 'reject' ? '(the reason, the student or teacher will see it)' : '(optional)'"></span>
-                    <span class="text-danger" x-show="review.decision === 'reject'">*</span>
-                </label>
-                <textarea class="form-control-custom" id="reviewNote" rows="3" maxlength="500" x-model="review.note"></textarea>
-                <template x-for="message in (review.errors.note || [])">
-                    <div class="text-danger small mt-1" x-text="message"></div>
-                </template>
-            </div>
-
-            <div class="d-flex gap-2 justify-content-end">
-                <button type="button" class="btn btn-light" @click="closeReview()">Cancel</button>
-                <button type="button" class="btn" :class="review.decision === 'reject' ? 'btn-danger' : 'btn-primary'"
-                    :disabled="review.saving" @click="submitReview()"
-                    x-text="review.decision === 'reject' ? 'Reject research' : 'Approve research'"></button>
-            </div>
-
-        </div>
-    </div>
-
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js?v=<?= filemtime(base_path('assets/admin_assets/js/research.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

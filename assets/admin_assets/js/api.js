@@ -52,6 +52,11 @@ async function Sobuj_api(url, options = {}) {
         window.location.href = (appUrl ? appUrl.content : '') + '/index.php';
     }
 
+    // Something was saved: the numbers on the sidebar menu may be different now, so they ask again (menu_counts.js).
+    if (response.ok && settings.method !== 'GET') {
+        window.dispatchEvent(new CustomEvent('data-changed'));
+    }
+
     return { ok: response.ok, status: response.status, data };
 }
 
@@ -70,3 +75,91 @@ function Sobuj_takeMessage() {
         return null;
     }
 }
+
+
+// ---------------------------------------------------------------------
+// The question and the message box of the project. The browser's own popups (alert, confirm, prompt) are not used.
+//
+//   if (await Sobuj_confirm('Delete "Test"?', { title: 'Delete', confirmText: 'Delete', danger: true })) { ... }
+//   Sobuj_alert('Something to read.');
+// ---------------------------------------------------------------------
+function Sobuj_popup(message, options, withCancel) {
+    return new Promise(function (resolve) {
+        const settings = Object.assign({ title: withCancel ? 'Please confirm' : 'Notice', confirmText: withCancel ? 'Yes' : 'OK', cancelText: 'Cancel', danger: false }, options || {});
+
+        const overlay = document.createElement('div');
+        overlay.className = 'sobuj-popup-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+
+        const box = document.createElement('div');
+        box.className = 'sobuj-popup card shadow';
+
+        const title = document.createElement('h5');
+        title.className = 'mb-2';
+        title.textContent = settings.title;
+
+        const text = document.createElement('p');
+        text.className = 'mb-4 sobuj-popup-text';
+        text.textContent = message;   // text, not HTML: a name typed by a user cannot add markup
+
+        const buttons = document.createElement('div');
+        buttons.className = 'd-flex justify-content-end gap-2';
+
+        function close(answer) {
+            document.removeEventListener('keydown', onKey);
+            overlay.remove();
+            resolve(answer);
+        }
+
+        function onKey(event) {
+            if (event.key === 'Escape') {
+                close(false);
+            }
+        }
+
+        if (withCancel) {
+            const cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.className = 'btn btn-light';
+            cancel.textContent = settings.cancelText;
+            cancel.addEventListener('click', function () { close(false); });
+            buttons.appendChild(cancel);
+        }
+
+        const ok = document.createElement('button');
+        ok.type = 'button';
+        ok.className = 'btn ' + (settings.danger ? 'btn-danger' : 'btn-primary');
+        ok.textContent = settings.confirmText;
+        ok.addEventListener('click', function () { close(true); });
+        buttons.appendChild(ok);
+
+        // a click on the dark area behind the box means "no"
+        overlay.addEventListener('mousedown', function (event) {
+            if (event.target === overlay) {
+                close(false);
+            }
+        });
+
+        box.append(title, text, buttons);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        document.addEventListener('keydown', onKey);
+        ok.focus();
+    });
+}
+
+// Asks a question. Answers true (the button) or false (Cancel, Escape or a click outside).
+function Sobuj_confirm(message, options) {
+    return Sobuj_popup(message, options, true);
+}
+
+// Shows a message with one button.
+function Sobuj_alert(message, options) {
+    return Sobuj_popup(message, options, false);
+}
+
+// If any script still calls the browser's alert(), the message opens in the same box.
+window.alert = function (message) {
+    Sobuj_alert(String(message));
+};

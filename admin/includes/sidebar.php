@@ -1,9 +1,13 @@
+<?php
+// A teacher with research management opens this panel too, but only the research, batch and group/team pages.
+$isAdminUser = (App\Controllers\Auth::currentUser()['role'] ?? '') === 'admin';
+?>
 <div class="sidebar-wrapper">
 
     <aside id="sidebar">
 
         <!-- Brand Logo -->
-        <a href="<?= url('admin/index.php') ?>" class="sidebar-brand">
+        <a href="<?= url($isAdminUser ? 'admin/index.php' : 'teacher/index.php') ?>" class="sidebar-brand">
             <img src="<?= env('ASSET_URL') ?>/images/wub-logo.png" alt="WORLD UNIVERSITY OF BANGLADESH" width="100%" /> 
         </a>
 
@@ -19,7 +23,7 @@
                 <ul class="sidebar-menu-list">
 
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('admin/index.php') ?>"
+                        <a href="<?= url($isAdminUser ? 'admin/index.php' : 'teacher/index.php') ?>"
                             class="sidebar-menu-link <?= (current_folder() === 'admin' && current_file() === 'index.php') ? 'active' : '' ?>">
                             <i class="bi bi-speedometer2"></i>
                             <span>Dashboard</span>
@@ -41,141 +45,11 @@
                 <ul class="sidebar-menu-list">
 
                     <li class="sidebar-menu-item">
-
-                        <a class="sidebar-menu-link <?= (current_folder() === 'research' && current_file() !== 'ongoing.php') ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#researchLibraryMenu" role="button"
-                            aria-expanded="<?= (current_folder() === 'research' && current_file() !== 'ongoing.php') ? 'true' : 'false' ?>"
-                            aria-controls="researchLibraryMenu">
+                        <a href="<?= url('admin/research/index.php') ?>"
+                            class="sidebar-menu-link <?= (current_folder() === 'research') ? 'active' : '' ?>">
                             <i class="bi bi-journal-bookmark"></i>
                             <span>Research Library</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
-                        </a>
-
-                        <div class="collapse <?= (current_folder() === 'research' && current_file() !== 'ongoing.php') ? 'show' : '' ?>"
-                            id="researchLibraryMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'research' && current_file() === 'index.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/research/index.php') ?>">
-                                        Research Library
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'research' && current_file() === 'manage.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/research/manage.php?action=create') ?>">
-                                        Add Thesis / Research
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'research' && current_file() === 'pending.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/research/pending.php') ?>">
-                                        Pending Submissions
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'research' && current_file() === 'categories.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/research/categories.php') ?>">
-                                        Research Categories
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'research' && current_file() === 'tags.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/research/tags.php') ?>">
-                                        Research Tags
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </li>
-
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('admin/research/ongoing.php') ?>"
-                            class="sidebar-menu-link <?= (current_folder() === 'research' && current_file() === 'ongoing.php') ? 'active' : '' ?>">
-                            <i class="bi bi-activity"></i>
-                            <span>Ongoing Research</span>
-                        </a>
-                    </li>
-
-                </ul>
-
-            </div>
-
-
-            <!-- Project Management -->
-            <div class="sidebar-menu-section">
-
-                <div class="sidebar-menu-title">
-                    Project Management
-                </div>
-
-                <ul class="sidebar-menu-list">
-
-                    <li class="sidebar-menu-item">
-
-                        <a class="sidebar-menu-link <?= (current_folder() === 'projects') ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#projectMenu" role="button"
-                            aria-expanded="<?= (current_folder() === 'projects') ? 'true' : 'false' ?>"
-                            aria-controls="projectMenu">
-                            <i class="bi bi-kanban"></i>
-                            <span>Projects</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
-                        </a>
-
-                        <div class="collapse <?= (current_folder() === 'projects') ? 'show' : '' ?>" id="projectMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'projects' && current_file() === 'index.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/projects/index.php') ?>">
-                                        All Projects
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'projects' && current_file() === 'manage.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/projects/manage.php?action=create') ?>">
-                                        Add Project
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'projects' && current_file() === 'proposals.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/projects/proposals.php') ?>">
-                                        Project Proposals
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'projects' && current_file() === 'pending.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/projects/pending.php') ?>">
-                                        Pending Proposals
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'projects' && current_file() === 'milestones.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/projects/milestones.php') ?>">
-                                        Milestones
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'projects' && current_file() === 'progress.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/projects/progress.php') ?>">
-                                        Project Progress
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </li>
-
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('admin/teams/index.php') ?>"
-                            class="sidebar-menu-link <?= (current_folder() === 'teams') ? 'active' : '' ?>">
-                            <i class="bi bi-people"></i>
-                            <span>Project Teams</span>
+                            <span class="sidebar-menu-badge ms-auto" data-menu-count="new_requests" hidden></span>
                         </a>
                     </li>
 
@@ -194,56 +68,12 @@
                 <ul class="sidebar-menu-list">
 
                     <li class="sidebar-menu-item">
-
-                        <a class="sidebar-menu-link <?= (in_array(current_folder(), ['departments', 'batches', 'sessions', 'teachers', 'students'])) ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#universityMenu" role="button"
-                            aria-expanded="<?= (in_array(current_folder(), ['departments', 'batches', 'sessions', 'teachers', 'students'])) ? 'true' : 'false' ?>"
-                            aria-controls="universityMenu">
+                        <a href="<?= url($isAdminUser ? 'admin/university/teachers/index.php' : 'admin/university/batches/index.php') ?>"
+                            class="sidebar-menu-link <?= (in_array(current_folder(), ['departments', 'batches', 'sessions', 'teachers', 'students', 'teams'])) ? 'active' : '' ?>">
                             <i class="bi bi-building"></i>
-                            <span>University Structure</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
+                            <span>University</span>
+                            <span class="sidebar-menu-badge ms-auto" data-menu-count="team_requests" hidden></span>
                         </a>
-
-                        <div class="collapse <?= (in_array(current_folder(), ['departments', 'batches', 'sessions', 'teachers', 'students'])) ? 'show' : '' ?>"
-                            id="universityMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'teachers') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/university/teachers/index.php') ?>">
-                                        Teacher Management
-                                    </a>
-                                </li>
-
-
-                                <li class="<?= (current_folder() === 'students') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/university/students/index.php') ?>">
-                                        Student Management
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'departments') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/university/departments/index.php') ?>">
-                                        Department Management
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'batches') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/university/batches/index.php') ?>">
-                                        Batch Management
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'sessions') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/university/sessions/index.php') ?>">
-                                        Academic Sessions
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
                     </li>
 
                 </ul>
@@ -251,53 +81,7 @@
             </div>
 
 
-            <!-- Documents -->
-            <div class="sidebar-menu-section">
-
-                <div class="sidebar-menu-title">
-                    Project Files
-                </div>
-
-                <ul class="sidebar-menu-list">
-
-                    <li class="sidebar-menu-item">
-
-                        <a class="sidebar-menu-link <?= (current_folder() === 'documents') ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#documentMenu" role="button"
-                            aria-expanded="<?= (current_folder() === 'documents') ? 'true' : 'false' ?>"
-                            aria-controls="documentMenu">
-                            <i class="bi bi-file-earmark-text"></i>
-                            <span>Documents</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
-                        </a>
-
-                        <div class="collapse <?= (current_folder() === 'documents') ? 'show' : '' ?>" id="documentMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'documents' && current_file() === 'index.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/documents/index.php') ?>">
-                                        All Documents
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'documents' && current_file() === 'pending.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/documents/pending.php') ?>">
-                                        Pending Documents
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
-                    </li>
-
-                </ul>
-
-            </div>
-
-
+            <?php if ($isAdminUser): ?>
             <!-- Evaluation -->
             <div class="sidebar-menu-section">
 
@@ -308,43 +92,11 @@
                 <ul class="sidebar-menu-list">
 
                     <li class="sidebar-menu-item">
-
-                        <a class="sidebar-menu-link <?= (current_folder() === 'evaluation') ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#evaluationMenu" role="button"
-                            aria-expanded="<?= (current_folder() === 'evaluation') ? 'true' : 'false' ?>"
-                            aria-controls="evaluationMenu">
+                        <a href="<?= url('admin/evaluation/index.php') ?>"
+                            class="sidebar-menu-link <?= (current_folder() === 'evaluation') ? 'active' : '' ?>">
                             <i class="bi bi-clipboard-check"></i>
                             <span>Evaluation</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                         </a>
-
-                        <div class="collapse <?= (current_folder() === 'evaluation') ? 'show' : '' ?>"
-                            id="evaluationMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'evaluation' && current_file() === 'projects.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/evaluation/projects.php') ?>">
-                                        Project Evaluation
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'evaluation' && current_file() === 'thesis.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/evaluation/thesis.php') ?>">
-                                        Thesis Evaluation
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'evaluation' && current_file() === 'criteria.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/evaluation/criteria.php') ?>">
-                                        Evaluation Criteria
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
                     </li>
 
                 </ul>
@@ -378,54 +130,25 @@
             <div class="sidebar-menu-section">
 
                 <div class="sidebar-menu-title">
-                    Reports & Analytics
+                    Reports &amp; Analytics
                 </div>
 
                 <ul class="sidebar-menu-list">
 
                     <li class="sidebar-menu-item">
-
-                        <a class="sidebar-menu-link <?= (current_folder() === 'reports') ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#reportsMenu" role="button"
-                            aria-expanded="<?= (current_folder() === 'reports') ? 'true' : 'false' ?>"
-                            aria-controls="reportsMenu">
-                            <i class="bi bi-bar-chart-line"></i>
+                        <a href="<?= url('admin/reports/index.php') ?>"
+                            class="sidebar-menu-link <?= (current_folder() === 'reports') ? 'active' : '' ?>">
+                            <i class="bi bi-graph-up"></i>
                             <span>Reports</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
                         </a>
-
-                        <div class="collapse <?= (current_folder() === 'reports') ? 'show' : '' ?>" id="reportsMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'reports' && current_file() === 'projects.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/reports/projects.php') ?>">
-                                        Project Reports
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'reports' && current_file() === 'thesis.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/reports/thesis.php') ?>">
-                                        Thesis Reports
-                                    </a>
-                                </li>
-
-                                <li class="<?= (current_folder() === 'reports' && current_file() === 'research.php') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/reports/research.php') ?>">
-                                        Research Reports
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
                     </li>
 
                 </ul>
 
             </div>
 
+
+            <?php endif; ?>
 
             <!-- System -->
             <div class="sidebar-menu-section">
@@ -436,32 +159,24 @@
 
                 <ul class="sidebar-menu-list">
 
+                    <?php if ($isAdminUser): ?>
                     <li class="sidebar-menu-item">
 
-                        <a class="sidebar-menu-link <?= (current_folder() === 'settings') ? '' : 'collapsed' ?>"
-                            data-bs-toggle="collapse" href="#systemMenu" role="button"
-                            aria-expanded="<?= (current_folder() === 'settings') ? 'true' : 'false' ?>"
-                            aria-controls="systemMenu">
+                        <a href="<?= url('admin/settings/index.php') ?>"
+                            class="sidebar-menu-link <?= (current_folder() === 'settings') ? 'active' : '' ?>">
                             <i class="bi bi-gear"></i>
-                            <span>System Settings</span>
-                            <i class="bi bi-chevron-down ms-auto submenu-arrow"></i>
+                            <span>Settings</span>
                         </a>
 
-                        <div class="collapse <?= (current_folder() === 'settings') ? 'show' : '' ?>" id="systemMenu">
-
-                            <ul class="sidebar-submenu">
-
-                                <li class="<?= (current_folder() === 'settings') ? 'active' : '' ?>">
-                                    <a href="<?= url('admin/settings/index.php') ?>">
-                                        Settings
-                                    </a>
-                                </li>
-
-                            </ul>
-
-                        </div>
-
                     </li>
+                    <?php else: ?>
+                    <li class="sidebar-menu-item">
+                        <a href="<?= url('teacher/profile.php') ?>" class="sidebar-menu-link">
+                            <i class="bi bi-person"></i>
+                            <span>My Profile</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
 
                     <li class="sidebar-menu-item">
                         <a href="<?= url('logout.php') ?>" class="sidebar-menu-link">

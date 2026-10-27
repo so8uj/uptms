@@ -20,8 +20,12 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/university_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
+
+    <?php $importType = 'batches'; require(base_path('includes/import/panel.php')); ?>
 
     <div class="row g-4">
 
@@ -50,6 +54,11 @@ $breadcrumbs = [
                             </ul>
                         </div>
 
+                        <button type="button" class="btn btn-outline-primary" @click="$dispatch('toggle-import')">
+                            <i class="bi bi-file-earmark-arrow-up me-1"></i>
+                            Import CSV
+                        </button>
+
                     </div>
                 </div>
 
@@ -60,9 +69,9 @@ $breadcrumbs = [
                             <tr>
                                 <th>Batch</th>
                                 <th>Department</th>
-                                <th>Current Term</th>
+                                <th>Session</th>
                                 <th>Status</th>
-                                <th class="text-center">Actions</th>
+                                <th class="text-center col-actions">Actions</th>
                             </tr>
                         </thead>
 
@@ -80,16 +89,18 @@ $breadcrumbs = [
                                 <tr>
                                     <td>
                                         <div class="table-user-name" x-text="item.name"></div>
-                                        <div class="table-user-sub"
-                                            x-text="item.code + ' · ' + item.student_count + (item.student_count == 1 ? ' student' : ' students')"></div>
+                                        <div class="table-user-sub">
+                                            <span x-text="item.code + ' · '"></span>
+                                            <a :href="'<?= url('admin/university/students/index.php?batch_id=') ?>' + item.id" title="Show the students of this batch"
+                                                x-text="item.student_count + (item.student_count == 1 ? ' student' : ' students')"></a>
+                                        </div>
                                     </td>
 
                                     <td x-text="item.department_code" :title="item.department_name"></td>
 
-                                                                        <td>
-                                        <div class="table-user-name"
-                                            x-text="Sobuj_termLabel(item.term_system, item.current_term_no, item.total_terms)"></div>
-                                        <div class="table-user-sub" x-text="item.shift + ' · ' + (item.current_session_name || 'No session set')"></div>
+                                    <td>
+                                        <div class="table-user-name" x-text="item.admission_session_name"></div>
+                                        <div class="table-user-sub" x-text="item.shift"></div>
                                     </td>
 
                                     <td>
@@ -97,7 +108,7 @@ $breadcrumbs = [
                                             x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
                                     </td>
 
-                                    <td>
+                                    <td class="col-actions">
                                         <div class="d-flex justify-content-center gap-1">
 
                                             <button type="button" class="table-btn-action" title="Edit" @click="edit(item)">
@@ -219,74 +230,17 @@ $breadcrumbs = [
                     </div>
 
                     <div class="mb-3">
-                        <label for="itemSystem" class="form-label-custom">
-                            Term system <span class="text-danger">*</span>
-                        </label>
-
-                        <select class="form-select-custom" id="itemSystem" x-model="form.term_system" @change="systemChanged()">
-                            <option value="">Select system</option>
-                            <option value="yearly">Yearly</option>
-                            <option value="semester">Semester</option>
-                            <option value="trimester">Trimester</option>
-                        </select>
-                        
-                        <template x-for="message in (errors.term_system || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="itemLength" class="form-label-custom">
-                            Program length <span x-show="form.term_system" x-text="'(' + Sobuj_termPlural(form.term_system) + ')'"></span> <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="number" class="form-control-custom" id="itemLength" placeholder="For example 4, 6 or 12" x-model="form.total_terms" min="1" max="20">
-                        <template x-for="message in (errors.total_terms || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                    </div>
-
-                    <div class="mb-3">
                         <label for="itemAdmission" class="form-label-custom">
                             Admission session <span class="text-danger">*</span>
                         </label>
 
-                        <select class="form-select-custom" id="itemAdmission" x-model="form.admission_session_id" :disabled="!form.term_system">
+                        <select class="form-select-custom" id="itemAdmission" x-model="form.admission_session_id">
                             <option value="">Select session</option>
-                            <template x-for="session in sessionOptions" :key="session.id">
+                            <template x-for="session in sessions" :key="session.id">
                                 <option :value="String(session.id)" x-text="session.name"></option>
                             </template>
                         </select>
-                        <small class="text-muted" x-show="!form.term_system">Choose the term system first.</small>
                         <template x-for="message in (errors.admission_session_id || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="itemCurrentSession" class="form-label-custom">
-                            Current session
-                        </label>
-
-                        <select class="form-select-custom" id="itemCurrentSession" x-model="form.current_session_id" :disabled="!form.term_system">
-                            <option value="">No session set yet</option>
-                            <template x-for="session in sessionOptions" :key="session.id">
-                                <option :value="String(session.id)" x-text="session.name"></option>
-                            </template>
-                        </select>
-                        
-                        <template x-for="message in (errors.current_session_id || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="itemTerm" class="form-label-custom">
-                            Current term <span x-show="form.term_system" x-text="'(' + Sobuj_termName(form.term_system) + ' number)'"></span> <span class="text-danger">*</span>
-                        </label>
-
-                        <input type="number" class="form-control-custom" id="itemTerm" placeholder="For example 2" x-model="form.current_term_no" min="1" max="20">
-                        <template x-for="message in (errors.current_term_no || [])">
                             <div class="text-danger small mt-1" x-text="message"></div>
                         </template>
                     </div>
@@ -337,10 +291,11 @@ $breadcrumbs = [
 
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/term.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/import.js?v=<?= filemtime(base_path('assets/admin_assets/js/import.js')) ?>"></script>
 <script>
 function Sobuj_fetchBatches(apiUrl, filters) {
     return Sobuj_api(apiUrl + '?' + new URLSearchParams(filters));
@@ -369,7 +324,7 @@ function Sobuj_batchPage(apiUrl, optionsUrl) {
         search: '',
         status: '',
 
-        form: { id: null, name: '', code: '', department_id: '', shift: 'Regular', term_system: '', total_terms: '', admission_session_id: '', current_session_id: '', current_term_no: '1', description: '', status: '1' },
+        form: { id: null, name: '', code: '', department_id: '', shift: 'Regular', admission_session_id: '', description: '', status: '1' },
         errors: {},
         saving: false,
 
@@ -389,15 +344,6 @@ function Sobuj_batchPage(apiUrl, optionsUrl) {
                 this.departments = res.data.departments;
                 this.sessions = res.data.sessions;
             }
-        },
-
-        get sessionOptions() {
-            return this.sessions.filter((session) => session.term_type === this.form.term_system);
-        },
-
-        systemChanged() {
-            this.form.admission_session_id = '';
-            this.form.current_session_id = '';
         },
 
         get isEdit() {
@@ -476,24 +422,15 @@ function Sobuj_batchPage(apiUrl, optionsUrl) {
                 code: item.code,
                 department_id: String(item.department_id),
                 shift: item.shift,
-                term_system: item.term_system,
-                total_terms: String(item.total_terms),
-                admission_session_id: '',
-                current_session_id: '',
-                current_term_no: String(item.current_term_no),
+                admission_session_id: String(item.admission_session_id),
                 description: item.description || '',
                 status: String(item.status),
             };
-
-            this.$nextTick(() => {
-                this.form.admission_session_id = String(item.admission_session_id);
-                this.form.current_session_id = item.current_session_id ? String(item.current_session_id) : '';
-            });
         },
 
         resetForm() {
             this.errors = {};
-            this.form = { id: null, name: '', code: '', department_id: '', shift: 'Regular', term_system: '', total_terms: '', admission_session_id: '', current_session_id: '', current_term_no: '1', description: '', status: '1' };
+            this.form = { id: null, name: '', code: '', department_id: '', shift: 'Regular', admission_session_id: '', description: '', status: '1' };
         },
 
         async save() {
@@ -519,7 +456,7 @@ function Sobuj_batchPage(apiUrl, optionsUrl) {
         },
 
         async remove(item) {
-            if (!confirm('Delete the batch "' + item.name + '"?')) {
+            if (!await Sobuj_confirm('Delete the batch "' + item.name + '"?', { title: 'Delete batch', confirmText: 'Delete', danger: true })) {
                 return;
             }
 

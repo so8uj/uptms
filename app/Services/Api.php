@@ -44,9 +44,46 @@ class Api
             self::json(['message' => 'Please log in again.'], 401);
         }
 
+        self::refuseInMaintenance($user);
+
         if (!in_array($user['role'], $roles, true)) {
             self::json(['message' => 'You are not allowed to do this.'], 403);
         }
+    }
+
+    // Maintenance mode: only the administrator may use the API.
+    private static function refuseInMaintenance(array $user): void
+    {
+        if (\App\Controllers\Auth::inMaintenanceFor($user['role'])) {
+            self::json(['message' => \App\Models\Setting::get('maintenance_message')], 503);
+        }
+    }
+
+    /**
+     * Like requireRole, and returns the logged-in user. A teacher with the research management permission is
+     * also let in where 'admin' is allowed: they get the user back with the role 'admin', so the controllers
+     * treat them as the administrator. Their id stays their own, so the history shows who did it.
+     */
+    public static function requireRoleOrManager(string ...$roles): array
+    {
+        $user = \App\Controllers\Auth::currentUser();
+
+        if (!$user) {
+            self::json(['message' => 'Please log in again.'], 401);
+        }
+
+        self::refuseInMaintenance($user);
+
+        if (in_array($user['role'], $roles, true)) {
+            return $user;
+        }
+
+        if (in_array('admin', $roles, true) && \App\Controllers\Auth::isResearchManager()) {
+            $user['role'] = 'admin';
+            return $user;
+        }
+
+        self::json(['message' => 'You are not allowed to do this.'], 403);
     }
 
     // For every request that changes data. The page sends the token in the X-CSRF-Token header.

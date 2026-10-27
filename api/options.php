@@ -16,7 +16,7 @@ use App\Models\Department;
 use App\Services\Api;
 
 Api::start();
-Api::requireRole('admin');
+Api::requireRoleOrManager('admin');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     Api::json(['message' => 'Method not allowed.'], 405);

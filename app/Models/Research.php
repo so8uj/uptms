@@ -7,7 +7,7 @@ use PDO;
 
 class Research
 {
-    public const STATUSES = ['requested', 'pending', 'ongoing', 'completed', 'rejected'];
+    public const STATUSES = ['requested', 'pending', 'approved', 'ongoing', 'completed', 'rejected', 'correction'];
     public const TYPES = ['Thesis', 'Research Paper', 'Project'];
 
     private PDO $db;
@@ -25,7 +25,7 @@ class Research
      * One page of research, newest first. $f can contain:
      *   q            searches title, code, abstract, tags and student names
      *   statuses     a list of statuses to include, for example ['completed', 'ongoing']
-     *   category_id, tag_id, type, year, supervisor_id
+     *   category_id, tag_ids (list of ids), type, year, supervisor_id
      *   created_by   only the research this user submitted
      *   mine         only the research this user submitted, supervises or works on
      * Deleted research is never returned.
@@ -36,12 +36,15 @@ class Research
 
         $stmt = $this->db->prepare(
             "SELECT r.id, r.code, r.title, r.abstract, r.type, r.category_id, r.year, r.status, r.target_status,
-                    r.supervisor_id, r.created_by, r.review_note, r.reviewed_at, r.created_at,
-                    c.name AS category_name, sv.name AS supervisor_name, cr.name AS creator_name
+                    r.supervisor_id, r.team_id, r.created_by, r.review_note, r.reviewed_at, r.created_at,
+                    c.name AS category_name, sv.name AS supervisor_name, cr.name AS creator_name, tt.name AS team_name,
+                    tb.name AS batch_name
              FROM research r
              JOIN categories c ON c.id = r.category_id
              JOIN users cr ON cr.id = r.created_by
              LEFT JOIN users sv ON sv.id = r.supervisor_id
+             LEFT JOIN teams tt ON tt.id = r.team_id
+             LEFT JOIN batches tb ON tb.id = tt.batch_id
              WHERE {$where} ORDER BY r.id DESC LIMIT {$limit} OFFSET {$offset}"
         );
         $stmt->execute($bind);
@@ -92,9 +95,14 @@ class Research
             $bind['category_id'] = (int) $f['category_id'];
         }
 
-        if (!empty($f['tag_id'])) {
-            $where .= ' AND EXISTS (SELECT 1 FROM research_tag rt2 WHERE rt2.research_id = r.id AND rt2.tag_id = :tag_id)';
-            $bind['tag_id'] = (int) $f['tag_id'];
+        // Several tags: a research is listed when it has at least one of them.
+        if (!empty($f['tag_ids'])) {
+            $marks = [];
+            foreach (array_values($f['tag_ids']) as $i => $tagId) {
+                $marks[] = ':tag' . $i;
+                $bind['tag' . $i] = (int) $tagId;
+            }
+            $where .= ' AND EXISTS (SELECT 1 FROM research_tag rt2 WHERE rt2.research_id = r.id AND rt2.tag_id IN (' . implode(', ', $marks) . '))';
         }
 
         if (!empty($f['type']) && in_array($f['type'], self::TYPES, true)) {
@@ -170,11 +178,13 @@ class Research
     public function find(int $id): ?array
     {
         $stmt = $this->db->prepare(
-            "SELECT r.*, c.name AS category_name, sv.name AS supervisor_name, cr.name AS creator_name
+            "SELECT r.*, c.name AS category_name, sv.name AS supervisor_name, cr.name AS creator_name, tt.name AS team_name, tb.name AS batch_name
              FROM research r
              JOIN categories c ON c.id = r.category_id
              JOIN users cr ON cr.id = r.created_by
              LEFT JOIN users sv ON sv.id = r.supervisor_id
+             LEFT JOIN teams tt ON tt.id = r.team_id
+             LEFT JOIN batches tb ON tb.id = tt.batch_id
              WHERE r.id = :id AND r.deleted_at IS NULL LIMIT 1"
         );
         $stmt->execute(['id' => $id]);
@@ -185,7 +195,7 @@ class Research
 
     /**
      * Adds a research with its tags and students, in one transaction, and gives it its code.
-     * $data = title, abstract, type, category_id, year, status, target_status, supervisor_id, created_by
+     * $data = title, abstract, type, category_id, year, status, target_status, supervisor_id, team_id, created_by
      */
     public function create(array $data, array $tagIds, array $studentIds): int
     {
@@ -193,8 +203,8 @@ class Research
 
         try {
             $stmt = $this->db->prepare(
-                'INSERT INTO research (title, abstract, type, category_id, year, status, target_status, supervisor_id, created_by)
-                 VALUES (:title, :abstract, :type, :category_id, :year, :status, :target_status, :supervisor_id, :created_by)'
+                'INSERT INTO research (title, abstract, type, category_id, year, status, target_status, supervisor_id, team_id, created_by)
+                 VALUES (:title, :abstract, :type, :category_id, :year, :status, :target_status, :supervisor_id, :team_id, :created_by)'
             );
             $stmt->execute($data);
             $id = (int) $this->db->lastInsertId();
@@ -204,6 +214,7 @@ class Research
             $this->db->prepare('UPDATE research SET code = :code WHERE id = :id')->execute(['code' => $code, 'id' => $id]);
 
             $this->replaceLinks($id, $tagIds, $studentIds);
+            $this->closeTeamIfCompleted($id, $data['status']);
             $this->db->commit();
 
             return $id;
@@ -255,8 +266,8 @@ class Research
     }
 
     /**
-     * The admin's decision on a requested or pending research.
-     * $status = ongoing, completed or rejected.  $supervisorId can be null.  $note explains a rejection.
+     * The admin's decision on a requested, pending or approved research.
+     * $status = approved, ongoing, completed or rejected.  $supervisorId can be null.  $note explains a rejection.
      */
     public function review(int $id, string $status, ?int $supervisorId, ?string $note): void
     {
@@ -265,6 +276,19 @@ class Research
              WHERE id = :id AND deleted_at IS NULL'
         );
         $stmt->execute(['status' => $status, 'supervisor_id' => $supervisorId, 'note' => $note ?: null, 'id' => $id]);
+        $this->closeTeamIfCompleted($id, $status);
+    }
+
+    // ---------------------------------------------------------------------------------
+    // The students of a research
+    // ---------------------------------------------------------------------------------
+
+    public function isMember(int $researchId, int $studentId): bool
+    {
+        $stmt = $this->db->prepare('SELECT 1 FROM research_student WHERE research_id = :research_id AND student_id = :student_id');
+        $stmt->execute(['research_id' => $researchId, 'student_id' => $studentId]);
+
+        return (bool) $stmt->fetchColumn();
     }
 
     // A quick status change, for example ongoing -> completed.
@@ -272,6 +296,16 @@ class Research
     {
         $stmt = $this->db->prepare('UPDATE research SET status = :status WHERE id = :id AND deleted_at IS NULL');
         $stmt->execute(['status' => $status, 'id' => $id]);
+        $this->closeTeamIfCompleted($id, $status);
+    }
+
+    // A completed research frees its team: the team is closed and its members can join a new team.
+    private function closeTeamIfCompleted(int $id, string $status): void
+    {
+        if ($status === 'completed') {
+            $this->db->prepare("UPDATE teams SET status = 'closed' WHERE id = (SELECT team_id FROM research WHERE id = :id)")
+                ->execute(['id' => $id]);
+        }
     }
 
     // Soft delete: the row stays (with its tags and students) but disappears from every list.
@@ -293,6 +327,27 @@ class Research
         foreach ($this->db->query(
             'SELECT status, COUNT(*) AS total FROM research WHERE deleted_at IS NULL GROUP BY status'
         )->fetchAll() as $row) {
+            $counts[$row['status']] = (int) $row['total'];
+        }
+
+        return $counts;
+    }
+
+    // The same numbers for one user's own research (submitted, supervised or worked on).
+    public function statusCountsFor(int $userId): array
+    {
+        $counts = array_fill_keys(self::STATUSES, 0);
+
+        $stmt = $this->db->prepare(
+            'SELECT r.status, COUNT(*) AS total FROM research r
+             WHERE r.deleted_at IS NULL
+               AND (r.created_by = :u1 OR r.supervisor_id = :u2
+                    OR EXISTS (SELECT 1 FROM research_student rs WHERE rs.research_id = r.id AND rs.student_id = :u3))
+             GROUP BY r.status'
+        );
+        $stmt->execute(['u1' => $userId, 'u2' => $userId, 'u3' => $userId]);
+
+        foreach ($stmt->fetchAll() as $row) {
             $counts[$row['status']] = (int) $row['total'];
         }
 
@@ -339,7 +394,7 @@ class Research
         return (int) $stmt->fetchColumn();
     }
 
-    // The owner edited a rejected research and sends it again: it goes back to the admin's queue.
+    // The owner corrected a research the admin sent back (status correction) and sends it again: it goes back to the admin's queue.
     public function resubmit(int $id, string $status): void
     {
         $stmt = $this->db->prepare(

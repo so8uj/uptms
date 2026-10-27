@@ -30,13 +30,20 @@ class UserController {
         $status = $query['status'] ?? '';
         $page   = max(1, (int) ($query['page'] ?? 1));
 
+        // the batch filter (students) and the sorting; the model ignores a sort it does not know
+        $options = [
+            'batch_id' => (int) ($query['batch_id'] ?? 0),
+            'sort'     => $query['sort'] ?? '',
+            'dir'      => $query['dir'] ?? 'asc',
+        ];
+
         $model = new User();
-        $total = $model->count($role, $search, $status);
+        $total = $model->count($role, $search, $status, $options);
         $pages = max(1, (int) ceil($total / self::PER_PAGE));
         $page  = min($page, $pages);
 
         return [
-            'users'   => $model->paginate($role, $search, $status, self::PER_PAGE, ($page - 1) * self::PER_PAGE),
+            'users'   => $model->paginate($role, $search, $status, self::PER_PAGE, ($page - 1) * self::PER_PAGE, $options),
             'total'   => $total,
             'page'    => $page,
             'pages'   => $pages,
@@ -86,7 +93,7 @@ class UserController {
                 'designation'      => 'required|in:' . implode(',', self::DESIGNATIONS),
                 'specialization'   => 'max:150',
                 'research_area'    => 'max:150',
-                'can_add_research' => 'in:0,1',
+                'research_management' => 'in:0,1',
             ];
         }
 
@@ -176,7 +183,7 @@ class UserController {
                 'designation'      => $request['designation'],
                 'specialization'   => trim($request['specialization'] ?? ''),
                 'research_area'    => trim($request['research_area'] ?? ''),
-                'can_add_research' => (int) ($request['can_add_research'] ?? 0),
+                'research_management' => (int) ($request['research_management'] ?? 0),
             ];
         }
         if ($role === 'student') {

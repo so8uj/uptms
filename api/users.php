@@ -5,6 +5,8 @@
  * The same endpoint serves the three kinds of user: the page says which one with "role".
  *
  *   GET  api/users.php?role=student&q=ali&status=1&page=2   list
+ *        more: &batch_id=3 (students of one batch)  &sort=roll&dir=asc (sort: name, status; students: roll, batch, credits, cgpa, department;
+ *        teachers: employee, designation, department)
  *   GET  api/users.php?role=student&id=5                    one user (for the edit form)
  *   POST api/users.php   save   (a form with the photo, sent as FormData)
  *                               role, op=save, id (leave out to add), name, email, ... and the photo file

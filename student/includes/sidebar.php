@@ -21,18 +21,31 @@
             </div>
 
             <div class="sidebar-menu-section">
+                <div class="sidebar-menu-title">Research</div>
+                <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item">
+                        <a href="<?= url('student/research/index.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'research' && current_file() === 'index.php') ? 'active' : '' ?>">
+                            <i class="bi bi-journal-bookmark"></i>
+                            <span>Research Library</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Project Work</div>
                 <ul class="sidebar-menu-list">
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('student/projects.php') ?>" class="sidebar-menu-link <?= (current_file() === 'projects.php') ? 'active' : '' ?>">
-                            <i class="bi bi-kanban"></i>
-                            <span>My Projects</span>
+                        <a href="<?= url('student/team.php') ?>" class="sidebar-menu-link <?= (current_file() === 'team.php') ? 'active' : '' ?>">
+                            <i class="bi bi-people"></i>
+                            <span>My Group/Team</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('student/proposals.php') ?>" class="sidebar-menu-link <?= (current_file() === 'proposals.php') ? 'active' : '' ?>">
-                            <i class="bi bi-file-earmark-text"></i>
-                            <span>Proposals</span>
+                        <a href="<?= url('student/research/my_research.php') ?>" class="sidebar-menu-link <?= (current_file() === 'project.php' || (current_folder() === 'research' && in_array(current_file(), ['my_research.php', 'manage.php'], true))) ? 'active' : '' ?>">
+                            <i class="bi bi-folder2-open"></i>
+                            <span>My Research</span>
+                            <span class="sidebar-menu-badge" data-menu-count="requested" hidden></span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
@@ -47,18 +60,6 @@
                             <span>Progress Updates</span>
                         </a>
                     </li>
-                </ul>
-            </div>
-
-            <div class="sidebar-menu-section">
-                <div class="sidebar-menu-title">Reviews</div>
-                <ul class="sidebar-menu-list">
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('student/documents.php') ?>" class="sidebar-menu-link <?= (current_file() === 'documents.php') ? 'active' : '' ?>">
-                            <i class="bi bi-file-earmark-arrow-up"></i>
-                            <span>Documents</span>
-                        </a>
-                    </li>
                     <li class="sidebar-menu-item">
                         <a href="<?= url('student/feedback.php') ?>" class="sidebar-menu-link <?= (current_file() === 'feedback.php') ? 'active' : '' ?>">
                             <i class="bi bi-chat-left-text"></i>
@@ -69,30 +70,6 @@
                         <a href="<?= url('student/evaluations.php') ?>" class="sidebar-menu-link <?= (current_file() === 'evaluations.php') ? 'active' : '' ?>">
                             <i class="bi bi-clipboard-check"></i>
                             <span>Evaluations</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="sidebar-menu-section">
-                <div class="sidebar-menu-title">Research</div>
-                <ul class="sidebar-menu-list">
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('student/research/index.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'research' && current_file() === 'index.php') ? 'active' : '' ?>">
-                            <i class="bi bi-journal-bookmark"></i>
-                            <span>Research Library</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('student/research/my_research.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'research' && current_file() === 'my_research.php') ? 'active' : '' ?>">
-                            <i class="bi bi-folder2-open"></i>
-                            <span>My Research</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('student/reports.php') ?>" class="sidebar-menu-link <?= (current_file() === 'reports.php') ? 'active' : '' ?>">
-                            <i class="bi bi-bar-chart-line"></i>
-                            <span>Reports</span>
                         </a>
                     </li>
                 </ul>

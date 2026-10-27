@@ -3,9 +3,9 @@
 /**
  * Academic sessions API (admin only). Always answers with JSON.
  *
- *   GET  api/sessions.php?q=2026&status=1&type=semester&page=2   list (search, status, type, page)
- *   POST api/sessions.php   {"op":"save", "id":5, "name":"Spring 2026", "term_type":"semester", "year":2026,
- *                            "start_date":"2026-01-05", "end_date":"2026-05-30", "is_current":"1", "status":"1"}
+ *   GET  api/sessions.php?q=2026&status=1&page=2   list (search, status, page)
+ *   POST api/sessions.php   {"op":"save", "id":5, "name":"Spring 2026", "year":2026,
+ *                            "is_current":"1", "status":"1"}
  *                           (leave "id" out to add a new session)
  *   POST api/sessions.php   {"op":"delete", "id":5}
  */

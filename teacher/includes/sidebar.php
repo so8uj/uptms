@@ -24,15 +24,10 @@
                 <div class="sidebar-menu-title">Supervision</div>
                 <ul class="sidebar-menu-list">
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('teacher/projects.php') ?>" class="sidebar-menu-link <?= (current_file() === 'projects.php') ? 'active' : '' ?>">
-                            <i class="bi bi-kanban"></i>
-                            <span>Assigned Projects</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('teacher/proposals.php') ?>" class="sidebar-menu-link <?= (current_file() === 'proposals.php') ? 'active' : '' ?>">
-                            <i class="bi bi-file-earmark-text"></i>
-                            <span>Project Proposals</span>
+                        <a href="<?= url('teacher/research/my_research.php') ?>" class="sidebar-menu-link <?= (current_file() === 'project.php' || (current_folder() === 'research' && in_array(current_file(), ['my_research.php', 'team.php', 'manage.php'], true))) ? 'active' : '' ?>">
+                            <i class="bi bi-folder2-open"></i>
+                            <span>My Research</span>
+                            <span class="sidebar-menu-badge" data-menu-count="completion" hidden></span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
@@ -45,18 +40,6 @@
                         <a href="<?= url('teacher/progress.php') ?>" class="sidebar-menu-link <?= (current_file() === 'progress.php') ? 'active' : '' ?>">
                             <i class="bi bi-activity"></i>
                             <span>Progress Updates</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="sidebar-menu-section">
-                <div class="sidebar-menu-title">Reviews</div>
-                <ul class="sidebar-menu-list">
-                    <li class="sidebar-menu-item">
-                        <a href="<?= url('teacher/documents.php') ?>" class="sidebar-menu-link <?= (current_file() === 'documents.php') ? 'active' : '' ?>">
-                            <i class="bi bi-file-earmark-arrow-up"></i>
-                            <span>Documents</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
@@ -83,20 +66,28 @@
                             <span>Research Library</span>
                         </a>
                     </li>
+                </ul>
+            </div>
+
+            <?php if (App\Controllers\Auth::isResearchManager()): ?>
+            <div class="sidebar-menu-section">
+                <div class="sidebar-menu-title">Research Management</div>
+                <ul class="sidebar-menu-list">
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('teacher/research/my_research.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'research' && current_file() === 'my_research.php') ? 'active' : '' ?>">
-                            <i class="bi bi-folder2-open"></i>
-                            <span>My Research</span>
+                        <a href="<?= url('admin/research/index.php') ?>" class="sidebar-menu-link">
+                            <i class="bi bi-clipboard2-check"></i>
+                            <span>Manage Research</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('teacher/reports.php') ?>" class="sidebar-menu-link <?= (current_file() === 'reports.php') ? 'active' : '' ?>">
-                            <i class="bi bi-bar-chart-line"></i>
-                            <span>Reports</span>
+                        <a href="<?= url('admin/university/batches/index.php') ?>" class="sidebar-menu-link">
+                            <i class="bi bi-collection"></i>
+                            <span>Batches &amp; Groups</span>
                         </a>
                     </li>
                 </ul>
             </div>
+            <?php endif; ?>
 
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Account</div>

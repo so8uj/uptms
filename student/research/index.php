@@ -14,7 +14,7 @@ $breadcrumbs = [
 
 ?>
 
-<div class="main-wrapper" x-data="Sobuj_researchLibrary('<?= url('api/library.php') ?>')">
+<div class="main-wrapper" x-data="Sobuj_researchLibrary('<?= url('api/library.php') ?>', '<?= url('api/research_options.php') ?>')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
@@ -30,41 +30,23 @@ $breadcrumbs = [
         <div class="col-6 col-lg-3">
             <div class="card border-light shadow-sm p-3"><div class="small text-muted">Ongoing research</div><div class="fs-4 fw-bold" x-text="counts.ongoing"></div></div>
         </div>
-        <div class="col-12 col-lg-6">
-            <div class="card border-light shadow-sm p-3 h-100 justify-content-center">
-                <div class="small text-muted mb-1">Browse by category</div>
-                <div class="d-flex flex-wrap gap-2">
-                    <template x-for="category in categories" :key="category.id">
-                        <button type="button" class="btn btn-sm"
-                            :class="String(categoryId) === String(category.id) ? 'btn-primary' : 'btn-light'"
-                            @click="pickCategory(category.id)">
-                            <span x-text="category.name"></span> <span class="opacity-75" x-text="'(' + category.total + ')'"></span>
-                        </button>
-                    </template>
-                    <span class="small text-muted" x-show="categories.length === 0">No categories yet.</span>
-                </div>
-            </div>
-        </div>
     </div>
 
     <div class="table-card-custom">
+
+        <?php require(base_path('includes/research/type_tabs.php')); ?>
 
         <div class="table-header-control">
 
             <div class="table-search-box">
                 <i class="bi bi-search table-search-icon"></i>
-                <input type="text" class="table-search-input" placeholder="Search title, code, tag or student..." x-model="search"
+                <input type="text" class="table-search-input" placeholder="Search research..." x-model="search"
                     @input.debounce.400ms="filtersChanged()">
             </div>
 
             <div class="table-filter-group">
 
-                <select class="form-select-custom" style="width: auto;" x-model="type" @change="filtersChanged()">
-                    <option value="">All types</option>
-                    <template x-for="typeName in types" :key="typeName">
-                        <option :value="typeName" x-text="typeName"></option>
-                    </template>
-                </select>
+                <?php require(base_path('includes/research/search_filters.php')); ?>
 
                 <select class="form-select-custom" style="width: auto;" x-model="year" @change="filtersChanged()">
                     <option value="">All years</option>
@@ -87,21 +69,23 @@ $breadcrumbs = [
                 <thead>
                     <tr>
                         <th>Research</th>
-                        <th>People</th>
+                        <th>Group/Team</th>
+                        <th>Batch</th>
                         <th>Category</th>
                         <th>Year</th>
                         <th>Status</th>
+                        <th class="text-center">Action</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
                     <tr x-cloak x-show="loading && items.length === 0">
-                        <td colspan="5" class="text-center text-muted py-4">Loading...</td>
+                        <td colspan="7" class="text-center text-muted py-4">Loading...</td>
                     </tr>
 
                     <tr x-cloak x-show="!loading && items.length === 0">
-                        <td colspan="5" class="text-center text-muted py-4">No research found.</td>
+                        <td colspan="7" class="text-center text-muted py-4">No research found.</td>
                     </tr>
 
                     <template x-for="item in items" :key="item.id">
@@ -120,14 +104,22 @@ $breadcrumbs = [
                                 <div class="small text-primary mt-1" x-text="opened[item.id] ? 'Hide abstract' : 'Read abstract'"></div>
                             </td>
 
-                            <td>
-                                <div class="table-user-name" x-text="Sobuj_authors(item)"></div>
-                                <div class="table-user-sub" x-text="item.supervisor_name ? 'Supervisor: ' + item.supervisor_name : ''"></div>
+                            <td style="max-width: 230px; white-space: normal;">
+                                <div class="table-user-name" x-text="item.team_name || 'No group/team'"></div>
+                                <div class="table-user-sub" x-text="Sobuj_authors(item)"></div>
+                                <div class="table-user-sub" x-show="item.supervisor_name" x-text="'Supervisor: ' + item.supervisor_name"></div>
                             </td>
+                            <td x-text="item.batch_name || '-'"></td>
 
                             <td x-text="item.category_name"></td>
                             <td x-text="item.year"></td>
                             <td><span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span></td>
+
+                            <td class="text-center">
+                                <a :href="'<?= url('student/research/view.php?id=') ?>' + item.id" class="table-btn-action" title="View" @click.stop>
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
                         </tr>
                     </template>
 
@@ -173,7 +165,7 @@ $breadcrumbs = [
 
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js?v=<?= filemtime(base_path('assets/admin_assets/js/research.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

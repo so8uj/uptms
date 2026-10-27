@@ -2,14 +2,22 @@
 
 namespace App\Controllers;
 
+use App\Models\Setting;
 use App\Models\User;
-use App\Services\Role;
 use App\Services\Validation;
 
 class Auth {
 
-    private const MAX_ATTEMPTS = 5;    // wrong logins allowed in a row
-    private const LOCK_MINUTES = 5;    // how long the account stays locked after that
+    // Wrong logins allowed in a row, and how long the account stays locked after that: both are on the Settings page.
+    private static function maxAttempts(): int
+    {
+        return Setting::int('login_max_attempts', 5);
+    }
+
+    private static function lockMinutes(): int
+    {
+        return Setting::int('login_lock_minutes', 5);
+    }
 
     private static array $portals = [
         'admin'   => 'admin/index.php',
@@ -31,44 +39,44 @@ class Auth {
         // Step 1: validate the form input.
         $validate = Validation::validate($request,[
             'email' => 'required|email',
-            'password' => 'required|min:8'
+            'password' => 'required'
         ]);
         if (!$validate['success']) {
             return $validate;
         }
 
-        // Step 2: the selected user type must be one of our real roles (admin, teacher, student).
-        $role = $request['role'] ?? '';
-        if (!array_key_exists($role, Role::get_roles())) {
-            return self::fail('role', 'Please select a user type.');
-        }
-
-        // Step 3: find the user by email.
+        // Step 2: find the user by email. The role is not asked on the form; it comes from the account itself.
         $email = trim($request['email']);
         $user = (new User())->findByEmail($email);
 
-        // Step 4: rate limit. A locked account cannot log in, even with the correct password.
+        // Step 3: rate limit. A locked account cannot log in, even with the correct password.
         if ($user && $user['lock_seconds'] > 0) {
             $minutes = (int) ceil($user['lock_seconds'] / 60);
             return self::fail('password', "Too many failed attempts. Please try again in {$minutes} minute(s).");
         }
 
-        // Step 5: check the password and the role together.
+        // Step 4: check the password.
         // One shared message, so nobody can tell whether the email exists or the password was wrong.
-        if (!$user || !password_verify($request['password'], $user['password']) || $user['role'] !== $role) {
+        if (!$user || !password_verify($request['password'], $user['password'])) {
             if ($user) {
                 // Count this failure. After MAX_ATTEMPTS the account is locked for LOCK_MINUTES.
-                (new User())->recordFailedAttempt((int) $user['id'], self::MAX_ATTEMPTS, self::LOCK_MINUTES);
+                (new User())->recordFailedAttempt((int) $user['id'], self::maxAttempts(), self::lockMinutes());
             }
-            return self::fail('password', 'Invalid email, password, or user type.');
+            return self::fail('password', 'Invalid email or password.');
         }
 
-        // Step 6: inactive accounts cannot log in.
+        // Step 5: inactive accounts cannot log in.
         if ((int) $user['status'] !== 1) {
             return self::fail('email', 'This account is inactive. Please contact the administrator.');
         }
 
-        // Step 7: log the user in by saving their details in the session.
+        // Maintenance mode: only the administrator may log in.
+        if (self::inMaintenanceFor($user['role'])) {
+            return self::fail('email', Setting::get('maintenance_message'));
+        }
+
+        // Step 6: log the user in by saving their details in the session.
+        // The redirect below sends them to the portal of their own role (admin / teacher / student).
         session_regenerate_id(true);   // new session id after login (stops session fixation)
         $_SESSION['user'] = [
             'id'    => (int) $user['id'],
@@ -93,6 +101,12 @@ class Auth {
      * - logged in, wrong role  -> sent to their own portal
      * - correct role           -> the page continues to load
      */
+    // True when the maintenance mode is on and this role is not the administrator.
+    public static function inMaintenanceFor(string $role): bool
+    {
+        return $role !== 'admin' && Setting::bool('maintenance_mode');
+    }
+
     public static function requireRole(string $role): void
     {
         // Tell the browser not to keep a copy, so the Back button cannot show a page after logout.
@@ -162,8 +176,49 @@ class Auth {
         $folder = explode('/', $relative)[0];
 
         if (array_key_exists($folder, self::$portals)) {
+            // Maintenance mode: everybody except the administrator is sent back to the login page.
+            $who = $_SESSION['user']['role'] ?? null;
+            if ($who !== null && self::inMaintenanceFor($who)) {
+                self::logout();
+                header('Location: ' . url('index.php'));
+                exit;
+            }
+
+            // A teacher with the research management permission may open some pages of the admin panel.
+            if ($folder === 'admin' && self::managerMayOpen($relative)) {
+                header('Cache-Control: no-store');
+                return;
+            }
+
             self::requireRole($folder);
         }
+    }
+
+    // The admin pages a research manager (a teacher with research_management) may open.
+    private const MANAGER_PAGES = ['admin/research/', 'admin/university/batches/', 'admin/university/teams/'];
+
+    private static function managerMayOpen(string $relative): bool
+    {
+        foreach (self::MANAGER_PAGES as $folder) {
+            if (str_starts_with($relative, $folder)) {
+                return self::isResearchManager();
+            }
+        }
+
+        return false;
+    }
+
+    // Is the logged-in user a teacher who has the research management permission?
+    public static function isResearchManager(): bool
+    {
+        static $answer = null;
+
+        if ($answer === null) {
+            $user = self::currentUser();
+            $answer = $user && $user['role'] === 'teacher' && (new User())->hasResearchManagement((int) $user['id']);
+        }
+
+        return $answer;
     }
 
     // Used by the login page: a user who is already logged in does not need the login form.

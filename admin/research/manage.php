@@ -24,11 +24,13 @@ $breadcrumbs = [
 
 ?>
 
-<div class="main-wrapper" x-data="Sobuj_researchAdminForm('<?= url('api/research.php') ?>', '<?= url('api/research_options.php') ?>', '<?= url('api/lookup.php') ?>', <?= $isEdit ? $id : 0 ?>, '<?= $listUrl ?>')">
+<div class="main-wrapper" x-data="Sobuj_researchAdminForm('<?= url('api/research.php') ?>', '<?= url('api/research_options.php') ?>', '<?= url('api/teams.php') ?>', <?= $isEdit ? $id : 0 ?>, '<?= $listUrl ?>')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
+
+    <?php require(base_path('admin/includes/research_nav_open.php')); ?>
 
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
@@ -164,33 +166,39 @@ $breadcrumbs = [
                     </template>
                 </div>
 
-                <div class="col-12">
-                    <label for="studentSearch" class="form-label-custom">Students (optional)</label>
+                <div class="col-12" x-show="!isEdit">
+                    <label for="team_id" class="form-label-custom">
+                        Group/Team <span class="text-muted fw-normal">(needed for an ongoing research)</span>
+                    </label>
 
-                    <div class="d-flex flex-wrap gap-2 mb-2">
-                        <template x-for="student in students" :key="student.id">
-                            <span class="badge-table pending">
-                                <span x-text="student.name + (student.student_id ? ' (' + student.student_id + ')' : '')"></span>
-                                <button type="button" class="btn btn-sm p-0 ms-1 border-0 bg-transparent" @click="removeStudent(student)" title="Remove">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </span>
+                    <select class="form-select-custom" id="team_id" x-model="form.team_id">
+                        <option value="">No group/team</option>
+                        <template x-for="team in teams" :key="team.id">
+                            <option :value="String(team.id)" x-text="team.name + ' · ' + team.department_code + ' ' + team.batch_name"></option>
+                        </template>
+                    </select>
+                    <small class="text-muted" x-show="teams.length === 0">No free group/team yet. Add one in University &gt; Groups/Teams.</small>
+
+                    <div class="d-flex flex-wrap gap-2 mt-2" x-show="teamMembers.length > 0">
+                        <template x-for="student in teamMembers" :key="student.id">
+                            <span class="badge-table pending" x-text="student.name + (student.student_id ? ' (' + student.student_id + ')' : '')"></span>
                         </template>
                     </div>
 
-                    <input type="text" class="form-control-custom" id="studentSearch" autocomplete="off"
-                        placeholder="Search a student by name or student ID..." x-model="studentQuery" @input="studentQueryChanged()">
-
-                    <div class="list-group mt-1" x-cloak x-show="studentResults.length > 0">
-                        <template x-for="student in studentResults" :key="student.id">
-                            <button type="button" class="list-group-item list-group-item-action"
-                                @click="addStudent(student)"
-                                x-text="student.name + (student.student_id ? ' (' + student.student_id + ')' : '')"></button>
-                        </template>
-                    </div>
-                    <template x-for="message in (errors.students || [])">
+                    <template x-for="message in (errors.team_id || [])">
                         <div class="text-danger small mt-1" x-text="message"></div>
                     </template>
+                </div>
+
+                <div class="col-12" x-show="isEdit">
+                    <label class="form-label-custom">Group/Team</label>
+                    <div class="fw-semibold" x-text="teamName || 'No group/team'"></div>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <template x-for="student in students" :key="student.id">
+                            <span class="badge-table pending" x-text="student.name + (student.student_id ? ' (' + student.student_id + ')' : '')"></span>
+                        </template>
+                    </div>
+                    <small class="text-muted d-block mt-1">The members of a group/team are changed in University &gt; Groups/Teams.</small>
                 </div>
 
                 </div>
@@ -208,9 +216,10 @@ $breadcrumbs = [
         </div>
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js?v=<?= filemtime(base_path('assets/admin_assets/js/research.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

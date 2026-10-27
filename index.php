@@ -3,13 +3,10 @@
 require_once(__DIR__ . '/app/bootstrap.php');
 
 use App\Controllers\Auth;
-use App\Services\Role;
 
 Auth::redirectIfLoggedIn();
 
-$roles = Role::get_roles();
 $errors = [];
-$selectedRole = old('role', 'student');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $authAttempt = Auth::attempt($_POST);
@@ -63,20 +60,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <img src="<?= env('ASSET_URL') ?>/images/wub-logo.png" alt="WORLD UNIVERSITY OF BANGLADESH" width="400" />
             </a>
 
+            <?php if (\App\Models\Setting::bool('maintenance_mode')): ?>
+                <div class="alert alert-warning small py-2"><?= htmlspecialchars(\App\Models\Setting::get('maintenance_message')) ?></div>
+            <?php endif; ?>
+
             <!-- Login Form -->
             <form method="POST" id="loginForm" class="needs-validation">
                 <?php csrf_field(); ?>
                 <?php error('csrf', $errors); ?>
 
-                <div class="login-form-group d-flex justify-content-center column-gap-2">
-                    <?php foreach ($roles as $value => $label): ?>
-                        <div class="user-type">
-                            <input type="radio" class="btn-check" name="role" id="<?= $value ?>" value="<?= $value ?>"
-                                autocomplete="off" <?= $selectedRole === $value ? 'checked' : '' ?>>
-                            <label class="btn btn-secondary" for="<?= $value ?>"><?= $label ?></label>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
                 <!-- Email Input Group -->
                 <div class="login-form-group">
                     <label for="email" class="login-form-label">Email Address</label>
@@ -116,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
     <script src="<?= env('ASSET_URL') ?>/admin_assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="<?= env('ASSET_URL') ?>/admin_assets/js/auth.js"></script>
+    <script src="<?= env('ASSET_URL') ?>/admin_assets/js/auth.js?v=<?= filemtime(base_path('assets/admin_assets/js/auth.js')) ?>"></script>
 
 </body>
 

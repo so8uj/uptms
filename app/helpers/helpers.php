@@ -15,6 +15,15 @@ if (!function_exists('env')) {
     }
 }
 
+// ENABLE_MULTI_DEPARTMENT in .env. false (the default) = the project works for one department only (CSE):
+// departments are view only. true = departments can be added, edited and deleted.
+if (!function_exists('multi_department')) {
+    function multi_department(): bool
+    {
+        return filter_var(env('ENABLE_MULTI_DEPARTMENT', 'false'), FILTER_VALIDATE_BOOLEAN);
+    }
+}
+
 // Get Directory, File Name, Paths, Page Custom Actions
 if (!function_exists('current_folder')) {
     function current_folder(): string

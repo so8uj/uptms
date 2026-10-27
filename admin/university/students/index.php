@@ -14,14 +14,18 @@ $breadcrumbs = [
 
 ?>
 
-<div class="main-wrapper" x-data="Sobuj_userList('<?= url('api/users.php') ?>', 'student')">
+<div class="main-wrapper" x-data="Sobuj_userList('<?= url('api/users.php') ?>', 'student', '<?= url('api/options.php') ?>')">
     <?php
     require_once(base_path('admin/includes/dashboard_header.php'));
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/university_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
+
+    <?php $importType = 'students'; require(base_path('includes/import/panel.php')); ?>
 
     <div class="table-card-custom">
 
@@ -35,6 +39,13 @@ $breadcrumbs = [
 
             <div class="table-filter-group">
 
+                <select class="form-select-custom" style="width: auto;" x-model="batchId" @change="batchChanged()">
+                    <option value="">All batches</option>
+                    <template x-for="batch in batches" :key="batch.id">
+                        <option :value="String(batch.id)" x-text="batch.name + ' · ' + batch.shift"></option>
+                    </template>
+                </select>
+
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" x-text="statusLabel">
                     </button>
@@ -46,6 +57,11 @@ $breadcrumbs = [
                     </ul>
                 </div>
 
+                <button type="button" class="btn btn-outline-primary" @click="$dispatch('toggle-import')">
+                    <i class="bi bi-file-earmark-arrow-up me-1"></i>
+                    Import CSV
+                </button>
+
                 <a href="<?= url('admin/university/students/manage.php?action=create') ?>" class="btn btn-primary">
                     <i class="bi bi-plus-circle me-1"></i>
                     Add Student
@@ -55,29 +71,29 @@ $breadcrumbs = [
         </div>
 
         <div class="table-responsive">
-            <table class="table-custom">
+            <table class="table-custom table-compact">
 
                 <thead>
                     <tr>
-                        <th>Student</th>
-                        <th>ID</th>
-                        <th>Batch</th>
-                        <th>Credit Hours</th>
-                        <th>CGPA</th>
-                        <th>Department</th>
-                        <th>Status</th>
-                        <th class="text-center">Actions</th>
+                        <th class="sortable" @click="setSort('name')">Student <i class="bi" :class="sortIcon('name')"></i></th>
+                        <th class="sortable" @click="setSort('roll')">ID <i class="bi" :class="sortIcon('roll')"></i></th>
+                        <th class="sortable" @click="setSort('batch')">Batch <i class="bi" :class="sortIcon('batch')"></i></th>
+                        <th class="sortable" @click="setSort('credits')">Credit Hours <i class="bi" :class="sortIcon('credits')"></i></th>
+                        <th class="sortable" @click="setSort('cgpa')">CGPA <i class="bi" :class="sortIcon('cgpa')"></i></th>
+                        <?php if (multi_department()): ?><th>Department</th><?php endif; ?>
+                        <th class="sortable" @click="setSort('status')">Status <i class="bi" :class="sortIcon('status')"></i></th>
+                        <th class="text-center col-actions">Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
                     <tr x-cloak x-show="loading && items.length === 0">
-                        <td colspan="8" class="text-center text-muted py-4">Loading...</td>
+                        <td colspan="<?= multi_department() ? 8 : 7 ?>" class="text-center text-muted py-4">Loading...</td>
                     </tr>
 
                     <tr x-cloak x-show="!loading && items.length === 0">
-                        <td colspan="8" class="text-center text-muted py-4">No students found.</td>
+                        <td colspan="<?= multi_department() ? 8 : 7 ?>" class="text-center text-muted py-4">No students found.</td>
                     </tr>
 
                     <template x-for="item in items" :key="item.id">
@@ -102,21 +118,21 @@ $breadcrumbs = [
                                     <td>
                                 <div class="table-user-name" x-text="item.batch_name ? item.batch_name + ' · ' + item.batch_shift : '-'"></div>
                                 <div class="table-user-sub"
-                                    x-text="item.batch_name ? Sobuj_termLabel(item.batch_term_system, item.batch_current_term_no, item.batch_total_terms) + (item.batch_session_name ? ' · ' + item.batch_session_name : '') : ''"></div>
+                                    x-text="item.batch_name ? item.batch_session_name : ''"></div>
                             </td>
 
                                     <td x-text="item.completed_credit_hours ?? '-'"></td>
 
                                     <td x-text="item.cgpa ?? '-'"></td>
 
-                                    <td x-text="item.department_name || '-'"></td>
+                                    <?php if (multi_department()): ?><td x-text="item.department_name || '-'"></td><?php endif; ?>
 
                             <td>
                                 <span class="badge-table" :class="item.status == 1 ? 'success' : 'failed'"
                                     x-text="item.status == 1 ? 'Active' : 'Inactive'"></span>
                             </td>
 
-                            <td>
+                            <td class="col-actions">
                                 <div class="d-flex justify-content-center gap-1">
 
                                     <a :href="'<?= url('admin/university/students/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action"
@@ -173,10 +189,11 @@ $breadcrumbs = [
 
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/term.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/import.js?v=<?= filemtime(base_path('assets/admin_assets/js/import.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js?v=<?= filemtime(base_path('assets/admin_assets/js/users.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

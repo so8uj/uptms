@@ -31,6 +31,8 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/university_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
@@ -39,28 +41,7 @@ $breadcrumbs = [
 
             <form @submit.prevent="save()" novalidate x-cloak x-show="!loading">
 
-                <div class="d-flex align-items-center gap-4 mb-4">
-
-                    <template x-if="shownPhoto">
-                        <img class="table-user-avatar" style="width: 110px; height: 110px;" :src="shownPhoto" alt="Photo">
-                    </template>
-                    <template x-if="!shownPhoto">
-                        <div class="table-user-avatar" style="width: 110px; height: 110px; font-size: 2rem;" x-text="Sobuj_initials(form.name)"></div>
-                    </template>
-
-                    <div>
-                        <label for="photo" class="form-label-custom">Photo</label>
-                        <input type="file" class="form-control-custom" id="photo" x-ref="photoInput"
-                            accept="image/jpeg,image/png,image/webp" @change="photoChosen($event)">
-                        <small class="text-muted d-block">JPG, PNG or WebP, up to 2 MB. Without a photo the initials are shown.</small>
-                        <template x-for="message in (errors.photo || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                        <button type="button" class="btn btn-link btn-sm p-0 mt-1" x-cloak x-show="photoFile"
-                            @click="clearPhoto()">Remove the selected photo</button>
-                    </div>
-
-                </div>
+                <?php require(base_path('includes/account/photo_field.php')); ?>
 
                 <div class="row g-3">
 
@@ -149,7 +130,7 @@ $breadcrumbs = [
                     <select class="form-select-custom" id="batch_id" x-model="form.batch_id" :disabled="!form.department_id">
                             <option value="">Select batch</option>
                             <template x-for="batch in batchOptions" :key="batch.id">
-                                <option :value="String(batch.id)" x-text="batch.name + ' (' + batch.shift + ' · ' + Sobuj_termLabel(batch.term_system, batch.current_term_no, batch.total_terms) + ')'"></option>
+                                <option :value="String(batch.id)" x-text="batch.name + ' (' + batch.shift + ')'"></option>
                             </template>
                         </select>
                     <template x-for="message in (errors.batch_id || [])">
@@ -229,10 +210,10 @@ $breadcrumbs = [
         </div>
     </div>
 
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/term.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js?v=<?= filemtime(base_path('assets/admin_assets/js/users.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

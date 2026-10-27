@@ -3,13 +3,8 @@ $me = App\Controllers\Auth::currentUser() ?? [];
 $myName = $me['name'] ?? 'User';
 $myRole = $me['role'] ?? '';
 
-// "My Account" opens the page where this user's own details are edited.
-$accountUrl = match ($myRole) {
-    'admin'   => url('admin/admins/manage.php?action=update&id=' . (int) ($me['id'] ?? 0)),
-    'teacher' => url('teacher/profile.php'),
-    'student' => url('student/profile.php'),
-    default   => '#',
-};
+// "Profile" opens the page where this user sees and edits their own details (admin/, teacher/ or student/ profile.php).
+$accountUrl = in_array($myRole, ['admin', 'teacher', 'student'], true) ? url($myRole . '/profile.php') : '#';
 ?>
 <header class="navbar-custom">
         <div class="navbar-left">
@@ -36,6 +31,8 @@ $accountUrl = match ($myRole) {
             </button>
             
 
+            <?php require(base_path('includes/notifications/bell.php')); ?>
+
             <div class="dropdown ms-2">
                 <button class="navbar-profile-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false" id="profile-dropdown">
@@ -49,10 +46,7 @@ $accountUrl = match ($myRole) {
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-profile" aria-labelledby="profile-dropdown">
                     <li class="dropdown-header"><?= htmlspecialchars(ucfirst($myRole)) ?></li>
-                    <li><a class="dropdown-item" href="<?= $accountUrl ?>"><i class="bi bi-person"></i> My Account</a></li>
-                    <?php if ($myRole === 'admin'): ?>
-                        <li><a class="dropdown-item" href="<?= url('admin/settings/index.php') ?>"><i class="bi bi-gear"></i> Settings</a></li>
-                    <?php endif; ?>
+                    <li><a class="dropdown-item" href="<?= $accountUrl ?>"><i class="bi bi-person"></i> Profile</a></li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>

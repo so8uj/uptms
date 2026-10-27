@@ -11,6 +11,12 @@ if (page_action() === 'update' && $id < 1) {
     exit;
 }
 
+// Your own record is edited on the Profile page.
+if ($isEdit && $id === (int) (App\Controllers\Auth::currentUser()['id'] ?? 0)) {
+    header('Location: ' . url('admin/profile.php'));
+    exit;
+}
+
 require_once(base_path('admin/includes/header.php'));
 require_once(base_path('admin/includes/sidebar.php'));
 
@@ -38,28 +44,7 @@ $breadcrumbs = [
 
             <form @submit.prevent="save()" novalidate x-cloak x-show="!loading">
 
-                <div class="d-flex align-items-center gap-4 mb-4">
-
-                    <template x-if="shownPhoto">
-                        <img class="table-user-avatar" style="width: 110px; height: 110px;" :src="shownPhoto" alt="Photo">
-                    </template>
-                    <template x-if="!shownPhoto">
-                        <div class="table-user-avatar" style="width: 110px; height: 110px; font-size: 2rem;" x-text="Sobuj_initials(form.name)"></div>
-                    </template>
-
-                    <div>
-                        <label for="photo" class="form-label-custom">Photo</label>
-                        <input type="file" class="form-control-custom" id="photo" x-ref="photoInput"
-                            accept="image/jpeg,image/png,image/webp" @change="photoChosen($event)">
-                        <small class="text-muted d-block">JPG, PNG or WebP, up to 2 MB. Without a photo the initials are shown.</small>
-                        <template x-for="message in (errors.photo || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
-                        <button type="button" class="btn btn-link btn-sm p-0 mt-1" x-cloak x-show="photoFile"
-                            @click="clearPhoto()">Remove the selected photo</button>
-                    </div>
-
-                </div>
+                <?php require(base_path('includes/account/photo_field.php')); ?>
 
                 <div class="row g-3">
 
@@ -146,7 +131,7 @@ $breadcrumbs = [
 
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/users.js?v=<?= filemtime(base_path('assets/admin_assets/js/users.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

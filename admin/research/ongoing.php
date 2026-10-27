@@ -21,6 +21,8 @@ $breadcrumbs = [
     require_once(base_path('includes/admin/page_header_breadcrumb.php'));
     ?>
 
+    <?php require(base_path('admin/includes/research_nav_open.php')); ?>
+
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
@@ -64,39 +66,77 @@ $breadcrumbs = [
                 <thead>
                     <tr>
                         <th>Research</th>
-                        <th>Category</th>
                         <th>People</th>
-                        <th class="text-center">Actions</th>
+                        <th>Progress</th>
+                        <th>Last activity</th>
+                        <th>Status</th>
+                        <th class="text-center col-actions">Actions</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
                     <tr x-cloak x-show="loading && items.length === 0">
-                        <td colspan="4" class="text-center text-muted py-4">Loading...</td>
+                        <td colspan="6" class="text-center text-muted py-4">Loading...</td>
                     </tr>
 
                     <tr x-cloak x-show="!loading && items.length === 0">
-                        <td colspan="4" class="text-center text-muted py-4">No ongoing research.</td>
+                        <td colspan="6" class="text-center text-muted py-4">No research in progress.</td>
                     </tr>
 
                     <template x-for="item in items" :key="item.id">
                         <tr>
                         <td style="max-width: 340px; white-space: normal;">
                             <div class="table-user-name" x-text="item.title"></div>
-                            <div class="table-user-sub" x-text="item.code + ' · ' + item.type + ' · ' + item.year"></div>
+                            <div class="table-user-sub" x-text="item.code + ' · ' + item.type + ' · ' + item.category_name + ' · ' + item.year"></div>
                         </td>
-
-                        <td x-text="item.category_name"></td>
 
                         <td>
                             <div class="table-user-name" x-text="Sobuj_authors(item)"></div>
                             <div class="table-user-sub" x-text="item.supervisor_name ? 'Supervisor: ' + item.supervisor_name : 'No supervisor yet'"></div>
                         </td>
 
+                        <td style="min-width: 150px;">
+                            <div x-show="item.status === 'ongoing'">
+                                <div class="small mb-1" x-text="item.percent + '% · ' + item.done + ' of ' + item.tasks + ' tasks · ' + item.milestones + ' milestones'"></div>
+                                <div class="progress" style="height: 6px;"><div class="progress-bar bg-primary" :style="'width: ' + item.percent + '%;'"></div></div>
+                                <div class="small text-muted mt-1" x-text="item.last_rating ? 'Last rating: ' + item.last_rating + ' of 5 (' + item.evaluations + ' evaluations)' : 'Not evaluated yet'"></div>
+                            </div>
+                            <span class="text-muted small" x-show="item.status !== 'ongoing'">-</span>
+                        </td>
+
                         <td>
+                            <div x-text="item.last_activity.substring(0, 10)"></div>
+                            <span class="badge-table failed" x-show="item.status === 'ongoing' && item.quiet_days >= 14" x-text="'Quiet for ' + item.quiet_days + ' days'"></span>
+                        </td>
+
+                        <td>
+                            <span class="badge-table" :class="item.status === 'ongoing' ? 'success' : 'pending'"
+                                x-text="item.status === 'ongoing' ? 'Ongoing' : 'Needs supervisor'"></span>
+                            <div class="mt-1" x-show="item.finish_status">
+                                <span class="badge-table pending"
+                                    x-text="{ teacher: 'Finish: supervisor to decide', team: 'Finish: team to confirm', admin: 'Finish: needs your decision' }[item.finish_status] || ''"></span>
+                            </div>
+                        </td>
+
+                        <td class="col-actions">
                             <div class="d-flex justify-content-center gap-1">
-                                <button type="button" class="table-btn-action" title="Mark as completed" @click="complete(item)">
+                                <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id" class="table-btn-action" title="Full details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a :href="'<?= url('admin/research/project.php?id=') ?>' + item.id" class="table-btn-action" title="Project work"
+                                    x-cloak x-show="item.status === 'ongoing'">
+                                    <i class="bi bi-kanban"></i>
+                                </a>
+                                <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id + '#activity'" class="table-btn-action" title="Activity">
+                                    <i class="bi bi-clock-history"></i>
+                                </a>
+                                <button type="button" class="table-btn-action" title="Assign supervisor" @click="openReview(item, 'assign')"
+                                    x-cloak x-show="item.status === 'approved'">
+                                    <i class="bi bi-person-check"></i>
+                                </button>
+                                <button type="button" class="table-btn-action" title="Mark as completed" @click="complete(item)"
+                                    x-cloak x-show="item.status === 'ongoing'">
                                     <i class="bi bi-check2-circle"></i>
                                 </button>
                                 <a :href="'<?= url('admin/research/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action" title="Edit">
@@ -150,9 +190,12 @@ $breadcrumbs = [
 
     </div>
 
+    <?php require(base_path('includes/research/review_modal.php')); ?>
+
+    <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>
 
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js"></script>
-<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/api.js?v=<?= filemtime(base_path('assets/admin_assets/js/api.js')) ?>"></script>
+<script src="<?= env('ASSET_URL') ?>/admin_assets/js/research.js?v=<?= filemtime(base_path('assets/admin_assets/js/research.js')) ?>"></script>
 
 <?php require_once(base_path('admin/includes/footer.php')); ?>

@@ -24,14 +24,13 @@ class Batch
 
         $stmt = $this->db->prepare(
             "SELECT b.*, d.name AS department_name, d.code AS department_code,
-                asess.name AS admission_session_name, csess.name AS current_session_name,
+                asess.name AS admission_session_name,
                 (SELECT COUNT(*) FROM student_profiles sp
                     JOIN users u ON u.id = sp.user_id AND u.deleted_at IS NULL
                     WHERE sp.batch_id = b.id) AS student_count
              FROM batches b
              JOIN departments d ON d.id = b.department_id
              JOIN academic_sessions asess ON asess.id = b.admission_session_id
-             LEFT JOIN academic_sessions csess ON csess.id = b.current_session_id
              WHERE {$where} ORDER BY b.id DESC LIMIT {$limit} OFFSET {$offset}"
         );
         $stmt->execute($bind);
@@ -77,24 +76,29 @@ class Batch
         return $stmt->fetch() ?: null;
     }
 
+    // Active batches with their code, used by the CSV import to find a batch by code or name.
+    public function lookup(): array
+    {
+        return $this->db->query(
+            'SELECT id, name, code, department_id FROM batches WHERE deleted_at IS NULL AND status = 1'
+        )->fetchAll();
+    }
+
     // Active batches only: used to fill the dropdown in the student form.
     public function options(): array
     {
         return $this->db->query(
-            'SELECT id, name, department_id, shift, term_system, total_terms, current_term_no
-             FROM batches WHERE deleted_at IS NULL AND status = 1 ORDER BY name'
+            'SELECT b.id, b.name, b.department_id, b.shift
+             FROM batches b WHERE b.deleted_at IS NULL AND b.status = 1 ORDER BY b.name'
         )->fetchAll();
     }
 
-    // $data = name, code, shift, term_system, total_terms, admission_session_id, current_session_id,
-    //         current_term_no, department_id, description, status
+    // $data = name, code, shift, admission_session_id, department_id, description, status
     public function create(array $data): int
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO batches (name, code, shift, term_system, total_terms, admission_session_id, current_session_id,
-                                  current_term_no, department_id, description, status)
-             VALUES (:name, :code, :shift, :term_system, :total_terms, :admission_session_id, :current_session_id,
-                     :current_term_no, :department_id, :description, :status)'
+            'INSERT INTO batches (name, code, shift, admission_session_id, department_id, description, status)
+             VALUES (:name, :code, :shift, :admission_session_id, :department_id, :description, :status)'
         );
         $stmt->execute($data);
 
@@ -104,9 +108,7 @@ class Batch
     public function update(int $id, array $data): void
     {
         $stmt = $this->db->prepare(
-            'UPDATE batches SET name = :name, code = :code, shift = :shift, term_system = :term_system,
-                total_terms = :total_terms, admission_session_id = :admission_session_id,
-                current_session_id = :current_session_id, current_term_no = :current_term_no,
+            'UPDATE batches SET name = :name, code = :code, shift = :shift, admission_session_id = :admission_session_id,
                 department_id = :department_id, description = :description, status = :status
              WHERE id = :id AND deleted_at IS NULL'
         );
