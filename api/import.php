@@ -16,7 +16,7 @@ use App\Controllers\ImportController;
 use App\Services\Api;
 
 Api::start();
-Api::requireRoleOrManager('admin');
+Api::requireRole('admin');
 $managerOnly = Auth::currentUser()['role'] !== 'admin';   // a research manager may only import batches
 
 $method = $_SERVER['REQUEST_METHOD'];

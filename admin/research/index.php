@@ -79,6 +79,8 @@ $breadcrumbs = [
             </div>
         </div>
 
+        <?php require(base_path('includes/research/admin_filter_row.php')); ?>
+
         <div class="table-responsive">
             <table class="table-custom">
 
@@ -144,6 +146,9 @@ $breadcrumbs = [
                                 </a>
                                 <button type="button" class="table-btn-action delete" title="Delete" @click="remove(item)">
                                     <i class="bi bi-trash"></i>
+                                </button>
+                                <button type="button" class="table-btn-action delete" title="Delete for ever (with everything that belongs to it)" @click="purge(item)">
+                                    <i class="bi bi-x-octagon"></i>
                                 </button>
                             </div>
                         </td>

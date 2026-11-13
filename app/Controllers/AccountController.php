@@ -90,6 +90,8 @@ class AccountController {
                 $errors['new_password_again'][] = 'The two new passwords are not the same.';
             } elseif (($request['old_password'] ?? '') === $request['new_password']) {
                 $errors['new_password'][] = 'The new password must be different from the current one.';
+            } elseif (User::isDefaultPassword($request['new_password'])) {
+                $errors['new_password'][] = 'Please choose your own password, not the default one.';
             }
         }
 
@@ -98,6 +100,7 @@ class AccountController {
         }
 
         $users->updatePasswordHash((int) $actor['id'], password_hash($request['new_password'], PASSWORD_DEFAULT));
+        unset($_SESSION['must_change_password']);
 
         return ['success' => true, 'errors' => [], 'message' => 'Your password was changed.'];
     }

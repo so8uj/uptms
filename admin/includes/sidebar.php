@@ -159,6 +159,13 @@ $isAdminUser = (App\Controllers\Auth::currentUser()['role'] ?? '') === 'admin';
 
                 <ul class="sidebar-menu-list">
 
+                    <li class="sidebar-menu-item">
+                        <a href="<?= url('admin/guide.php') ?>" class="sidebar-menu-link <?= (current_file() === 'guide.php') ? 'active' : '' ?>">
+                            <i class="bi bi-book"></i>
+                            <span>User Guide</span>
+                        </a>
+                    </li>
+
                     <?php if ($isAdminUser): ?>
                     <li class="sidebar-menu-item">
 

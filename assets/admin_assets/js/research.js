@@ -43,6 +43,10 @@ function Sobuj_completeResearch(apiUrl, id) {
     return Sobuj_api(apiUrl, { method: 'POST', body: { op: 'complete', id: id } });
 }
 
+function Sobuj_purgeResearch(apiUrl, id) {
+    return Sobuj_api(apiUrl, { method: 'POST', body: { op: 'purge', id: id } });
+}
+
 function Sobuj_deleteResearch(apiUrl, id) {
     return Sobuj_api(apiUrl, { method: 'POST', body: { op: 'delete', id: id } });
 }
@@ -56,6 +60,7 @@ function Sobuj_deleteResearch(apiUrl, id) {
 function Sobuj_statusText(status) {
     return {
         requested: 'Requested', pending: 'Pending', approved: 'Approved', ongoing: 'Ongoing', completed: 'Completed', rejected: 'Rejected', correction: 'Needs correction',
+        assigned: 'Supervisor assigned',
     }[status] || status;
 }
 
@@ -67,6 +72,23 @@ function Sobuj_statusBadge(status) {
 function Sobuj_authors(item) {
     const names = (item.students || []).map(function (student) { return student.name; });
     return names.length ? names.join(', ') : '-';
+}
+
+// The search of the supervisor picker (includes/research/supervisor_picker.php): the teachers whose name or employee ID has the words.
+function Sobuj_teacherMatches(teachers, query) {
+    const words = String(query || '').toLowerCase().split(/\s+/).filter(Boolean);
+
+    return (teachers || []).filter(function (teacher) {
+        const text = (teacher.name + ' ' + (teacher.employee_id || '')).toLowerCase();
+        return words.every(function (word) { return text.includes(word); });
+    });
+}
+
+// What the picker box shows: the chosen teacher, or the words for "nobody".
+function Sobuj_teacherLabel(teachers, id, emptyText) {
+    const teacher = (teachers || []).find(function (item) { return String(item.id) === String(id); });
+
+    return teacher ? teacher.name + (teacher.employee_id ? ' (' + teacher.employee_id + ')' : '') : emptyText;
 }
 
 // A message box that shows for 4 seconds
@@ -108,6 +130,7 @@ function Sobuj_pagingMixin() {
             }
             this.page = number;
             this.load();
+            Sobuj_scrollTop();
         },
 
         filtersChanged() {
@@ -208,8 +231,12 @@ function Sobuj_researchAdminList(apiUrl, optionsUrl, mode) {
         status: mode === 'review' ? 'review' : (mode === 'ongoing' ? 'progress' : ''),
         categoryId: '',
         type: '',
+        student: '',
+        batchId: '',
+        year: '',
+        sort: '',
         counts: {},
-        options: { categories: [], tags: [], types: [], teachers: [] },
+        options: { categories: [], tags: [], types: [], teachers: [], batches: [], years: [] },
 
         // the approve / reject box
         review: { open: false, item: null, decision: 'approve', status: 'ongoing', supervisor_id: '', note: '', errors: {}, saving: false },
@@ -239,7 +266,8 @@ function Sobuj_researchAdminList(apiUrl, optionsUrl, mode) {
             this.loading = true;
 
             const res = await Sobuj_fetchResearch(apiUrl, {
-                q: this.search, status: this.status, category_id: this.categoryId, type: this.type, page: this.page,
+                q: this.search, status: this.status, category_id: this.categoryId, type: this.type, student: this.student,
+                batch_id: this.batchId, year: this.year, sort: this.sort, page: this.page,
             });
 
             if (myRequest !== this.requestId) {
@@ -254,6 +282,22 @@ function Sobuj_researchAdminList(apiUrl, optionsUrl, mode) {
 
             this.takePaging(res.data, 'research');
             this.counts = res.data.counts;
+        },
+
+        // The filters of the second row (includes/research/admin_filter_row.php)
+        hasFilters() {
+            return !!(this.search || this.categoryId || this.type || this.student || this.batchId || this.year || this.sort);
+        },
+
+        clearFilters() {
+            this.search = '';
+            this.categoryId = '';
+            this.type = '';
+            this.student = '';
+            this.batchId = '';
+            this.year = '';
+            this.sort = '';
+            this.filtersChanged();
         },
 
         // ----- approve / reject -----
@@ -325,6 +369,28 @@ function Sobuj_researchAdminList(apiUrl, optionsUrl, mode) {
             this.notify(res.data.message || 'Could not delete.', res.ok ? 'success' : 'error');
             this.load();
         },
+
+        // Permanent delete: first show what goes with it, then ask.
+        async purge(item) {
+            const info = await Sobuj_api(apiUrl + '?impact=' + item.id);
+            if (!info.ok) {
+                this.notify(info.data.message || 'Could not check this research.', 'error');
+                return;
+            }
+
+            const i = info.data.impact;
+            const text = '"' + item.title + '" (' + item.code + ') will be deleted for ever, together with ' +
+                i.milestones + ' milestone(s), ' + i.tasks + ' task(s), ' + i.comments + ' feedback message(s), ' +
+                i.evaluations + ' evaluation(s) and ' + i.history + ' history line(s). This cannot be undone.';
+
+            if (!await Sobuj_confirm(text, { title: 'Delete for ever', confirmText: 'Delete for ever', danger: true })) {
+                return;
+            }
+
+            const res = await Sobuj_purgeResearch(apiUrl, item.id);
+            this.notify(res.data.message || 'Could not delete.', res.ok ? 'success' : 'error');
+            this.load();
+        },
     };
 }
 
@@ -341,7 +407,7 @@ function Sobuj_researchLibrary(apiUrl, optionsUrl) {
         search: '',
         type: '',
         year: '',
-        includeOngoing: false,
+        includeOngoing: true,    // the library starts with the completed and the ongoing research (untick to see only the completed)
 
         counts: { completed: 0, ongoing: 0 },
         categories: [],      // [{id, name, total}] with how many research each has
@@ -429,12 +495,17 @@ function Sobuj_activityText(entry) {
         completed: 'marked the research as completed',
         withdrawn: 'withdrew the request',
         deleted: 'deleted the research',
+        restored: 'restored the research from the trash',
+        topic_submitted: 'sent the topic "' + detail + '" for approval',
+        topic_rejected: 'rejected the topic',
+        topic_signed: 'signed the topic',
+        completion_signed: 'signed the request to finish',
     }[entry.action] || entry.action;
 }
 
 // The note under a line (only for the actions where the text is a note, not a name)
 function Sobuj_activityNote(entry) {
-    const noteActions = ['approved', 'rejected', 'status_changed', 'commented', 'evaluated', 'completion_approved', 'completion_rejected'];
+    const noteActions = ['approved', 'rejected', 'topic_rejected', 'topic_signed', 'completion_signed', 'status_changed', 'commented', 'evaluated', 'completion_approved', 'completion_rejected'];
     return noteActions.includes(entry.action) ? (entry.detail || '') : '';
 }
 
@@ -447,7 +518,8 @@ function Sobuj_activityIcon(action) {
         task_reopened: 'bi-arrow-counterclockwise', task_removed: 'bi-list-check', commented: 'bi-chat-left-text', evaluated: 'bi-clipboard-check',
         completion_requested: 'bi-flag-fill', completion_approved: 'bi-check-circle', completion_confirmed: 'bi-check2-all',
         completion_rejected: 'bi-x-circle', completion_cancelled: 'bi-slash-circle',
-        completed: 'bi-trophy', withdrawn: 'bi-box-arrow-left', deleted: 'bi-trash',
+        completed: 'bi-trophy', withdrawn: 'bi-box-arrow-left', deleted: 'bi-trash', restored: 'bi-arrow-counterclockwise',
+        topic_submitted: 'bi-send', topic_rejected: 'bi-x-circle', topic_signed: 'bi-pen', completion_signed: 'bi-pen'
     }[action] || 'bi-circle';
 }
 
@@ -488,6 +560,55 @@ function Sobuj_researchAdminView(apiUrl, id) {
 // ---------------------------------------------------------------------
 // The admin's page of the requests to finish a research
 // ---------------------------------------------------------------------
+// The trash page (admin): the deleted research, with Restore and Delete for ever.
+function Sobuj_researchTrash(apiUrl) {
+    return {
+        ...Sobuj_toastMixin(),
+
+        items: [],
+        loading: true,
+
+        init() {
+            this.load();
+        },
+
+        async load() {
+            const res = await Sobuj_api(apiUrl + '?trash=1');
+            this.loading = false;
+
+            if (!res.ok) {
+                this.notify(res.data.message || 'Could not load the trash.', 'error');
+                return;
+            }
+            this.items = res.data.research;
+        },
+
+        async restore(item) {
+            if (!await Sobuj_confirm('Restore "' + item.title + '"? It comes back to the library with all its milestones, feedback and evaluations.', { title: 'Restore research', confirmText: 'Restore' })) {
+                return;
+            }
+
+            const res = await Sobuj_api(apiUrl, { method: 'POST', body: { op: 'restore', id: item.id } });
+            this.notify(res.data.message || 'Could not restore.', res.ok ? 'success' : 'error');
+            this.load();
+        },
+
+        async purge(item) {
+            const text = '"' + item.title + '" (' + item.code + ') will be deleted for ever, together with ' +
+                item.milestones + ' milestone(s), ' + item.comments + ' feedback message(s) and ' + item.evaluations +
+                ' evaluation(s) and all its other records. This cannot be undone.';
+
+            if (!await Sobuj_confirm(text, { title: 'Delete for ever', confirmText: 'Delete for ever', danger: true })) {
+                return;
+            }
+
+            const res = await Sobuj_purgeResearch(apiUrl, item.id);
+            this.notify(res.data.message || 'Could not delete.', res.ok ? 'success' : 'error');
+            this.load();
+        },
+    };
+}
+
 function Sobuj_completionRequests(apiUrl) {
     return {
         ...Sobuj_toastMixin(),
@@ -738,13 +859,14 @@ function Sobuj_myResearch(apiUrl, role, projectUrl) {
         },
 
         // Only research that was not approved yet can still be edited
+        // (a group that got its supervisor first can send its topic: status "assigned")
         isOpen(item) {
-            return ['requested', 'pending', 'correction'].includes(item.status);
+            return ['requested', 'pending', 'correction', 'assigned'].includes(item.status);
         },
 
         // It can be withdrawn until a supervisor is assigned
         canWithdraw(item) {
-            return this.isOpen(item) || item.status === 'approved';
+            return ['requested', 'pending', 'correction', 'approved'].includes(item.status) && !item.supervisor_id;
         },
 
         toggle(id) {
@@ -811,7 +933,7 @@ function Sobuj_researchAdminForm(apiUrl, optionsUrl, teamsUrl, id, listUrl) {
 
         // A research that waits for review changes its status on the Pending page, not here
         get statusLocked() {
-            return this.isEdit && !['ongoing', 'completed'].includes(this.savedStatus);
+            return this.isEdit;
         },
 
         async loadResearch() {
@@ -824,10 +946,10 @@ function Sobuj_researchAdminForm(apiUrl, optionsUrl, teamsUrl, id, listUrl) {
             }
 
             const item = res.data.research;
-            this.form.title = item.title;
-            this.form.abstract = item.abstract;
+            this.form.title = item.title || '';
+            this.form.abstract = item.abstract || '';
             this.form.type = item.type;
-            this.form.category_id = String(item.category_id);
+            this.form.category_id = item.category_id ? String(item.category_id) : '';
             this.form.year = String(item.year);
             this.form.status = ['ongoing', 'completed'].includes(item.status) ? item.status : item.target_status;
             this.form.supervisor_id = item.supervisor_id ? String(item.supervisor_id) : '';

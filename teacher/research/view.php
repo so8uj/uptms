@@ -36,14 +36,14 @@ $breadcrumbs = [
 
                         <div class="alert alert-warning py-2" x-show="own && item.status === 'correction' && item.review_note">
                             <strong>Correction needed:</strong> <span x-text="item.review_note"></span><br>
-                            <span class="small">Correct it and save, and it goes back to the administrator.</span>
+                            <span class="small">Correct it and save, and it goes back to the thesis committee.</span>
                         </div>
                         <div class="alert alert-danger py-2" x-show="own && item.status === 'rejected'">
                             <strong>Rejected for good:</strong> <span x-text="item.review_note"></span><br>
                             <span class="small">Nothing more can be done with this research.</span>
                         </div>
                         <div class="alert alert-info py-2" x-show="own && ['requested', 'pending'].includes(item.status)">
-                            This research is waiting for the administrator.
+                            This research is waiting for the thesis committee.
                         </div>
 
                         <div class="d-flex flex-wrap gap-1 mb-4">

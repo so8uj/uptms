@@ -20,7 +20,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start gap-3">
                     <div>
-                        <div class="small text-muted" x-text="data.research.code + ' · ' + data.research.type + ' · ' + data.research.category_name + ' · ' + data.research.year"></div>
+                        <div class="small text-muted" x-text="[data.research.code, data.research.category_name ? data.research.type : '', data.research.category_name, data.research.year].filter(Boolean).join(' · ')"></div>
                         <h4 class="mt-1 mb-2" x-text="data.research.title"></h4>
                     </div>
                     <span class="badge-table" :class="Sobuj_statusBadge(data.research.status)" x-text="Sobuj_statusText(data.research.status)"></span>
@@ -46,6 +46,26 @@
                     </div>
                 </div>
 
+                <div class="alert alert-info py-2 small mt-3 mb-0" x-cloak x-show="['assigned', 'correction'].includes(data.research.status)">
+                    The topic of this research is not approved yet. You can work with the supervisor now.
+                    <span x-show="data.research.status === 'assigned'">The group sends its topic from the Research page.</span>
+                    <span x-show="data.research.status === 'correction'">The thesis committee sent the topic back for correction.</span>
+                    <a :href="'<?= url('student/research/manage.php?action=update&id=') ?>' + data.research.id"
+                        class="fw-semibold" x-show="data.me.role === 'student'">Open the topic form</a>
+                </div>
+                <div class="alert alert-warning py-2 small mt-3 mb-0" x-cloak x-show="data.research.status === 'requested'">
+                    The topic was sent. It waits for the signatures of the thesis committee. You can keep working with the supervisor.
+                    <template x-if="data.research.signing">
+                        <div class="mt-1">
+                            <strong x-text="data.research.signing.signed + ' of ' + data.research.signing.needed + ' signatures'"></strong>
+                            <template x-for="teacher in data.research.signing.signers" :key="teacher.teacher_id">
+                                <span class="badge-table me-1" :class="{ approve: 'success', reject: 'failed' }[teacher.decision] || 'pending'"
+                                    x-text="teacher.name + ({ approve: ' · signed', reject: ' · rejected', correction: ' · correction' }[teacher.decision] || ' · waiting')"></span>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
                 <div class="alert alert-secondary py-2 small mt-3 mb-0" x-show="data.research.status === 'completed'">
                     This research is completed. You can read everything, but nothing can be changed.
                 </div>
@@ -56,7 +76,7 @@
             <div class="card-header">
                 <h5 class="card-title">Finishing the research</h5>
                 <span class="badge-table pending" x-show="isRequestAlive()"
-                    x-text="isRequestAlive() ? { teacher: 'Waiting for the supervisor', team: 'Waiting for the team', admin: 'Waiting for the administrator' }[data.completion.request.status] : ''"></span>
+                    x-text="isRequestAlive() ? { teacher: 'Waiting for the supervisor', team: 'Waiting for the team', admin: 'Waiting for the thesis committee' }[data.completion.request.status] : ''"></span>
             </div>
             <div class="card-body">
 
@@ -69,7 +89,7 @@
                 <div x-show="data.research.status === 'ongoing' && !isRequestAlive()">
                     <p class="text-muted small mb-2" x-show="!data.completion.can_request">No request to finish this research is open. A student of the team can ask when the work is done.</p>
                     <div x-show="data.completion.can_request">
-                        <p class="text-muted small">When the work is done, ask your supervisor to finish the research. The supervisor approves, then every team member confirms, then the administrator completes it.</p>
+                        <p class="text-muted small">When the work is done, ask your supervisor to finish the research. The supervisor approves, then every team member confirms, then 2 members of the thesis committee approve it.</p>
                         <button type="button" class="btn btn-primary btn-sm" @click="requestCompletion()">Request to finish</button>
                     </div>
                 </div>

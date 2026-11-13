@@ -37,18 +37,18 @@ $breadcrumbs = [
         <div class="card-body p-4">
 
             <div class="alert alert-info py-2">
-                Your request is reviewed by the administrator. The administrator may approve it and assign a supervisor, or reject it with a reason.
+                Your topic is reviewed by the thesis committee. When 2 of its members approve, the topic is approved (the supervisor is assigned by the administrator or the committee). One member can send it back for a correction, and 2 members can reject it.
             </div>
 
             <div class="alert alert-warning py-2" x-cloak x-show="savedStatus === 'correction' && reviewNote">
                 <strong>Correction needed:</strong> <span x-text="reviewNote"></span><br>
-                <span class="small">Correct it and save, and it goes back to the administrator.</span>
+                <span class="small">Correct it and save, and it goes back to the thesis committee.</span>
             </div>
 
             <div class="alert alert-warning py-2" x-cloak x-show="!loading && !team">
                 A research is done by an approved group/team of 2 to 3 students. Please
                 <a href="<?= url('student/team.php') ?>" class="alert-link">request your group/team</a> first,
-                or wait until the administrator approves it.
+                or wait until the administrator approves it (a supervisor can also be assigned to your group first).
             </div>
 
             <div class="mb-3" x-cloak x-show="team">

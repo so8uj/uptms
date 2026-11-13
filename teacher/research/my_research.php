@@ -28,7 +28,7 @@ $breadcrumbs = [
 
     <div class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
-            <div class="card border-light shadow-sm p-3"><div class="small text-muted">Waiting for the administrator</div><div class="fs-4 fw-bold" x-text="(counts.requested ?? 0) + (counts.pending ?? 0)"></div></div>
+            <div class="card border-light shadow-sm p-3"><div class="small text-muted">Waiting for the committee</div><div class="fs-4 fw-bold" x-text="(counts.requested ?? 0) + (counts.pending ?? 0)"></div></div>
         </div>
         <div class="col-6 col-lg-3">
             <div class="card border-light shadow-sm p-3"><div class="small text-muted">Ongoing (supervising)</div><div class="fs-4 fw-bold" x-text="counts.ongoing ?? 0"></div></div>
@@ -114,20 +114,20 @@ $breadcrumbs = [
                             <td x-text="item.category_name"></td>
                             <td><span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span></td>
                             <td style="min-width: 150px;">
-                                <div x-cloak x-show="['ongoing', 'completed'].includes(item.status)">
+                                <div x-cloak x-show="item.supervisor_id && ['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(item.status)">
                                     <div class="small mb-1" x-text="item.percent + '% · ' + item.done + ' of ' + item.tasks + ' tasks'"></div>
                                     <div class="progress" style="height: 6px;"><div class="progress-bar bg-primary" :style="'width: ' + item.percent + '%;'"></div></div>
                                     <div class="small text-muted mt-1" x-cloak x-show="item.finish_status"
-                                        x-text="{ teacher: 'Finish: supervisor to decide', team: 'Finish: team to confirm', admin: 'Finish: administrator to decide' }[item.finish_status] || ''"></div>
+                                        x-text="{ teacher: 'Finish: supervisor to decide', team: 'Finish: team to confirm', admin: 'Finish: committee to decide' }[item.finish_status] || ''"></div>
                                 </div>
-                                <span class="text-muted small" x-cloak x-show="!['ongoing', 'completed'].includes(item.status)">-</span>
+                                <span class="text-muted small" x-cloak x-show="!(item.supervisor_id && ['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(item.status))">-</span>
                             </td>
                             <td x-text="item.created_at.substring(0, 10)"></td>
 
                             <td>
                                 <div class="d-flex justify-content-center gap-1">
                                     <a :href="'<?= url('teacher/project.php?id=') ?>' + item.id" class="table-btn-action" title="Project work"
-                                        x-cloak x-show="['ongoing', 'completed'].includes(item.status) && item.supervisor_id == <?= (int) $me['id'] ?>">
+                                        x-cloak x-show="['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(item.status) && item.supervisor_id == <?= (int) $me['id'] ?>">
                                         <i class="bi bi-kanban"></i>
                                     </a>
                                     <button type="button" class="table-btn-action delete" title="Withdraw" @click="withdraw(item)"

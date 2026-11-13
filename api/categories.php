@@ -15,7 +15,7 @@ use App\Controllers\CategoryController;
 use App\Services\Api;
 
 Api::start();
-Api::requireRoleOrManager('admin');
+Api::requireRole('admin');
 
 $method = $_SERVER['REQUEST_METHOD'];
 

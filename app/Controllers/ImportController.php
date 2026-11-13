@@ -28,11 +28,11 @@ class ImportController {
             'description' => false, 'status' => false,
         ],
         'teachers' => [
-            'name' => true, 'email' => true, 'phone' => false, 'password' => true, 'employee_id' => true, 'department' => true,
-            'designation' => true, 'specialization' => false, 'research_area' => false, 'research_management' => false, 'status' => false,
+            'name' => true, 'email' => true, 'phone' => false, 'employee_id' => true, 'department' => true,
+            'designation' => true, 'specialization' => false, 'research_area' => false, 'status' => false,
         ],
         'students' => [
-            'name' => true, 'email' => true, 'phone' => false, 'password' => true, 'student_id' => true, 'department' => true,
+            'name' => true, 'email' => true, 'phone' => false, 'student_id' => true, 'department' => true,
             'batch' => true, 'gender' => false, 'cgpa' => false, 'completed_credit_hours' => false, 'status' => false,
         ],
     ];
@@ -52,20 +52,17 @@ class ImportController {
             'name'                => 'The full name.',
             'email'               => 'A new email address. It is the login of the teacher.',
             'phone'               => 'The phone number.',
-            'password'            => 'At least 8 characters. The teacher can change it later.',
             'employee_id'         => 'A new unique employee ID, for example T-1001.',
             'department'          => 'The department code from the list below, for example CSE.',
             'designation'         => 'One of the designations below.',
             'specialization'      => 'The field the teacher is expert in.',
             'research_area'       => 'The research area of the teacher.',
-            'research_management' => 'yes or no. Yes lets the teacher manage research (approve, assign supervisors, batches, groups/teams). Empty means no.',
             'status'              => 'active or inactive. Empty means active.',
         ],
         'students' => [
             'name'                   => 'The full name.',
             'email'                  => 'A new email address. It is the login of the student.',
             'phone'                  => 'The phone number.',
-            'password'               => 'At least 8 characters. The student can change it later.',
             'student_id'             => 'A new unique student ID.',
             'department'             => 'The department code from the list below, for example CSE.',
             'batch'                  => 'The batch code from the list below, for example CSE-66R. The batch must belong to the department.',
@@ -83,12 +80,12 @@ class ImportController {
             ['CSE 66 Evening', 'CSE-66E', 'Evening', 'CSE', 'Spring 2026', 'Evening shift batch 66', 'active'],
         ],
         'teachers' => [
-            ['Dr. Rahim Uddin', 'rahim.uddin@example.com', '01711000001', 'password123', 'T-1001', 'CSE', 'Professor', 'Machine Learning', 'Artificial Intelligence', 'yes', 'active'],
-            ['Karima Begum', 'karima.begum@example.com', '01711000002', 'password123', 'T-1002', 'CSE', 'Lecturer', 'Web Development', 'Software Engineering', 'no', 'active'],
+            ['Dr. Rahim Uddin', 'rahim.uddin@example.com', '01711000001', 'T-1001', 'CSE', 'Professor', 'Machine Learning', 'Artificial Intelligence', 'yes', 'active'],
+            ['Karima Begum', 'karima.begum@example.com', '01711000002', 'T-1002', 'CSE', 'Lecturer', 'Web Development', 'Software Engineering', 'no', 'active'],
         ],
         'students' => [
-            ['Abdul Karim', 'abdul.karim@example.com', '01811000001', 'password123', '66001', 'CSE', 'CSE-66R', 'Male', '3.50', '60', 'active'],
-            ['Nusrat Jahan', 'nusrat.jahan@example.com', '01811000002', 'password123', '66002', 'CSE', 'CSE-66R', 'Female', '3.75', '60', 'active'],
+            ['Abdul Karim', 'abdul.karim@example.com', '01811000001', '66001', 'CSE', 'CSE-66R', 'Male', '3.50', '60', 'active'],
+            ['Nusrat Jahan', 'nusrat.jahan@example.com', '01811000002', '66002', 'CSE', 'CSE-66R', 'Female', '3.75', '60', 'active'],
         ],
     ];
 
@@ -286,7 +283,6 @@ class ImportController {
             'name'          => $row['name'],
             'email'         => $row['email'],
             'phone'         => $row['phone'],
-            'password'      => $row['password'],
             'status'        => $status,
             'department_id' => $department,
         ];
@@ -297,10 +293,9 @@ class ImportController {
                 'designation'      => self::designation($row['designation']),
                 'specialization'   => $row['specialization'],
                 'research_area'    => $row['research_area'],
-                'research_management' => self::yes($row['research_management']) ? 1 : 0,
             ];
 
-            return self::answer(UserController::save('teacher', $request, [], null));
+            return self::answer(UserController::save('teacher', $request, [], null, false));
         }
 
         // a student: the batch is found by its code (or name) inside the department
@@ -317,7 +312,7 @@ class ImportController {
             'completed_credit_hours' => $row['completed_credit_hours'],
         ];
 
-        return self::answer(UserController::save('student', $request, [], null));
+        return self::answer(UserController::save('student', $request, [], null, false));
     }
 
     // Turns the answer of a controller into a list of readable messages.

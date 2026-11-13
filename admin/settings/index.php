@@ -62,6 +62,17 @@ $breadcrumbs = ["Dashboard" => url('admin/index.php'), "System" => "", "Settings
                         </div>
                     </div>
 
+                    <h6 class="mt-4 mb-1">Thesis committee signatures</h6>
+                    <p class="text-muted small">How many of the committee members who are ticked "Can approve" must sign to approve a topic or the finish of a research.
+                        The members are set in University &gt; Thesis Committees.</p>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label for="panel_signatures_needed" class="form-label-custom">Signatures needed <span class="text-danger">*</span></label>
+                            <input type="number" id="panel_signatures_needed" min="1" max="3" class="form-control-custom" x-model="form.panel_signatures_needed">
+                            <template x-for="message in err('panel_signatures_needed')"><div class="text-danger small mt-1" x-text="message"></div></template>
+                        </div>
+                    </div>
+
                     <div class="small">
                         Departments:
                         <span class="badge-table" :class="multiDepartment ? 'success' : 'pending'" x-text="multiDepartment ? 'Many departments' : 'One department (CSE)'"></span>
@@ -105,6 +116,80 @@ $breadcrumbs = ["Dashboard" => url('admin/index.php'), "System" => "", "Settings
                     <label for="maintenance_message" class="form-label-custom">Message</label>
                     <textarea id="maintenance_message" rows="2" maxlength="300" class="form-control-custom" x-model="form.maintenance_message"></textarea>
                     <template x-for="message in err('maintenance_message')"><div class="text-danger small mt-1" x-text="message"></div></template>
+                </div>
+            </div>
+
+            <!-- Mail (SMTP) -->
+            <div class="col-12">
+                <div class="card border-light shadow-sm p-4">
+                    <h5 class="card-title mb-3">Email (SMTP)</h5>
+                    <p class="text-muted small">
+                        With this the system can email the login details when you add a new teacher, student or admin.
+                        Ask your mail provider for the server (for example smtp.gmail.com, port 587, TLS) and the account.
+                        With Gmail use an <strong>app password</strong>, not the normal password.
+                        <strong>Nothing is sent while the switch below is off.</strong>
+                    </p>
+
+                    <div class="form-switch-custom mb-3">
+                        <input type="checkbox" class="form-switch-input-custom" id="mail_enabled" x-model="form.mail_enabled">
+                        <label for="mail_enabled" class="form-label-custom mb-0">Send emails is <strong x-text="form.mail_enabled ? 'ON' : 'off'"></strong></label>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label for="mail_host" class="form-label-custom">Mail server (host)</label>
+                            <input type="text" id="mail_host" class="form-control-custom" maxlength="150" placeholder="smtp.gmail.com" x-model="form.mail_host">
+                            <template x-for="message in err('mail_host')"><div class="text-danger small mt-1" x-text="message"></div></template>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label for="mail_port" class="form-label-custom">Port</label>
+                            <input type="number" id="mail_port" class="form-control-custom" min="1" max="65535" x-model="form.mail_port">
+                            <template x-for="message in err('mail_port')"><div class="text-danger small mt-1" x-text="message"></div></template>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label for="mail_encryption" class="form-label-custom">Security</label>
+                            <select id="mail_encryption" class="form-select-custom" x-model="form.mail_encryption">
+                                <option value="tls">TLS (port 587)</option>
+                                <option value="ssl">SSL (port 465)</option>
+                                <option value="none">None</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="mail_username" class="form-label-custom">Username</label>
+                            <input type="text" id="mail_username" class="form-control-custom" maxlength="150" autocomplete="off" x-model="form.mail_username">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="mail_password" class="form-label-custom">Password</label>
+                            <input type="password" id="mail_password" class="form-control-custom" maxlength="200" autocomplete="new-password"
+                                :placeholder="mailPasswordSet ? 'Saved (leave empty to keep it)' : ''" x-model="form.mail_password">
+                            <small class="text-muted">It is saved encrypted and never shown again.</small>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="mail_from_email" class="form-label-custom">Sender email</label>
+                            <input type="email" id="mail_from_email" class="form-control-custom" maxlength="150" placeholder="uptms@your-university.edu" x-model="form.mail_from_email">
+                            <template x-for="message in err('mail_from_email')"><div class="text-danger small mt-1" x-text="message"></div></template>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label for="mail_from_name" class="form-label-custom">Sender name</label>
+                            <input type="text" id="mail_from_name" class="form-control-custom" maxlength="100" placeholder="UPTMS" x-model="form.mail_from_name">
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-md-6">
+                            <label for="mail_test_to" class="form-label-custom">Send a test email to</label>
+                            <input type="email" id="mail_test_to" class="form-control-custom" placeholder="Your email (empty = your account email)" x-model="testTo">
+                            <template x-for="message in err('mail_test_to')"><div class="text-danger small mt-1" x-text="message"></div></template>
+                        </div>
+                        <div class="col-12 col-md-auto">
+                            <button type="button" class="btn btn-light border" :disabled="testing" @click="sendTest()">
+                                <i class="bi bi-envelope me-1"></i><span x-text="testing ? 'Sending...' : 'Send test email'"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-2">The test uses the settings that are <strong>saved</strong>. Press Save Settings first when you changed something. It works even when the switch is off.</div>
                 </div>
             </div>
 

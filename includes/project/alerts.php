@@ -20,7 +20,7 @@
                         <div class="small text-muted"><i class="bi bi-dot"></i><span x-text="line"></span></div>
                     </template>
                 </div>
-                <a :href="['ongoing', 'completed'].includes(item.status) ? '<?= $projectUrl ?>' + item.research_id : '<?= $researchUrl ?>'"
+                <a :href="['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(item.status) ? '<?= $projectUrl ?>' + item.research_id : '<?= $researchUrl ?>'"
                     class="btn btn-sm btn-primary text-nowrap">Open</a>
             </div>
         </template>

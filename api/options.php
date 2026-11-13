@@ -16,7 +16,12 @@ use App\Models\Department;
 use App\Services\Api;
 
 Api::start();
-Api::requireRoleOrManager('admin');
+Api::requireRole('admin', 'teacher');
+
+// A teacher is let in only as a member of a thesis committee.
+if (\App\Controllers\Auth::currentUser()['role'] === 'teacher' && !\App\Controllers\Auth::isCommitteeMember()) {
+    Api::json(['message' => 'Only a member of the thesis committee can do this.'], 403);
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     Api::json(['message' => 'Method not allowed.'], 405);

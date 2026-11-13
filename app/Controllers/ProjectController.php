@@ -32,8 +32,15 @@ use App\Services\Validation;
  */
 class ProjectController {
 
-    // The statuses that have a project page.
-    private const PROJECT = ['ongoing', 'completed'];
+    // The statuses that have a project page: a group works with its supervisor from the moment the supervisor is assigned
+    // (assigned = the topic comes later, requested / correction = the topic waits for the committee), until it is completed.
+    private const PROJECT = ['assigned', 'requested', 'correction', 'ongoing', 'completed'];
+
+    // A research that has no topic yet has no title.
+    private static function titleOf($title): string
+    {
+        return $title !== null && $title !== '' ? $title : 'Topic not sent yet';
+    }
 
     // ---------------------------------------------------------------------------------
     // Reading
@@ -42,7 +49,7 @@ class ProjectController {
     // The list of the projects of this user, with the progress of each, and the numbers for the dashboards.
     public static function index($actor){
 
-        $filters = ['statuses' => self::PROJECT];
+        $filters = ['statuses' => self::PROJECT, 'has_supervisor' => 1];
 
         if ($actor['role'] === 'teacher') {
             $filters['supervisor_id'] = (int) $actor['id'];
@@ -61,6 +68,7 @@ class ProjectController {
         foreach ($projects as $i => $project) {
             $numbers = $progress[(int) $project['id']] ?? ['milestones' => 0, 'tasks' => 0, 'done' => 0];
 
+            $projects[$i]['title'] = self::titleOf($project['title']);
             $projects[$i]['milestones'] = $numbers['milestones'];
             $projects[$i]['tasks'] = $numbers['tasks'];
             $projects[$i]['done'] = $numbers['done'];
@@ -70,7 +78,7 @@ class ProjectController {
             // Only what the project list needs: nothing about who submitted it or the review.
             $projects[$i] = array_diff_key($projects[$i], array_flip(['review_note', 'reviewed_at', 'target_status', 'creator_name']));
 
-            $summary[$project['status']]++;
+            $summary[$project['status'] === 'completed' ? 'completed' : 'ongoing']++;   // every working research counts as ongoing
             $summary['milestones'] += $numbers['milestones'];
             $summary['tasks'] += $numbers['tasks'];
             $summary['done'] += $numbers['done'];
@@ -91,7 +99,7 @@ class ProjectController {
             return self::alerts($actor);
         }
 
-        $filters = ['statuses' => self::PROJECT];
+        $filters = ['statuses' => self::PROJECT, 'has_supervisor' => 1];
 
         if ($actor['role'] === 'teacher') {
             $filters['supervisor_id'] = (int) $actor['id'];
@@ -108,7 +116,7 @@ class ProjectController {
             foreach ($projects as $project) {
                 if ((int) $project['id'] === (int) $researchId) {
                     $research = [
-                        'id' => (int) $project['id'], 'code' => $project['code'], 'title' => $project['title'], 'status' => $project['status'],
+                        'id' => (int) $project['id'], 'code' => $project['code'], 'title' => self::titleOf($project['title']), 'status' => $project['status'],
                         'team_name' => $project['team_name'] ?? null, 'batch_name' => $project['batch_name'] ?? null,
                     ];
                 }
@@ -189,15 +197,16 @@ class ProjectController {
         }
 
         $isSupervisor = $actor['role'] === 'teacher';
-        $open = $research['status'] === 'ongoing' && $actor['role'] !== 'admin';
+        $open = in_array($research['status'], Research::WORKING, true) && $actor['role'] !== 'admin';
 
         return [
             'research' => [
-                'id' => (int) $research['id'], 'code' => $research['code'], 'title' => $research['title'],
-                'abstract' => $research['abstract'], 'type' => $research['type'], 'year' => $research['year'],
+                'id' => (int) $research['id'], 'code' => $research['code'], 'title' => self::titleOf($research['title']),
+                'abstract' => $research['abstract'] ?? '', 'type' => $research['type'], 'year' => $research['year'],
                 'status' => $research['status'], 'category_name' => $research['category_name'],
                 'supervisor_name' => $research['supervisor_name'], 'team_name' => $research['team_name'] ?? null, 'batch_name' => $research['batch_name'] ?? null,
                 'students' => $research['students'], 'tags' => $research['tags'],
+                'signing' => in_array($research['status'], ['requested', 'pending', 'correction', 'assigned'], true) ? ResearchController::signingInfo($research) : null,
             ],
             'me'          => ['id' => (int) $actor['id'], 'role' => $actor['role']],
             'can_work'    => $open,
@@ -482,6 +491,9 @@ class ProjectController {
         if (!$research || $actor['role'] !== 'student') {
             return self::fail('This project cannot be changed.');
         }
+        if ($research['status'] !== 'ongoing') {
+            return self::fail('The thesis committee must approve your topic before you can ask to finish.');
+        }
 
         $model = new CompletionRequest();
         if ($model->hasActive((int) $research['id'])) {
@@ -505,7 +517,7 @@ class ProjectController {
             return self::fail('This request cannot be changed.');
         }
         if ((int) $item['requested_by'] !== (int) $actor['id'] || !in_array($item['status'], ['teacher', 'team'], true)) {
-            return self::fail('Only the student who asked can cancel it, and only before the administrator gets it.');
+            return self::fail('Only the student who asked can cancel it, and only before the thesis committee gets it.');
         }
 
         $model->setStatus((int) $item['id'], 'cancelled', (int) $actor['id']);
@@ -549,7 +561,7 @@ class ProjectController {
         $model->setStatus((int) $item['id'], $next, (int) $actor['id']);
         self::log($actor, (int) $research['id'], 'completion_approved', $note);
 
-        return self::ok($next === 'admin' ? 'Approved. The request went to the administrator.' : 'Approved. The team has to confirm now.');
+        return self::ok($next === 'admin' ? 'Approved. The request went to the thesis committee.' : 'Approved. The team has to confirm now.');
     }
 
     // A member of the team confirms. When everybody has confirmed, the request goes to the administrator.
@@ -569,7 +581,7 @@ class ProjectController {
         if (self::everyoneConfirmed($research, $model->confirmedIds((int) $item['id']))) {
             $model->setStatus((int) $item['id'], 'admin');
 
-            return self::ok('Everybody confirmed. The request went to the administrator.');
+            return self::ok('Everybody confirmed. The request went to the thesis committee.');
         }
 
         return self::ok('Thank you. Your confirmation was saved.');
@@ -596,7 +608,7 @@ class ProjectController {
         $model = new Research();
         $research = $model->find($id);
 
-        if (!$research || !in_array($research['status'], self::PROJECT, true)) {
+        if (!$research || !in_array($research['status'], self::PROJECT, true) || $research['supervisor_id'] === null) {
             return null;
         }
 
@@ -610,12 +622,12 @@ class ProjectController {
         return $allowed ? $research : null;
     }
 
-    // The same, but only while the research is ongoing (a completed research cannot be changed).
+    // The same, but only while the group is working (a completed research cannot be changed).
     private static function openForWork($actor, int $id): ?array
     {
         $research = self::open($actor, $id);
 
-        return $research && $research['status'] === 'ongoing' ? $research : null;
+        return $research && in_array($research['status'], Research::WORKING, true) ? $research : null;
     }
 
     // The one who made it can delete it. The supervisor can delete anything in the project.

@@ -5,6 +5,7 @@
  *
  *   GET api/menu_counts.php   ->   admin:           { "new_requests": 2, "need_supervisor": 1, "in_progress": 6 }
  *                                  student/teacher: { "requested": 1, "ongoing": 2 }  (their own research only)
+ *                                  a committee member also gets committee_topics, committee_completion, committee_groups, committee_assign
  */
 
 require_once(__DIR__ . '/../app/bootstrap.php');
@@ -21,10 +22,5 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 $user = Auth::currentUser();
-
-// A research manager on the admin pages (scope=manage) sees the numbers of the administrator.
-if (($_GET['scope'] ?? '') === 'manage' && Auth::isResearchManager()) {
-    $user['role'] = 'admin';
-}
 
 Api::json(ResearchController::menuCounts($user));

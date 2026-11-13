@@ -26,9 +26,10 @@ use App\Controllers\ProjectController;
 use App\Services\Api;
 
 Api::start();
-// api/project_admin.php sets PROJECT_AS_ADMIN: the administrator and a research manager see every project there.
+// api/project_admin.php sets PROJECT_AS_ADMIN: the administrator sees every project there.
 if (defined('PROJECT_AS_ADMIN')) {
-    $actor = Api::requireRoleOrManager('admin');
+    Api::requireRole('admin');
+    $actor = Auth::currentUser();
 } else {
     Api::requireRole('admin', 'teacher', 'student');
     $actor = Auth::currentUser();

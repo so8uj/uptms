@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Batch;
+use App\Models\Committee;
 use App\Models\Department;
 use App\Models\ResearchActivity;
 use App\Models\Team;
@@ -39,6 +40,7 @@ class TeamController {
         if ($actor['role'] === 'student') {
             $filters['member_id'] = (int) $actor['id'];
         }
+        $filters += self::scope($actor);
 
         $model = new Team();
         $page  = max(1, (int) ($query['page'] ?? 1));
@@ -66,6 +68,9 @@ class TeamController {
         if (!$team || ($actor['role'] === 'student' && !$model->isMember((int) $team['id'], (int) $actor['id']))) {
             return null;
         }
+        if ($actor['role'] === 'teacher') {
+            return null;   // a committee member only needs the free groups (available())
+        }
 
         $team['can_edit_members'] = $team['status'] === 'open' || ($actor['role'] === 'admin' && $team['status'] === 'requested');
         $team['has_research'] = $model->hasResearch((int) $team['id']);
@@ -74,15 +79,23 @@ class TeamController {
     }
 
     // Everything that waits for the admin: new group/team requests and member change requests (no paging).
-    public static function pending(){
+    public static function pending($actor = null){
 
-        return ['teams' => (new Team())->paginate(['pending' => 1], 100, 0)];
+        return ['teams' => (new Team())->paginate(['pending' => 1] + self::scope($actor), 100, 0)];
     }
 
-    // The teams the admin can give to a research: open and without an unfinished research.
-    public static function available(){
+    // The teams that can get a supervisor or a research: open and without an unfinished research.
+    // $query can filter them: q (group name, student name or ID), department_id, batch_id.
+    public static function available($actor = null, $query = []){
 
-        return ['teams' => (new Team())->paginate(['available' => 1], 200, 0)];
+        $filters = [
+            'available'     => 1,
+            'q'             => trim($query['q'] ?? ''),
+            'department_id' => (int) ($query['department_id'] ?? 0),
+            'batch_id'      => (int) ($query['batch_id'] ?? 0),
+        ];
+
+        return ['teams' => (new Team())->paginate($filters + self::scope($actor), 200, 0)];
     }
 
     // The students who can join a team of this department and batch. A student only sees their own batch.
@@ -116,6 +129,10 @@ class TeamController {
         $isAdmin = $actor['role'] === 'admin';
         $current = null;
         $errors  = [];
+
+        if (!$isAdmin && $actor['role'] !== 'student') {
+            return self::fail('You are not allowed to change a group/team.');
+        }
 
         // ---------- who may do this, and which department and batch ----------
 
@@ -278,6 +295,10 @@ class TeamController {
             return self::fail('This request was already reviewed.');
         }
 
+        if ($actor['role'] !== 'admin') {
+            return self::fail('Only the administrator can decide on a member change.');
+        }
+
         if (($request['decision'] ?? '') === 'reject') {
             $note = trim($request['note'] ?? '');
             if ($note === '' || mb_strlen($note) > 500) {
@@ -327,6 +348,9 @@ class TeamController {
         if (!$team || $team['status'] !== 'requested') {
             return self::fail('This request was already reviewed.');
         }
+        if ($actor['role'] !== 'admin') {
+            return self::fail('Only the administrator can approve or reject a group/team.');
+        }
 
         if (($request['decision'] ?? '') === 'reject') {
             $note = trim($request['note'] ?? '');
@@ -372,6 +396,18 @@ class TeamController {
         $model->softDelete((int) $team['id']);
 
         return ['success' => true, 'message' => 'Group/Team deleted.'];
+    }
+
+    // The filter that keeps a committee member inside the own departments (nothing for the admin and the students).
+    private static function scope($actor): array
+    {
+        if ($actor === null || ($actor['role'] ?? '') !== 'teacher') {
+            return [];
+        }
+
+        $departments = (new Committee())->departmentsOf((int) $actor['id']);
+
+        return $departments === null ? [] : ['department_ids' => $departments ?: [0]];
     }
 
     private static function nameOf(int $userId): string

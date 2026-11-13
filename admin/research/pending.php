@@ -60,6 +60,8 @@ $breadcrumbs = [
             </div>
         </div>
 
+        <?php require(base_path('includes/research/admin_filter_row.php')); ?>
+
         <div class="table-responsive">
             <table class="table-custom">
 
@@ -67,8 +69,7 @@ $breadcrumbs = [
                     <tr>
                         <th>Research</th>
                         <th>Submitted by</th>
-                        <th>Category</th>
-                        <th>Wants to be</th>
+                        <th>Signatures</th>
                         <th>Status</th>
                         <th class="text-center col-actions">Actions</th>
                     </tr>
@@ -77,18 +78,18 @@ $breadcrumbs = [
                 <tbody>
 
                     <tr x-cloak x-show="loading && items.length === 0">
-                        <td colspan="6" class="text-center text-muted py-4">Loading...</td>
+                        <td colspan="5" class="text-center text-muted py-4">Loading...</td>
                     </tr>
 
                     <tr x-cloak x-show="!loading && items.length === 0">
-                        <td colspan="6" class="text-center text-muted py-4">Nothing is waiting for review.</td>
+                        <td colspan="5" class="text-center text-muted py-4">Nothing is waiting for the thesis committee.</td>
                     </tr>
 
                     <template x-for="item in items" :key="item.id">
                         <tr>
                         <td style="max-width: 340px; white-space: normal;">
-                            <div class="table-user-name" x-text="item.title"></div>
-                            <div class="table-user-sub" x-text="item.code + ' · ' + item.type + ' · ' + item.year"></div>
+                            <div class="table-user-name" x-text="item.title || 'The topic is not sent yet'"></div>
+                            <div class="table-user-sub" x-text="[item.code, item.type, item.year, item.category_name].filter(Boolean).join(' · ')"></div>
                         </td>
 
                         <td>
@@ -96,24 +97,15 @@ $breadcrumbs = [
                             <div class="table-user-sub" x-text="item.created_at.substring(0, 10)"></div>
                         </td>
 
-                        <td x-text="item.category_name"></td>
-
-                        <td x-text="Sobuj_statusText(item.target_status)"></td>
+                        <td style="min-width: 230px; white-space: normal;">
+                            <?php $sigItem = 'item'; require(base_path('includes/research/signature_chips.php')); ?>
+                            <div class="small text-primary mt-1" x-show="item.my_vote" x-text="'You signed: ' + { approve: 'approved', reject: 'rejected', correction: 'correction' }[item.my_vote]"></div>
+                        </td>
 
                         <td><span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span></td>
 
                         <td class="col-actions" style="min-width: 300px;">
-                            <div class="d-flex flex-wrap justify-content-end gap-1 mb-1">
-                                <button type="button" class="btn btn-success btn-sm" title="Accept this research" @click="openReview(item, 'approve')">
-                                    <i class="bi bi-check-lg me-1"></i> Approve
-                                </button>
-                                <button type="button" class="btn btn-warning btn-sm" title="Send it back: the owner can fix it and send it again" @click="openReview(item, 'correction')">
-                                    <i class="bi bi-pencil-square me-1"></i> Correction
-                                </button>
-                                <button type="button" class="btn btn-danger btn-sm" title="Refuse it for good: nothing more can be done" @click="openReview(item, 'reject')">
-                                    <i class="bi bi-x-lg me-1"></i> Reject
-                                </button>
-                            </div>
+                            <div class="small text-muted mb-1 text-end"><i class="bi bi-hourglass-split me-1"></i> Waiting for the committee signatures</div>
                             <div class="d-flex flex-wrap justify-content-end gap-1">
                                 <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id" class="btn btn-light btn-sm" title="Full details of this research">
                                     <i class="bi bi-eye me-1"></i> View
@@ -165,8 +157,6 @@ $breadcrumbs = [
         </div>
 
     </div>
-
-    <?php require(base_path('includes/research/review_modal.php')); ?>
 
     <?php require(base_path('admin/includes/section_nav_close.php')); ?>
 </div>

@@ -84,7 +84,7 @@ $meId = (int) (App\Controllers\Auth::currentUser()['id'] ?? 0);
                         <div>
                             <span class="fw-semibold" x-text="team.research_title"></span>
                             <span class="text-muted small" x-text="' · ' + team.research_code"></span>
-                            <div><a :href="researchLink()" class="small" x-show="['ongoing', 'completed'].includes(team.research_status)">Open project work</a></div>
+                            <div><a :href="researchLink()" class="small" x-show="['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(team.research_status)">Open project work</a></div>
                         </div>
                     </template>
                     <div x-show="team && !team.research_id && team.status === 'open'" class="small text-muted">

@@ -41,7 +41,7 @@ class Report
         'supervisors' => [
             'employee_id' => 'Employee ID', 'name' => 'Name', 'designation' => 'Designation', 'email' => 'Email',
             'projects' => 'Projects', 'ongoing' => 'Ongoing', 'completed' => 'Completed', 'evaluations' => 'Evaluations written',
-            'research_management' => 'Research management',
+            'in_committee' => 'Thesis committee',
         ],
         'evaluations' => [
             'date' => 'Date', 'code' => 'Research code', 'title' => 'Research', 'type' => 'Type', 'team' => 'Group/Team',
@@ -144,12 +144,12 @@ class Report
             $bind['q1'] = $bind['q2'] = '%' . $f['q'] . '%';
         }
 
-        $sql = "SELECT r.id AS _id, r.code, r.title, r.type, c.name AS category, r.status, r.year,
+        $sql = "SELECT r.id AS _id, r.code, COALESCE(r.title, 'Topic not sent yet') AS title, r.type, c.name AS category, r.status, r.year,
                        t.name AS team, b.name AS batch, sv.name AS supervisor,
                        " . $this->studentList('research_student rs', 'rs.student_id', 'rs.research_id = r.id') . " AS members,
                        DATE(r.created_at) AS submitted
                 FROM research r
-                JOIN categories c ON c.id = r.category_id
+                LEFT JOIN categories c ON c.id = r.category_id
                 LEFT JOIN teams t ON t.id = r.team_id
                 LEFT JOIN batches b ON b.id = t.batch_id
                 LEFT JOIN users sv ON sv.id = r.supervisor_id
@@ -240,7 +240,8 @@ class Report
                        ({$count} AND r.status = 'ongoing') AS ongoing,
                        ({$count} AND r.status = 'completed') AS completed,
                        (SELECT COUNT(*) FROM evaluations e WHERE e.teacher_id = u.id) AS evaluations,
-                       IF(tp.research_management = 1, 'Yes', 'No') AS research_management
+                       IF(EXISTS (SELECT 1 FROM committee_members cm JOIN committees c ON c.id = cm.committee_id
+                                  WHERE cm.teacher_id = u.id AND c.status = 1 AND c.deleted_at IS NULL), 'Yes', 'No') AS in_committee
                 FROM users u
                 JOIN teacher_profiles tp ON tp.user_id = u.id
                 WHERE {$where}

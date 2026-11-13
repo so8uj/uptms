@@ -90,12 +90,20 @@ class Notification
         )->fetchAll();
     }
 
-    // The people who decide: the active admins and the teachers with the research management permission.
+    // The active admins.
     public function adminAudience(): array
     {
         return array_map('intval', $this->db->query(
-            "SELECT u.id FROM users u LEFT JOIN teacher_profiles tp ON tp.user_id = u.id
-             WHERE u.status = 1 AND u.deleted_at IS NULL AND (u.role = 'admin' OR (u.role = 'teacher' AND tp.research_management = 1))"
+            "SELECT id FROM users WHERE role = 'admin' AND status = 1 AND deleted_at IS NULL"
         )->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    // The people who decide on a request of this department: the members of the thesis committees that work for it.
+    // When no committee exists yet, the admins are told, so a request never goes unseen.
+    public function deciderAudience(?int $departmentId): array
+    {
+        $members = (new Committee())->audience($departmentId);
+
+        return $members ?: $this->adminAudience();
     }
 }

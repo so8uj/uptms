@@ -196,6 +196,7 @@ function Sobuj_userList(apiUrl, role, batchesUrl) {
             }
             this.page = number;
             this.load();
+            Sobuj_scrollTop();
         },
 
         async remove(item) {
@@ -217,10 +218,10 @@ function Sobuj_userList(apiUrl, role, batchesUrl) {
 
 // Which fields each kind of user has (these are sent to the server)
 const Sobuj_userFields = {
-    admin:   ['name', 'email', 'phone', 'password', 'status'],
-    teacher: ['name', 'email', 'phone', 'password', 'status', 'employee_id', 'department_id', 'designation',
-              'specialization', 'research_area', 'research_management'],
-    student: ['name', 'email', 'phone', 'password', 'status', 'student_id', 'department_id', 'batch_id', 'gender',
+    admin:   ['name', 'email', 'phone', 'status'],
+    teacher: ['name', 'email', 'phone', 'status', 'employee_id', 'department_id', 'designation',
+              'specialization', 'research_area'],
+    student: ['name', 'email', 'phone', 'status', 'student_id', 'department_id', 'batch_id', 'gender',
               'cgpa', 'completed_credit_hours'],
 };
 
@@ -228,12 +229,13 @@ function Sobuj_userForm(apiUrl, optionsUrl, role, id, listUrl) {
     return {
 
         form: {
-            name: '', email: '', phone: '', password: '', status: '1',
-            employee_id: '', department_id: '', designation: '', specialization: '', research_area: '', research_management: '0',
+            name: '', email: '', phone: '', status: '1',
+            employee_id: '', department_id: '', designation: '', specialization: '', research_area: '',
             student_id: '', batch_id: '', gender: '', cgpa: '', completed_credit_hours: '',
         },
         errors: {},
         saving: false,
+        resetting: false,
         loading: true,
 
         departments: [],
@@ -295,7 +297,7 @@ function Sobuj_userForm(apiUrl, optionsUrl, role, id, listUrl) {
 
             const user = res.data.user;
             for (const field of Sobuj_userFields[role]) {
-                if (field !== 'password' && user[field] !== undefined && user[field] !== null) {
+                if (user[field] !== undefined && user[field] !== null) {
                     this.form[field] = String(user[field]);
                 }
             }
@@ -342,6 +344,23 @@ function Sobuj_userForm(apiUrl, optionsUrl, role, id, listUrl) {
             if (this.$refs.photoInput) {
                 this.$refs.photoInput.value = '';
             }
+        },
+
+        // Gives the user the default password again (the server says which one, and tells whether the email was sent)
+        async resetPassword() {
+            const sure = await Sobuj_confirm('Give this user the default password again? The user must change it at the next login.', {
+                title: 'Reset password',
+                confirmText: 'Reset',
+            });
+            if (!sure) {
+                return;
+            }
+
+            this.resetting = true;
+            const res = await Sobuj_api(apiUrl, { method: 'POST', body: { role: role, op: 'reset_password', id: id } });
+            this.resetting = false;
+
+            this.notify(res.data.message || 'Could not reset the password.', res.ok ? 'success' : 'error');
         },
 
         async save() {

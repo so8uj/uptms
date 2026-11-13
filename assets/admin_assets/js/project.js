@@ -83,7 +83,7 @@ function Sobuj_projectList(apiUrl) {
 
         // The ongoing projects that have no evaluation yet
         notEvaluated() {
-            return this.projects.filter(function (project) { return project.status === 'ongoing' && project.evaluations === 0; }).length;
+            return this.projects.filter(function (project) { return project.status !== 'completed' && project.evaluations === 0; }).length;
         },
 
         // The projects of the chosen kind
@@ -270,7 +270,7 @@ function Sobuj_projectWorkspace(apiUrl, id) {
                 { done: true, text: 'Asked by ' + request.requested_by_name },
                 { done: status !== 'teacher', text: status === 'teacher' ? 'Waiting for the supervisor to approve' : 'Approved by the supervisor' },
                 { done: status === 'admin' || status === 'done', text: 'Team confirmation: ' + confirmed + ' of ' + request.members.length },
-                { done: status === 'done', text: status === 'done' ? 'Completed by the administrator' : 'Administrator decision' },
+                { done: status === 'done', text: status === 'done' ? 'Completed by the thesis committee' : 'Thesis committee decision' },
             ];
         },
 

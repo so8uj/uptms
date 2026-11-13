@@ -16,7 +16,7 @@ use App\Controllers\BatchController;
 use App\Services\Api;
 
 Api::start();
-Api::requireRoleOrManager('admin');
+Api::requireRole('admin');
 
 $method = $_SERVER['REQUEST_METHOD'];
 

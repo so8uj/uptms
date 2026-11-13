@@ -45,9 +45,20 @@ class Api
         }
 
         self::refuseInMaintenance($user);
+        self::refuseDefaultPassword();
 
         if (!in_array($user['role'], $roles, true)) {
             self::json(['message' => 'You are not allowed to do this.'], 403);
+        }
+    }
+
+    // A user who still has the default password may only change it (and read the bell and the menu numbers).
+    private static function refuseDefaultPassword(): void
+    {
+        $file = basename($_SERVER['SCRIPT_FILENAME'] ?? '');
+
+        if (!empty($_SESSION['must_change_password']) && !in_array($file, ['account.php', 'notifications.php', 'menu_counts.php'], true)) {
+            self::json(['message' => 'Please change your default password first (My Profile).'], 403);
         }
     }
 
@@ -59,31 +70,16 @@ class Api
         }
     }
 
-    /**
-     * Like requireRole, and returns the logged-in user. A teacher with the research management permission is
-     * also let in where 'admin' is allowed: they get the user back with the role 'admin', so the controllers
-     * treat them as the administrator. Their id stays their own, so the history shows who did it.
-     */
-    public static function requireRoleOrManager(string ...$roles): array
+    // Only a teacher who is a member of a thesis committee may continue. Returns the logged-in user (role teacher).
+    public static function requireCommittee(): array
     {
-        $user = \App\Controllers\Auth::currentUser();
+        self::requireRole('teacher');
 
-        if (!$user) {
-            self::json(['message' => 'Please log in again.'], 401);
+        if (!\App\Controllers\Auth::isCommitteeMember()) {
+            self::json(['message' => 'Only a member of the thesis committee can do this.'], 403);
         }
 
-        self::refuseInMaintenance($user);
-
-        if (in_array($user['role'], $roles, true)) {
-            return $user;
-        }
-
-        if (in_array('admin', $roles, true) && \App\Controllers\Auth::isResearchManager()) {
-            $user['role'] = 'admin';
-            return $user;
-        }
-
-        self::json(['message' => 'You are not allowed to do this.'], 403);
+        return \App\Controllers\Auth::currentUser();
     }
 
     // For every request that changes data. The page sends the token in the X-CSRF-Token header.

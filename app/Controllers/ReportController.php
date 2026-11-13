@@ -15,6 +15,7 @@ class ReportController {
 
     // How the statuses and the codes are written for a reader.
     private const STATUS = [
+        'assigned' => 'Supervisor assigned',
         'requested' => 'Requested', 'pending' => 'Pending', 'approved' => 'Approved', 'ongoing' => 'Ongoing',
         'completed' => 'Completed', 'rejected' => 'Rejected', 'correction' => 'Needs correction',
         'open' => 'Approved', 'closed' => 'Completed',

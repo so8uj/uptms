@@ -32,6 +32,11 @@ function Sobuj_accountPage(apiUrl) {
                 return;
             }
             this.account = res.data.account;
+
+            // Still on the default password: the password form opens at once
+            if (window.Sobuj_mustChange) {
+                this.openPassword();
+            }
         },
 
         get avatar() {
@@ -112,6 +117,11 @@ function Sobuj_accountPage(apiUrl) {
             if (res.ok) {
                 this.notify(res.data.message);
                 this.view = 'show';
+
+                // The default password is changed: the other pages open again
+                if (window.Sobuj_mustChange) {
+                    window.location.href = window.Sobuj_mustChange;
+                }
                 return;
             }
 

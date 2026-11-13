@@ -9,12 +9,30 @@ class User
 {
     public const ROLES = ['admin', 'teacher', 'student'];
 
+    // The first password of a new account. A user who logs in with it must choose another one (Auth::attempt).
+    public const DEFAULT_PASSWORDS = [
+        'student' => 'wub@student123',
+        'teacher' => 'wub@teacher123',
+        'admin'   => 'wub@admin123',
+    ];
+
+    public static function defaultPassword(string $role): string
+    {
+        return self::DEFAULT_PASSWORDS[$role] ?? self::DEFAULT_PASSWORDS['student'];
+    }
+
+    // Is this text one of the default passwords?
+    public static function isDefaultPassword(string $plain): bool
+    {
+        return in_array($plain, self::DEFAULT_PASSWORDS, true);
+    }
+
     // Teachers and students keep extra data in a profile table. Admins have none.
     // The column names here are fixed in the code, so they are safe to use inside SQL.
     private const PROFILES = [
         'teacher' => [
             'table'  => 'teacher_profiles',
-            'fields' => ['employee_id', 'department_id', 'designation', 'specialization', 'research_area', 'research_management'],
+            'fields' => ['employee_id', 'department_id', 'designation', 'specialization', 'research_area'],
         ],
         'student' => [
             'table'  => 'student_profiles',
@@ -126,7 +144,8 @@ class User
 
         if ($role === 'teacher') {
             $columns .= ', tp.employee_id, tp.department_id, tp.designation, tp.specialization, tp.research_area,
-                          tp.research_management, d.name AS department_name';
+                          EXISTS (SELECT 1 FROM committee_members cm JOIN committees c ON c.id = cm.committee_id
+                                  WHERE cm.teacher_id = u.id AND c.status = 1 AND c.deleted_at IS NULL) AS in_committee, d.name AS department_name';
             $joins = 'LEFT JOIN teacher_profiles tp ON tp.user_id = u.id
                       LEFT JOIN departments d ON d.id = tp.department_id';
             $search[] = 'tp.employee_id';
@@ -391,15 +410,4 @@ class User
         )->fetchColumn();
     }
 
-    // Is this user an active teacher who has the research management permission (given by the admin)?
-    public function hasResearchManagement(int $id): bool
-    {
-        $stmt = $this->db->prepare(
-            "SELECT tp.research_management FROM teacher_profiles tp JOIN users u ON u.id = tp.user_id
-             WHERE tp.user_id = :id AND u.role = 'teacher' AND u.status = 1 AND u.deleted_at IS NULL"
-        );
-        $stmt->execute(['id' => $id]);
-
-        return (int) $stmt->fetchColumn() === 1;
-    }
 }

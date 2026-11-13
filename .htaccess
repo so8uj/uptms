@@ -17,4 +17,4 @@ RewriteRule ^(admin|student|teacher)/includes(/|$) - [F,L]
 RewriteRule ^(composer\.json|composer\.lock|migrate\.php)$ - [F,L]
 
 # 5. File types that should never be downloaded from the site
-RewriteRule \.(md|sql|log|bak|ini|dist|example)$ - [F,L]
+RewriteRule \.(md|sql|log|bak|ini|dist|example|zip|gz|tgz|tar|rar|7z)$ - [F,L]

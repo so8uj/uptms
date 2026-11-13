@@ -6,6 +6,14 @@
  */
 ?>
 
+<?php if (!empty($_SESSION['must_change_password'])): ?>
+    <div class="alert alert-warning">
+        <strong>Please choose your own password.</strong> You are using the default password, so the other pages are locked until you change it.
+        Write the default password as the current password, then write a new one.
+    </div>
+    <script>window.Sobuj_mustChange = '<?= url($_SESSION['user']['role'] . '/index.php') ?>';</script>
+<?php endif; ?>
+
 <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
     x-text="toast.text"></div>
 

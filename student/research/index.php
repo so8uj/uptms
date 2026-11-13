@@ -23,33 +23,25 @@ $breadcrumbs = [
     <div x-cloak x-show="toast.text" class="alert py-2" :class="toast.type === 'error' ? 'alert-danger' : 'alert-success'"
         x-text="toast.text"></div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-lg-3">
-            <div class="card border-light shadow-sm p-3"><div class="small text-muted">Completed research</div><div class="fs-4 fw-bold" x-text="counts.completed"></div></div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="card border-light shadow-sm p-3"><div class="small text-muted">Ongoing research</div><div class="fs-4 fw-bold" x-text="counts.ongoing"></div></div>
-        </div>
-    </div>
-
     <div class="table-card-custom">
+
+        <div class="p-3 pb-0">
+            <div class="table-search-box" style="max-width: 100%;">
+                <i class="bi bi-search table-search-icon"></i>
+                <input type="text" class="table-search-input" placeholder="Search a topic, title or keyword to see what was already done..." x-model="search"
+                    @input.debounce.400ms="filtersChanged()">
+            </div>
+        </div>
 
         <?php require(base_path('includes/research/type_tabs.php')); ?>
 
         <div class="table-header-control">
-
-            <div class="table-search-box">
-                <i class="bi bi-search table-search-icon"></i>
-                <input type="text" class="table-search-input" placeholder="Search research..." x-model="search"
-                    @input.debounce.400ms="filtersChanged()">
-            </div>
-
             <div class="table-filter-group">
 
                 <?php require(base_path('includes/research/search_filters.php')); ?>
 
                 <select class="form-select-custom" style="width: auto;" x-model="year" @change="filtersChanged()">
-                    <option value="">All years</option>
+                    <option value="">Any year</option>
                     <template x-for="y in years" :key="y">
                         <option :value="String(y)" x-text="y"></option>
                     </template>
@@ -63,79 +55,49 @@ $breadcrumbs = [
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table-custom">
+        <div class="px-3 pb-2 small text-muted">
+            <span x-show="total > 0">About <strong x-text="total"></strong> <span x-text="total === 1 ? 'result' : 'results'"></span></span>
+            <span x-show="total === 0 && !loading">0 results</span>
+        </div>
 
-                <thead>
-                    <tr>
-                        <th>Research</th>
-                        <th>Group/Team</th>
-                        <th>Batch</th>
-                        <th>Category</th>
-                        <th>Year</th>
-                        <th>Status</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
+        <div class="px-3 pb-3">
 
-                <tbody>
+            <div class="text-center text-muted py-4" x-cloak x-show="loading && items.length === 0">Loading...</div>
+            <div class="text-center text-muted py-4" x-cloak x-show="!loading && items.length === 0">
+                Nothing found for this topic. Try fewer words or clear the filters.
+            </div>
 
-                    <tr x-cloak x-show="loading && items.length === 0">
-                        <td colspan="7" class="text-center text-muted py-4">Loading...</td>
-                    </tr>
+            <template x-for="item in items" :key="item.id">
+                <div class="py-3 border-bottom">
+                    <a :href="'<?= url('student/research/view.php?id=') ?>' + item.id" class="fw-semibold fs-5 text-primary text-decoration-none" x-text="item.title"></a>
 
-                    <tr x-cloak x-show="!loading && items.length === 0">
-                        <td colspan="7" class="text-center text-muted py-4">No research found.</td>
-                    </tr>
+                    <div class="small text-success mt-1">
+                        <span x-text="item.type"></span>
+                        <span x-show="item.year"> · <span x-text="item.year"></span></span>
+                        <span x-show="item.category_name"> · <span x-text="item.category_name"></span></span>
+                        <span class="badge-table pending ms-1" x-show="item.status !== 'completed'" x-text="Sobuj_statusText(item.status)"></span>
+                    </div>
 
-                    <template x-for="item in items" :key="item.id">
-                        <tr style="cursor: pointer;" @click="toggle(item.id)">
-                            <td style="max-width: 420px; white-space: normal;">
-                                <div class="table-user-name" x-text="item.title"></div>
-                                <div class="table-user-sub" x-text="item.code + ' · ' + item.type"></div>
+                    <div class="text-muted mt-1" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;" x-text="item.abstract"></div>
 
-                                <div class="d-flex flex-wrap gap-1 mt-1">
-                                    <template x-for="tag in item.tags" :key="tag.id">
-                                        <span class="badge-table pending" x-text="tag.name"></span>
-                                    </template>
-                                </div>
+                    <div class="d-flex flex-wrap gap-1 mt-2">
+                        <template x-for="tag in item.tags" :key="tag.id">
+                            <span class="badge-table pending" x-text="tag.name"></span>
+                        </template>
+                    </div>
+                </div>
+            </template>
 
-                                <div class="small text-muted mt-2" x-cloak x-show="opened[item.id]" x-text="item.abstract"></div>
-                                <div class="small text-primary mt-1" x-text="opened[item.id] ? 'Hide abstract' : 'Read abstract'"></div>
-                            </td>
-
-                            <td style="max-width: 230px; white-space: normal;">
-                                <div class="table-user-name" x-text="item.team_name || 'No group/team'"></div>
-                                <div class="table-user-sub" x-text="Sobuj_authors(item)"></div>
-                                <div class="table-user-sub" x-show="item.supervisor_name" x-text="'Supervisor: ' + item.supervisor_name"></div>
-                            </td>
-                            <td x-text="item.batch_name || '-'"></td>
-
-                            <td x-text="item.category_name"></td>
-                            <td x-text="item.year"></td>
-                            <td><span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span></td>
-
-                            <td class="text-center">
-                                <a :href="'<?= url('student/research/view.php?id=') ?>' + item.id" class="table-btn-action" title="View" @click.stop>
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </template>
-
-                </tbody>
-
-            </table>
         </div>
 
         <div class="table-footer-control">
 
             <span class="table-pagination-info">
                 <template x-if="total > 0">
-                    <span>Showing <span x-text="rangeFrom()"></span> to <span x-text="rangeTo()"></span> of <span x-text="total"></span> records</span>
+                    <span>Showing <span x-text="rangeFrom()"></span> to <span x-text="rangeTo()"></span> of <span x-text="total"></span> results</span>
                 </template>
                 <template x-if="total === 0">
-                    <span>Showing 0 records</span>
+                    <span>Showing 0 results</span>
                 </template>
             </span>
 

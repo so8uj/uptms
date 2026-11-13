@@ -7,7 +7,11 @@ use PDO;
 
 class Research
 {
-    public const STATUSES = ['requested', 'pending', 'approved', 'ongoing', 'completed', 'rejected', 'correction'];
+    public const STATUSES = ['requested', 'pending', 'approved', 'ongoing', 'completed', 'rejected', 'correction', 'assigned'];
+
+    // The statuses in which a group works with its supervisor on the project page. 'assigned' = the supervisor is set and
+    // the topic comes later, 'requested' and 'correction' = the topic waits for the committee while the work goes on.
+    public const WORKING = ['assigned', 'requested', 'correction', 'ongoing'];
     public const TYPES = ['Thesis', 'Research Paper', 'Project'];
 
     private PDO $db;
@@ -40,17 +44,32 @@ class Research
                     c.name AS category_name, sv.name AS supervisor_name, cr.name AS creator_name, tt.name AS team_name,
                     tb.name AS batch_name
              FROM research r
-             JOIN categories c ON c.id = r.category_id
+             LEFT JOIN categories c ON c.id = r.category_id
              JOIN users cr ON cr.id = r.created_by
              LEFT JOIN users sv ON sv.id = r.supervisor_id
              LEFT JOIN teams tt ON tt.id = r.team_id
              LEFT JOIN batches tb ON tb.id = tt.batch_id
-             WHERE {$where} ORDER BY r.id DESC LIMIT {$limit} OFFSET {$offset}"
+             WHERE {$where} ORDER BY " . $this->orderBy($f['sort'] ?? '') . " LIMIT {$limit} OFFSET {$offset}"
         );
         $stmt->execute($bind);
         $rows = $stmt->fetchAll();
 
         return $this->withTagsAndStudents($rows);
+    }
+
+    // The sort orders of the lists (a name from the page => the ORDER BY). Anything else means the newest first.
+    private const SORTS = [
+        'newest'     => 'r.id DESC',
+        'oldest'     => 'r.id ASC',
+        'title'      => 'r.title ASC, r.id DESC',
+        'title_desc' => 'r.title DESC, r.id DESC',
+        'year_desc'  => 'r.year DESC, r.id DESC',
+        'year_asc'   => 'r.year ASC, r.id DESC',
+    ];
+
+    private function orderBy(string $sort): string
+    {
+        return self::SORTS[$sort] ?? self::SORTS['newest'];
     }
 
     public function count(array $f): int
@@ -113,6 +132,38 @@ class Research
         if (!empty($f['year'])) {
             $where .= ' AND r.year = :year';
             $bind['year'] = (int) $f['year'];
+        }
+
+        // The batch of the students (it also finds research that has no group/team).
+        if (!empty($f['batch_id'])) {
+            $where .= ' AND EXISTS (SELECT 1 FROM research_student rsb JOIN student_profiles spb ON spb.user_id = rsb.student_id
+                                    WHERE rsb.research_id = r.id AND spb.batch_id = :batch_id)';
+            $bind['batch_id'] = (int) $f['batch_id'];
+        }
+
+        // A student: the name, the student ID or the email.
+        $student = trim((string) ($f['student'] ?? ''));
+        if ($student !== '') {
+            $where .= ' AND EXISTS (SELECT 1 FROM research_student rss
+                                    JOIN users sus ON sus.id = rss.student_id
+                                    LEFT JOIN student_profiles sps ON sps.user_id = sus.id
+                                    WHERE rss.research_id = r.id AND (sus.name LIKE :student1 OR sus.email LIKE :student2 OR sps.student_id LIKE :student3))';
+            $bind += ['student1' => '%' . $student . '%', 'student2' => '%' . $student . '%', 'student3' => '%' . $student . '%'];
+        }
+
+        // The departments of a committee member: only the research of a group of these departments.
+        if (!empty($f['department_ids']) && is_array($f['department_ids'])) {
+            $marks = [];
+            foreach (array_values($f['department_ids']) as $i => $departmentId) {
+                $marks[] = ':dep' . $i;
+                $bind['dep' . $i] = (int) $departmentId;
+            }
+            $where .= ' AND EXISTS (SELECT 1 FROM teams td WHERE td.id = r.team_id AND td.department_id IN (' . implode(', ', $marks) . '))';
+        }
+
+        // Only the research that has a supervisor (the project pages).
+        if (!empty($f['has_supervisor'])) {
+            $where .= ' AND r.supervisor_id IS NOT NULL';
         }
 
         if (!empty($f['supervisor_id'])) {
@@ -180,7 +231,7 @@ class Research
         $stmt = $this->db->prepare(
             "SELECT r.*, c.name AS category_name, sv.name AS supervisor_name, cr.name AS creator_name, tt.name AS team_name, tb.name AS batch_name
              FROM research r
-             JOIN categories c ON c.id = r.category_id
+             LEFT JOIN categories c ON c.id = r.category_id
              JOIN users cr ON cr.id = r.created_by
              LEFT JOIN users sv ON sv.id = r.supervisor_id
              LEFT JOIN teams tt ON tt.id = r.team_id
@@ -265,6 +316,64 @@ class Research
         }
     }
 
+    // The department of the group of this research (or, without a group, of the student who asked). null = unknown.
+    public function departmentId(array $item): ?int
+    {
+        if (!empty($item['team_id'])) {
+            $stmt = $this->db->prepare('SELECT department_id FROM teams WHERE id = :id');
+            $stmt->execute(['id' => (int) $item['team_id']]);
+        } else {
+            $stmt = $this->db->prepare('SELECT department_id FROM student_profiles WHERE user_id = :id');
+            $stmt->execute(['id' => (int) $item['created_by']]);
+        }
+
+        $id = $stmt->fetchColumn();
+
+        return $id ? (int) $id : null;
+    }
+
+    /**
+     * The group sends its topic: the details are saved and the research waits for the committee ('requested').
+     * $data = title, abstract, type, category_id. The supervisor and the group stay as they are.
+     */
+    public function setTopic(int $id, array $data, array $tagIds, string $status): void
+    {
+        $this->db->beginTransaction();
+
+        try {
+            $this->db->prepare(
+                'UPDATE research SET title = :title, abstract = :abstract, type = :type, category_id = :category_id, status = :status, review_note = NULL
+                 WHERE id = :id AND deleted_at IS NULL'
+            )->execute($data + ['status' => $status, 'id' => $id]);
+
+            $this->replaceLinks($id, $tagIds, null);
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
+    // The committee rejected the topic of a group that already has its supervisor: the topic is cleared and the group
+    // sends a new one. The note says why. (The rejected title stays in the history.)
+    public function returnToAssigned(int $id, ?string $note): void
+    {
+        $this->db->beginTransaction();
+
+        try {
+            $this->db->prepare(
+                "UPDATE research SET status = 'assigned', title = NULL, abstract = NULL, category_id = NULL, review_note = :note, reviewed_at = NOW()
+                 WHERE id = :id AND deleted_at IS NULL"
+            )->execute(['note' => $note ?: null, 'id' => $id]);
+
+            $this->db->prepare('DELETE FROM research_tag WHERE research_id = :id')->execute(['id' => $id]);
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+
     /**
      * The admin's decision on a requested, pending or approved research.
      * $status = approved, ongoing, completed or rejected.  $supervisorId can be null.  $note explains a rejection.
@@ -313,6 +422,102 @@ class Research
     {
         $stmt = $this->db->prepare('UPDATE research SET deleted_at = NOW() WHERE id = :id AND deleted_at IS NULL');
         $stmt->execute(['id' => $id]);
+    }
+
+    // ---------------------------------------------------------------------------------
+    // Permanent delete (admin only)
+    // ---------------------------------------------------------------------------------
+
+    // A research even when it is already soft deleted (find() hides those).
+    public function findAny(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT id, code, title, status, deleted_at FROM research WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+
+        return $stmt->fetch() ?: null;
+    }
+
+    // The trash: the research that were deleted (soft), the newest deletion first, with how many records each one has.
+    public function trashed(): array
+    {
+        $rows = $this->db->query(
+            "SELECT r.id, r.code, r.title, r.type, r.status, r.deleted_at, tt.name AS team_name, tb.name AS batch_name,
+                    sv.name AS supervisor_name,
+                    (SELECT COUNT(*) FROM milestones m WHERE m.research_id = r.id) AS milestones,
+                    (SELECT COUNT(*) FROM research_comments c WHERE c.research_id = r.id) AS comments,
+                    (SELECT COUNT(*) FROM evaluations e WHERE e.research_id = r.id) AS evaluations
+             FROM research r
+             LEFT JOIN teams tt ON tt.id = r.team_id
+             LEFT JOIN batches tb ON tb.id = tt.batch_id
+             LEFT JOIN users sv ON sv.id = r.supervisor_id
+             WHERE r.deleted_at IS NOT NULL
+             ORDER BY r.deleted_at DESC, r.id DESC"
+        )->fetchAll();
+
+        return $this->withTagsAndStudents($rows);
+    }
+
+    // Takes a research out of the trash: it is back in the library with all its records.
+    public function restore(int $id): void
+    {
+        $this->db->prepare('UPDATE research SET deleted_at = NULL WHERE id = :id AND deleted_at IS NOT NULL')->execute(['id' => $id]);
+    }
+
+    // What a permanent delete would remove with this research: label => how many.
+    public function impact(int $id): array
+    {
+        $count = function (string $sql) use ($id): int {
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id' => $id]);
+
+            return (int) $stmt->fetchColumn();
+        };
+
+        return [
+            'milestones'  => $count('SELECT COUNT(*) FROM milestones WHERE research_id = :id'),
+            'tasks'       => $count('SELECT COUNT(*) FROM tasks WHERE milestone_id IN (SELECT id FROM milestones WHERE research_id = :id)'),
+            'comments'    => $count('SELECT COUNT(*) FROM research_comments WHERE research_id = :id'),
+            'evaluations' => $count('SELECT COUNT(*) FROM evaluations WHERE research_id = :id'),
+            'history'     => $count('SELECT COUNT(*) FROM research_activity WHERE research_id = :id'),
+            'completion'  => $count('SELECT COUNT(*) FROM completion_requests WHERE research_id = :id'),
+        ];
+    }
+
+    // Removes the research and everything that belongs to it, for ever. All or nothing (one transaction).
+    // The group/team, the students and the teachers themselves are not touched.
+    public function hardDelete(int $id): void
+    {
+        $this->db->beginTransaction();
+
+        try {
+            $run = function (string $sql) use ($id): void {
+                $this->db->prepare($sql)->execute(['id' => $id]);
+            };
+
+            $run("DELETE FROM approvals WHERE subject = 'completion' AND subject_id IN (SELECT id FROM completion_requests WHERE research_id = :id)");
+            $run("DELETE FROM approvals WHERE subject = 'topic' AND subject_id = :id");
+            $run('DELETE FROM completion_confirmations WHERE request_id IN (SELECT id FROM completion_requests WHERE research_id = :id)');
+            $run('DELETE FROM completion_requests WHERE research_id = :id');
+            $run('DELETE FROM research_comments WHERE research_id = :id');   // before the milestones (a comment can belong to one)
+            $run('DELETE FROM tasks WHERE milestone_id IN (SELECT id FROM milestones WHERE research_id = :id)');
+            $run('DELETE FROM milestones WHERE research_id = :id');
+            $run('DELETE FROM evaluations WHERE research_id = :id');
+            $run('DELETE FROM research_activity WHERE research_id = :id');
+            $run('DELETE FROM research_seen WHERE research_id = :id');
+            $run('DELETE FROM research_student WHERE research_id = :id');
+            $run('DELETE FROM research_tag WHERE research_id = :id');
+
+            // The notifications that open this research: their link ends with view.php?id=5 or project.php?id=5.
+            $this->db->prepare("DELETE FROM notifications WHERE link REGEXP :pattern")
+                ->execute(['pattern' => '(view|project)\\.php\\?id=' . $id . '$']);
+
+            $run('DELETE FROM research WHERE id = :id');
+
+            $this->db->commit();
+        } catch (\Throwable $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
     }
 
     // ---------------------------------------------------------------------------------
@@ -367,10 +572,13 @@ class Research
     }
 
     // The years that have research in the library, newest first (for the year filter).
-    public function years(): array
+    // $all = every research (the admin lists), not only the completed and ongoing ones.
+    public function years(bool $all = false): array
     {
+        $statuses = $all ? '' : " AND status IN ('completed', 'ongoing')";
+
         return array_map('intval', $this->db->query(
-            "SELECT DISTINCT year FROM research WHERE deleted_at IS NULL AND status IN ('completed', 'ongoing') ORDER BY year DESC"
+            "SELECT DISTINCT year FROM research WHERE deleted_at IS NULL{$statuses} ORDER BY year DESC"
         )->fetchAll(PDO::FETCH_COLUMN));
     }
 

@@ -3631,3 +3631,17 @@ span.flatpickr-weekday {
         max-width: 100%;
     }
 }
+
+/* ===== User Guide pages (includes/guide/page.php) ===== */
+.guide-toc { position: sticky; top: 90px; }
+.guide-number { width: 28px; height: 28px; border-radius: 50%; background: #0d6efd; color: #fff; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.guide-btn { display: inline-block; padding: 0 8px; border: 1px solid #b6c6e3; border-radius: 6px; background: #eef3fb; color: #1f3a68; font-size: 0.9em; font-weight: 600; line-height: 1.6; white-space: nowrap; }
+.guide-steps { padding-left: 1.2rem; }
+.guide-steps li { margin-bottom: 0.45rem; }
+.guide-shot { border: 1px solid #dfe3ea; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+.guide-section { scroll-margin-top: 90px; }
+@media print {
+    .guide-hide-print, .sidebar-wrapper, .top-navbar, header { display: none !important; }
+    .guide-section { break-inside: avoid; box-shadow: none; }
+    .col-lg-9 { width: 100% !important; }
+}

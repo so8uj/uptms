@@ -82,16 +82,18 @@ $breadcrumbs = [
                 </div>
 
                 <div class="col-12 col-md-6">
-                    <label for="password" class="form-label-custom">
-                        Password <span class="text-danger" x-show="!isEdit">*</span>
-                    </label>
+                    <label class="form-label-custom">Password</label>
 
-                    <input type="password" class="form-control-custom" id="password" autocomplete="new-password"
-                        placeholder="At least 8 characters" x-model="form.password">
-                    <small class="text-muted" x-show="isEdit">Leave empty to keep the current password.</small>
-                    <template x-for="message in (errors.password || [])">
-                            <div class="text-danger small mt-1" x-text="message"></div>
-                        </template>
+                    <div class="small text-muted" x-show="!isEdit">
+                        A new account gets the default password <strong>wub@student123</strong>.
+                        The user must choose a new one at the first login.
+                    </div>
+                    <div x-cloak x-show="isEdit">
+                        <button type="button" class="btn btn-light border btn-sm" :disabled="resetting" @click="resetPassword()">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Reset to default password
+                        </button>
+                        <div class="small text-muted mt-1">Gives <strong>wub@student123</strong> again (for a forgotten password). The user must change it at the next login.</div>
+                    </div>
                 </div>
 
                 <div class="col-12 col-md-6">

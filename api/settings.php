@@ -5,6 +5,8 @@
  *
  *   GET  api/settings.php   {"settings": {...}, "multi_department": false}
  *   POST api/settings.php   {"institution_name":"...", "team_min_size":"2", ...}   saves all the settings
+ *                           (mail_password: empty keeps the saved SMTP password, which is stored encrypted)
+ *   POST api/settings.php   {"op":"test_mail", "to":"me@example.com"}   one test email with the saved mail settings
  */
 
 require_once(__DIR__ . '/../app/bootstrap.php');
@@ -23,7 +25,14 @@ if ($method === 'GET') {
 
 if ($method === 'POST') {
     Api::requireCsrf();
-    $result = SettingController::save(Api::body());
+    $body = Api::body();
+
+    if (($body['op'] ?? '') === 'test_mail') {
+        $result = SettingController::testMail($body, \App\Controllers\Auth::currentUser());
+        Api::json($result, $result['success'] ? 200 : 422);
+    }
+
+    $result = SettingController::save($body);
     Api::json($result, $result['success'] ? 200 : 422);
 }
 

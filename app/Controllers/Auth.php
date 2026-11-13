@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Committee;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Validation;
@@ -84,6 +85,13 @@ class Auth {
             'email' => $user['email'],
             'role'  => $user['role'],
         ];
+
+        // The first (default) password: every page asks for a new password until it is changed.
+        if (User::isDefaultPassword($request['password'])) {
+            $_SESSION['must_change_password'] = true;
+        } else {
+            unset($_SESSION['must_change_password']);
+        }
 
         (new User())->clearFailedAttempts((int) $user['id']);
         (new User())->touchLastLogin((int) $user['id']);
@@ -184,38 +192,31 @@ class Auth {
                 exit;
             }
 
-            // A teacher with the research management permission may open some pages of the admin panel.
-            if ($folder === 'admin' && self::managerMayOpen($relative)) {
-                header('Cache-Control: no-store');
-                return;
-            }
-
             self::requireRole($folder);
-        }
-    }
 
-    // The admin pages a research manager (a teacher with research_management) may open.
-    private const MANAGER_PAGES = ['admin/research/', 'admin/university/batches/', 'admin/university/teams/'];
+            // Still on the default password: only the profile page (where it is changed) opens.
+            if (!empty($_SESSION['must_change_password']) && !str_ends_with($relative, '/profile.php')) {
+                header('Location: ' . url($folder . '/profile.php'));
+                exit;
+            }
 
-    private static function managerMayOpen(string $relative): bool
-    {
-        foreach (self::MANAGER_PAGES as $folder) {
-            if (str_starts_with($relative, $folder)) {
-                return self::isResearchManager();
+            // The pages of the thesis committee (in the teacher panel) are only for the members of a committee.
+            if ($folder === 'teacher' && str_starts_with($relative, 'teacher/committee/') && !self::isCommitteeMember()) {
+                header('Location: ' . url(self::$portals['teacher']));
+                exit;
             }
         }
-
-        return false;
     }
 
-    // Is the logged-in user a teacher who has the research management permission?
-    public static function isResearchManager(): bool
+    // Is the logged-in user a teacher who is a member of an active thesis committee?
+    // Only such a teacher decides on topics, requests to finish and groups/teams.
+    public static function isCommitteeMember(): bool
     {
         static $answer = null;
 
         if ($answer === null) {
             $user = self::currentUser();
-            $answer = $user && $user['role'] === 'teacher' && (new User())->hasResearchManagement((int) $user['id']);
+            $answer = $user && $user['role'] === 'teacher' && (new Committee())->isMember((int) $user['id']);
         }
 
         return $answer;

@@ -11,10 +11,15 @@ function Sobuj_settingsPage(apiUrl) {
 
         form: {
             institution_name: '', department_name: '', support_email: '',
-            team_min_size: '', team_max_size: '',
+            team_min_size: '', team_max_size: '', panel_signatures_needed: '',
             login_max_attempts: '', login_lock_minutes: '',
             maintenance_mode: false, maintenance_message: '',
+            mail_enabled: false, mail_host: '', mail_port: '587', mail_encryption: 'tls', mail_username: '',
+            mail_password: '', mail_from_email: '', mail_from_name: '',
         },
+        mailPasswordSet: false,
+        testTo: '',
+        testing: false,
         multiDepartment: false,
         errors: {},
         loading: true,
@@ -35,8 +40,12 @@ function Sobuj_settingsPage(apiUrl) {
 
             const saved = res.data.settings;
             Object.keys(this.form).forEach((name) => {
-                this.form[name] = name === 'maintenance_mode' ? saved[name] === '1' : saved[name];
+                if (saved[name] === undefined) {
+                    return;   // the SMTP password is never sent back
+                }
+                this.form[name] = (name === 'maintenance_mode' || name === 'mail_enabled') ? saved[name] === '1' : saved[name];
             });
+            this.mailPasswordSet = res.data.mail_password_set;
             this.multiDepartment = res.data.multi_department;
         },
 
@@ -64,11 +73,30 @@ function Sobuj_settingsPage(apiUrl) {
 
             if (res.ok) {
                 this.notify(res.data.message);
+                this.mailPasswordSet = this.mailPasswordSet || this.form.mail_password !== '';
+                this.form.mail_password = '';
                 return;
             }
 
             this.errors = res.data.errors || {};
             this.notify(res.data.message || 'Could not save the settings.', 'error');
+        },
+
+        // Sends one email with the saved mail settings
+        async sendTest() {
+            this.testing = true;
+            this.errors = {};
+
+            const res = await Sobuj_api(apiUrl, { method: 'POST', body: { op: 'test_mail', to: this.testTo } });
+            this.testing = false;
+
+            if (res.ok) {
+                this.notify(res.data.message);
+                return;
+            }
+
+            this.errors = res.data.errors || {};
+            this.notify(res.data.message || 'The test email could not be sent.', 'error');
         },
     };
 }

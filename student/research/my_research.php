@@ -101,8 +101,13 @@ $breadcrumbs = [
                     <template x-for="item in items" :key="item.id">
                         <tr>
                             <td style="max-width: 420px; white-space: normal;">
-                                <div class="table-user-name" x-text="item.title"></div>
-                                <div class="table-user-sub" x-text="item.code + ' · ' + item.type"></div>
+                                <div class="table-user-name" x-text="item.title || 'Your topic is not sent yet'"></div>
+                                <div class="table-user-sub" x-text="item.title ? item.code + ' · ' + item.type : item.code"></div>
+                                <div class="small text-primary mt-1" x-cloak x-show="item.status === 'assigned'">
+                                    Supervisor assigned. Send your topic when it is ready.
+                                </div>
+                                <div class="small text-warning-emphasis mt-1" x-cloak x-show="item.status === 'assigned' && item.review_note"
+                                    x-text="'The last topic was rejected: ' + item.review_note"></div>
                                 <div class="small text-warning-emphasis mt-1" x-cloak x-show="item.status === 'correction' && item.review_note"
                                     x-text="'Correction needed: ' + item.review_note"></div>
                                 <div class="small text-danger mt-1" x-cloak x-show="item.status === 'rejected' && item.review_note"
@@ -116,27 +121,31 @@ $breadcrumbs = [
                                 <div class="table-user-sub" x-text="Sobuj_authors(item)"></div>
                             </td>
                             <td x-text="item.batch_name || '-'"></td>
-                            <td x-text="item.category_name"></td>
+                            <td x-text="item.category_name || '-'"></td>
                             <td><span class="badge-table" :class="Sobuj_statusBadge(item.status)" x-text="Sobuj_statusText(item.status)"></span></td>
                             <td style="min-width: 150px;">
-                                <div x-cloak x-show="['ongoing', 'completed'].includes(item.status)">
+                                <div x-cloak x-show="item.supervisor_id && ['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(item.status)">
                                     <div class="small mb-1" x-text="item.percent + '% · ' + item.done + ' of ' + item.tasks + ' tasks'"></div>
                                     <div class="progress" style="height: 6px;"><div class="progress-bar bg-primary" :style="'width: ' + item.percent + '%;'"></div></div>
                                     <div class="small text-muted mt-1" x-cloak x-show="item.finish_status"
-                                        x-text="{ teacher: 'Finish: supervisor to decide', team: 'Finish: team to confirm', admin: 'Finish: administrator to decide' }[item.finish_status] || ''"></div>
+                                        x-text="{ teacher: 'Finish: supervisor to decide', team: 'Finish: team to confirm', admin: 'Finish: committee to decide' }[item.finish_status] || ''"></div>
                                 </div>
-                                <span class="text-muted small" x-cloak x-show="!['ongoing', 'completed'].includes(item.status)">-</span>
+                                <span class="text-muted small" x-cloak x-show="!(item.supervisor_id && ['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(item.status))">-</span>
                             </td>
                             <td x-text="item.created_at.substring(0, 10)"></td>
 
                             <td>
                                 <div class="d-flex justify-content-center gap-1">
+                                    <a :href="'<?= url('student/research/manage.php?action=update&id=') ?>' + item.id" class="btn btn-primary btn-sm"
+                                        title="Send your topic to the thesis committee" x-cloak x-show="item.status === 'assigned'">
+                                        <i class="bi bi-send me-1"></i> Send topic
+                                    </a>
                                     <a :href="'<?= url('student/research/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action"
-                                        title="Edit" x-cloak x-show="isOpen(item) && item.created_by == <?= (int) $me['id'] ?>">
+                                        title="Edit" x-cloak x-show="isOpen(item) && item.status !== 'assigned'">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <a :href="'<?= url('student/project.php?id=') ?>' + item.id" class="table-btn-action" title="Project work"
-                                        x-cloak x-show="['ongoing', 'completed'].includes(item.status)">
+                                        x-cloak x-show="item.supervisor_id && ['assigned', 'requested', 'correction', 'ongoing', 'completed'].includes(item.status)">
                                         <i class="bi bi-kanban"></i>
                                     </a>
                                     <a href="<?= url('student/team.php') ?>" class="table-btn-action" title="Group/Team"

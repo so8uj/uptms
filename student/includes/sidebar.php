@@ -79,6 +79,12 @@
                 <div class="sidebar-menu-title">Account</div>
                 <ul class="sidebar-menu-list">
                     <li class="sidebar-menu-item">
+                        <a href="<?= url('student/guide.php') ?>" class="sidebar-menu-link <?= (current_file() === 'guide.php') ? 'active' : '' ?>">
+                            <i class="bi bi-book"></i>
+                            <span>User Guide</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
                         <a href="<?= url('student/profile.php') ?>" class="sidebar-menu-link <?= (current_file() === 'profile.php') ? 'active' : '' ?>">
                             <i class="bi bi-person"></i>
                             <span>My Profile</span>

@@ -116,16 +116,15 @@ $breadcrumbs = [
                     </template>
                 </div>
 
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-6" x-show="!isEdit">
                     <label for="status" class="form-label-custom">
                         Status
                     </label>
 
-                    <select class="form-select-custom" id="status" x-model="form.status" :disabled="statusLocked">
-                        <option value="completed">Completed</option>
-                        <option value="ongoing">Ongoing</option>
+                    <select class="form-select-custom" id="status" x-model="form.status">
+                        <option value="completed">Completed (for the archive)</option>
                     </select>
-                    <small class="text-muted" x-show="statusLocked">Approve or reject this research on the Pending Submissions page.</small>
+                    <small class="text-muted">The administrator adds only finished research here. New work starts with a group and a supervisor (Assign Supervisor), and its topic is approved by the thesis committee.</small>
                     <template x-for="message in (errors.status || [])">
                         <div class="text-danger small mt-1" x-text="message"></div>
                     </template>
@@ -136,12 +135,7 @@ $breadcrumbs = [
                         Supervisor (optional)
                     </label>
 
-                    <select class="form-select-custom" id="supervisor_id" x-model="form.supervisor_id">
-                        <option value="">No supervisor</option>
-                        <template x-for="teacher in options.teachers" :key="teacher.id">
-                            <option :value="String(teacher.id)" x-text="teacher.name + (teacher.employee_id ? ' (' + teacher.employee_id + ')' : '')"></option>
-                        </template>
-                    </select>
+                    <?php $pickerModel = 'form.supervisor_id'; $pickerEmpty = 'No supervisor'; $pickerId = 'supervisor_id'; require(base_path('includes/research/supervisor_picker.php')); ?>
                     
                     <template x-for="message in (errors.supervisor_id || [])">
                         <div class="text-danger small mt-1" x-text="message"></div>

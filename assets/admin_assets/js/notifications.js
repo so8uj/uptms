@@ -158,6 +158,7 @@ function Sobuj_notificationPage(apiUrl, baseUrl) {
             }
             this.page = number;
             this.load();
+            Sobuj_scrollTop();
         },
 
         ago(item) {

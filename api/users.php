@@ -11,6 +11,7 @@
  *   POST api/users.php   save   (a form with the photo, sent as FormData)
  *                               role, op=save, id (leave out to add), name, email, ... and the photo file
  *   POST api/users.php   delete {"role":"student", "op":"delete", "id":5}
+ *   POST api/users.php   {"role":"student", "op":"reset_password", "id":5}   gives the user the default password again
  */
 
 require_once(__DIR__ . '/../app/bootstrap.php');
@@ -50,6 +51,11 @@ if ($method === 'POST') {
 
     if (($body['op'] ?? '') === 'delete') {
         $result = UserController::delete($role, $body);
+        Api::json($result, $result['success'] ? 200 : 422);
+    }
+
+    if (($body['op'] ?? '') === 'reset_password') {
+        $result = UserController::resetPassword($role, $body);
         Api::json($result, $result['success'] ? 200 : 422);
     }
 

@@ -11,11 +11,7 @@ $sectionNav = [
     ['Academic Sessions', 'admin/university/sessions/index.php',    $folder === 'sessions',    null],
     ['Batches',           'admin/university/batches/index.php',     $folder === 'batches',     null],
     ['Groups/Teams',      'admin/university/teams/index.php',       $folder === 'teams',       'team_requests'],
+    ['Thesis Committees', 'admin/university/committees/index.php',  $folder === 'committees',  null],
 ];
-
-// A research manager (a teacher) may only use the batches and the groups/teams.
-if ((App\Controllers\Auth::currentUser()['role'] ?? '') !== 'admin') {
-    $sectionNav = array_values(array_filter($sectionNav, fn($item) => in_array($item[1], ['admin/university/batches/index.php', 'admin/university/teams/index.php'], true)));
-}
 
 require(base_path('admin/includes/section_nav_open.php'));

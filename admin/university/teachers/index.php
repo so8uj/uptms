@@ -72,7 +72,7 @@ $breadcrumbs = [
                         <th class="sortable" @click="setSort('employee')">Employee ID <i class="bi" :class="sortIcon('employee')"></i></th>
                         <?php if (multi_department()): ?><th class="sortable" @click="setSort('department')">Department <i class="bi" :class="sortIcon('department')"></i></th><?php endif; ?>
                         <th class="sortable" @click="setSort('designation')">Designation <i class="bi" :class="sortIcon('designation')"></i></th>
-                        <th>Research Management</th>
+                        <th>Thesis Committee</th>
                         <th>Status</th>
                         <th class="text-center col-actions">Actions</th>
                     </tr>
@@ -112,8 +112,8 @@ $breadcrumbs = [
                                     <td x-text="item.designation || '-'"></td>
 
                                     <td>
-                                        <span class="badge-table" :class="item.research_management == 1 ? 'success' : 'failed'"
-                                            x-text="item.research_management == 1 ? 'Yes' : 'No'"></span>
+                                        <span class="badge-table" :class="item.in_committee == 1 ? 'success' : 'failed'"
+                                            x-text="item.in_committee == 1 ? 'Yes' : 'No'"></span>
                                     </td>
 
                             <td>

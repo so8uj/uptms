@@ -69,20 +69,35 @@
                 </ul>
             </div>
 
-            <?php if (App\Controllers\Auth::isResearchManager()): ?>
+            <?php if (App\Controllers\Auth::isCommitteeMember()): ?>
             <div class="sidebar-menu-section">
-                <div class="sidebar-menu-title">Research Management</div>
+                <div class="sidebar-menu-title">Thesis Committee</div>
                 <ul class="sidebar-menu-list">
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('admin/research/index.php') ?>" class="sidebar-menu-link">
+                        <a href="<?= url('teacher/committee/topics.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'committee' && in_array(current_file(), ['topics.php', 'view.php'], true)) ? 'active' : '' ?>">
                             <i class="bi bi-clipboard2-check"></i>
-                            <span>Manage Research</span>
+                            <span>Topic Requests</span>
+                            <span class="sidebar-menu-badge" data-menu-count="committee_topics" hidden></span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="<?= url('admin/university/batches/index.php') ?>" class="sidebar-menu-link">
-                            <i class="bi bi-collection"></i>
-                            <span>Batches &amp; Groups</span>
+                        <a href="<?= url('teacher/committee/assign.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'committee' && current_file() === 'assign.php') ? 'active' : '' ?>">
+                            <i class="bi bi-person-check"></i>
+                            <span>Assign Supervisor</span>
+                            <span class="sidebar-menu-badge" data-menu-count="committee_assign" hidden></span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="<?= url('teacher/committee/completion.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'committee' && current_file() === 'completion.php') ? 'active' : '' ?>">
+                            <i class="bi bi-flag"></i>
+                            <span>Completion Requests</span>
+                            <span class="sidebar-menu-badge" data-menu-count="committee_completion" hidden></span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="<?= url('teacher/committee/guide.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'committee' && current_file() === 'guide.php') ? 'active' : '' ?>">
+                            <i class="bi bi-book"></i>
+                            <span>Committee Guide</span>
                         </a>
                     </li>
                 </ul>
@@ -92,6 +107,12 @@
             <div class="sidebar-menu-section">
                 <div class="sidebar-menu-title">Account</div>
                 <ul class="sidebar-menu-list">
+                    <li class="sidebar-menu-item">
+                        <a href="<?= url('teacher/guide.php') ?>" class="sidebar-menu-link <?= (current_folder() === 'teacher' && current_file() === 'guide.php') ? 'active' : '' ?>">
+                            <i class="bi bi-book"></i>
+                            <span>User Guide</span>
+                        </a>
+                    </li>
                     <li class="sidebar-menu-item">
                         <a href="<?= url('teacher/profile.php') ?>" class="sidebar-menu-link <?= (current_file() === 'profile.php') ? 'active' : '' ?>">
                             <i class="bi bi-person"></i>

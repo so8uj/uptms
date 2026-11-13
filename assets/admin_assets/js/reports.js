@@ -122,6 +122,7 @@ function Sobuj_reportPage(apiUrl, optionsUrl, researchOptionsUrl) {
             }
             this.page = number;
             this.load();
+            Sobuj_scrollTop();
         },
 
         rangeFrom() {

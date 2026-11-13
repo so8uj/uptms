@@ -6,6 +6,7 @@ use App\Models\Batch;
 use App\Models\Department;
 use App\Models\User;
 use App\Services\FileUpload;
+use App\Services\Mailer;
 use App\Services\Validation;
 
 /**
@@ -61,7 +62,7 @@ class UserController {
      * $files is $_FILES (the photo).
      * Returns ['success' => bool, 'errors' => [field => [messages]], 'message' => text for the toast]
      */
-    public static function save($role, $request, $files, $id = null){
+    public static function save($role, $request, $files, $id = null, $notify = true){
 
         $label = self::LABELS[$role];
         $model = new User();
@@ -83,7 +84,6 @@ class UserController {
             'email'    => 'required|email|max:150|unique:users,email' . $ignore,
             'phone'    => 'max:20',
             'status'   => 'required|in:0,1',
-            'password' => $id === null ? 'required|min:8|max:72' : 'min:8|max:72',
         ];
 
         if ($role === 'teacher') {
@@ -93,7 +93,6 @@ class UserController {
                 'designation'      => 'required|in:' . implode(',', self::DESIGNATIONS),
                 'specialization'   => 'max:150',
                 'research_area'    => 'max:150',
-                'research_management' => 'in:0,1',
             ];
         }
 
@@ -171,7 +170,8 @@ class UserController {
             'email'    => trim($request['email']),
             'phone'    => trim($request['phone'] ?? ''),
             'status'   => (int) $request['status'],
-            'password' => $request['password'] ?? '',
+            // A new account gets the default password of its role. An edit never changes the password (use "Reset to default password").
+            'password' => $id === null ? User::defaultPassword($role) : '',
             'photo'    => $photoPath,
         ];
 
@@ -183,7 +183,6 @@ class UserController {
                 'designation'      => $request['designation'],
                 'specialization'   => trim($request['specialization'] ?? ''),
                 'research_area'    => trim($request['research_area'] ?? ''),
-                'research_management' => (int) ($request['research_management'] ?? 0),
             ];
         }
         if ($role === 'student') {
@@ -200,7 +199,7 @@ class UserController {
         try {
             if ($id === null) {
                 $model->createAccount($role, $account, $profile);
-                $message = "{$label} added.";
+                $message = "{$label} added." . ($notify ? self::mailNote(Mailer::sendCredentials($account['name'], $account['email'], $role, $account['password'])) : '');
             } else {
                 $model->updateAccount($role, (int) $id, $account, $profile);
                 $message = "{$label} updated.";
@@ -217,6 +216,33 @@ class UserController {
         }
 
         return ['success' => true, 'errors' => [], 'message' => $message];
+    }
+
+    // What to tell the admin about the email with the login details (nothing when email sending is switched off).
+    private static function mailNote(array $mail): string
+    {
+        if ($mail['success']) {
+            return ' The login details were sent by email.';
+        }
+        return $mail['skipped'] ? '' : ' The email with the login details could not be sent: ' . $mail['error'];
+    }
+
+    // The admin gives a user the default password again (a forgotten password). The user must change it at the next login.
+    public static function resetPassword($role, $request){
+
+        $model = new User();
+        $user  = $model->findByRole($role, (int) ($request['id'] ?? 0));
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'This ' . $role . ' no longer exists.'];
+        }
+
+        $default = User::defaultPassword($role);
+        $model->updatePasswordHash((int) $user['id'], password_hash($default, PASSWORD_DEFAULT));
+
+        $message = self::LABELS[$role] . ' password is the default password again (' . $default . '). The user must change it at the next login.';
+
+        return ['success' => true, 'message' => $message . self::mailNote(Mailer::sendCredentials($user['name'], $user['email'], $role, $default))];
     }
 
     // Soft deletes a user. Not yourself, and not the last active admin.

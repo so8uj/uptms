@@ -26,7 +26,7 @@ class Team
     }
 
     // The research statuses that mean "not finished yet".
-    private const UNFINISHED = "'requested', 'pending', 'approved', 'ongoing', 'correction'";
+    private const UNFINISHED = "'requested', 'pending', 'approved', 'ongoing', 'correction', 'assigned'";
 
     private PDO $db;
 
@@ -102,6 +102,16 @@ class Team
         if (!empty($f['department_id'])) {
             $where .= ' AND t.department_id = :department_id';
             $bind['department_id'] = (int) $f['department_id'];
+        }
+
+        // The departments of a committee member: only the groups of these departments.
+        if (!empty($f['department_ids']) && is_array($f['department_ids'])) {
+            $marks = [];
+            foreach (array_values($f['department_ids']) as $i => $departmentId) {
+                $marks[] = ':dep' . $i;
+                $bind['dep' . $i] = (int) $departmentId;
+            }
+            $where .= ' AND t.department_id IN (' . implode(', ', $marks) . ')';
         }
 
         if (!empty($f['batch_id'])) {

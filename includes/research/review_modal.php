@@ -17,9 +17,15 @@
                     <h5 class="mb-2" x-text="review.item.title"></h5>
                     <p class="text-muted small mb-1" x-text="review.item.abstract"></p>
                     <div class="small mb-3">Submitted by <strong x-text="review.item.creator_name"></strong>,
-                        wants it as <strong x-text="Sobuj_statusText(review.item.target_status)"></strong>.</div>
+                        wants it as <strong x-text="Sobuj_statusText(review.item.target_status)"></strong>.
+                        <span x-show="review.item.supervisor_name">Supervisor: <strong x-text="review.item.supervisor_name"></strong>.</span></div>
                 </div>
             </template>
+
+            <div class="alert alert-light border py-2 small" x-show="review.item && review.item.status !== 'approved'">
+                You sign as a committee member who can approve. The topic is approved when <strong x-text="review.item ? review.item.needed : 2"></strong> committee members approve it.
+                One correction sends it back, and <span x-text="review.item ? review.item.needed : 2"></span> rejects refuse it. You can change your signature until it is decided.
+            </div>
 
             <div class="btn-group w-100 mb-3" role="group" x-show="review.item && review.item.status !== 'approved'">
                 <button type="button" class="btn" :class="review.decision === 'approve' ? 'btn-success' : 'btn-light'"
@@ -33,12 +39,18 @@
             <div class="alert alert-warning py-2 small" x-show="review.decision === 'correction'">
                 <strong>Correction:</strong> it goes back to the owner with your note. The owner can edit it and send it again.
             </div>
-            <div class="alert alert-danger py-2 small" x-show="review.decision === 'reject'">
+            <div class="alert alert-danger py-2 small" x-show="review.decision === 'reject' && review.item && review.item.supervisor_id">
+                <strong>Reject:</strong> the topic is refused. The group keeps its supervisor and can send a new topic.
+            </div>
+            <div class="alert alert-danger py-2 small" x-show="review.decision === 'reject' && review.item && !review.item.supervisor_id">
                 <strong>Reject:</strong> final. The research is refused for good and nothing more can be done with it.
             </div>
 
-            <div x-show="review.decision === 'approve' && review.item && review.item.status === 'requested'" class="alert alert-info py-2 small">
-                The topic becomes <strong>Approved</strong>. The student then adds the team members, and you assign the supervisor.
+            <div x-show="review.decision === 'approve' && review.item && review.item.status === 'requested' && review.item.supervisor_id" class="alert alert-info py-2 small">
+                The topic is approved and the research becomes <strong>Ongoing</strong> with the supervisor the group already has.
+            </div>
+            <div x-show="review.decision === 'approve' && review.item && review.item.status === 'requested' && !review.item.supervisor_id" class="alert alert-info py-2 small">
+                The topic becomes <strong>Approved</strong>. The student then adds the team members, and a supervisor is assigned.
             </div>
 
             <div x-show="review.decision === 'assign'">
@@ -53,12 +65,7 @@
 
                 <div class="mb-3">
                     <label for="assignSupervisor" class="form-label-custom">Supervisor <span class="text-danger">*</span></label>
-                    <select class="form-select-custom" id="assignSupervisor" x-model="review.supervisor_id">
-                        <option value="">Choose a teacher</option>
-                        <template x-for="teacher in options.teachers" :key="teacher.id">
-                            <option :value="String(teacher.id)" x-text="teacher.name + (teacher.employee_id ? ' (' + teacher.employee_id + ')' : '')"></option>
-                        </template>
-                    </select>
+                    <?php $pickerModel = 'review.supervisor_id'; $pickerEmpty = 'Choose a teacher'; $pickerId = 'assignSupervisor'; require(base_path('includes/research/supervisor_picker.php')); ?>
                     <template x-for="message in (review.errors.supervisor_id || [])">
                         <div class="text-danger small mt-1" x-text="message"></div>
                     </template>
@@ -83,12 +90,7 @@
                     <label for="reviewSupervisor" class="form-label-custom">
                         Supervisor <span class="text-danger" x-show="review.status === 'ongoing'">*</span>
                     </label>
-                    <select class="form-select-custom" id="reviewSupervisor" x-model="review.supervisor_id">
-                        <option value="">No supervisor</option>
-                        <template x-for="teacher in options.teachers" :key="teacher.id">
-                            <option :value="String(teacher.id)" x-text="teacher.name + (teacher.employee_id ? ' (' + teacher.employee_id + ')' : '')"></option>
-                        </template>
-                    </select>
+                    <?php $pickerModel = 'review.supervisor_id'; $pickerEmpty = 'No supervisor'; $pickerId = 'reviewSupervisor'; require(base_path('includes/research/supervisor_picker.php')); ?>
                     <template x-for="message in (review.errors.supervisor_id || [])">
                         <div class="text-danger small mt-1" x-text="message"></div>
                     </template>

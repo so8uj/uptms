@@ -23,6 +23,10 @@ class Notifier
         'submitted'            => ['New research submitted', 'submitted the research'],
         'added'                => ['Research added', 'added the research'],
         'resubmitted'          => ['Research sent again', 'improved the topic and sent it again'],
+        'topic_submitted'      => ['Topic sent', 'sent the topic "{detail}" for approval'],
+        'topic_rejected'       => ['Topic rejected', 'rejected the topic {detail} The group can send a new topic.'],
+        'topic_signed'         => ['Topic signed', 'signed the topic: {detail}'],
+        'completion_signed'    => ['Finish signed', 'signed the request to finish: {detail}'],
         'approved'             => ['Research approved', 'approved the topic'],
         'rejected'             => ['Research rejected', 'rejected the topic for good. {detail}'],
         'correction'           => ['Correction needed', 'sent the topic back for correction. {detail}'],
@@ -45,10 +49,11 @@ class Notifier
         'evaluated'            => ['New evaluation', 'evaluated the progress ({detail})'],
         'completed'            => ['Research completed', 'marked the research as completed'],
         'deleted'              => ['Research deleted', 'deleted the research'],
+        'restored'             => ['Research restored', 'restored the research from the trash'],
     ];
 
-    // These also need a decision of the admins (and the research managers).
-    private const FOR_ADMINS = ['requested', 'submitted', 'resubmitted', 'completion_confirmed'];
+    // These also need a decision of the thesis committee.
+    private const FOR_DECIDERS = ['requested', 'submitted', 'resubmitted', 'topic_submitted', 'completion_confirmed'];
 
     /**
      * Tells the people of a research about one line of its history.
@@ -81,20 +86,32 @@ class Notifier
                 $people[] = (int) $research['supervisor_id'];
             }
 
-            $admins = in_array($action, self::FOR_ADMINS, true) ? $notifications->adminAudience() : [];
+            // the teachers who sign it: the committee members of its department
+            $deciders = in_array($action, self::FOR_DECIDERS, true) ? self::signers($research) : [];
 
-            $everyone = array_diff(array_unique(array_merge($people, $admins)), [(int) $actorId]);
+            $everyone = array_diff(array_unique(array_merge($people, $deciders)), [(int) $actorId]);
 
             foreach ($notifications->activeUsers($everyone) as $user) {
-                $link = in_array((int) $user['id'], $admins, true)
-                    ? 'admin/research/view.php?id=' . $researchId
-                    : self::researchLink($user['role'], $research);
+                if (in_array((int) $user['id'], $deciders, true)) {
+                    // the page where the committee (or, when there is no committee yet, the admin) decides
+                    $page = $action === 'completion_confirmed' ? 'completion.php' : 'topics.php';
+                    $link = $user['role'] === 'admin' ? 'admin/research/view.php?id=' . $researchId : 'teacher/committee/' . $page;
+                } else {
+                    $link = self::researchLink($user['role'], $research);
+                }
 
                 $notifications->add((int) $user['id'], 'research', $title, $body, $link);
             }
         } catch (\Throwable $e) {
             error_log('Notifier::forActivity: ' . $e->getMessage());
         }
+    }
+
+    // The teachers who sign this research (see ResearchController::voters): the committee members of its department,
+    // and the admins when there is no committee at all, so a request never goes unseen.
+    private static function signers(array $research): array
+    {
+        return (new Notification())->deciderAudience((new Research())->departmentId($research));
     }
 
     // The page of a research for this kind of user.
@@ -107,7 +124,7 @@ class Notifier
         }
 
         // a project page exists only for ongoing and completed research; the details page opens the others (waiting, correction, rejected)
-        $isProject = in_array($research['status'], ['ongoing', 'completed'], true);
+        $isProject = $research['supervisor_id'] && in_array($research['status'], array_merge(Research::WORKING, ['completed']), true);
 
         if ($role === 'teacher') {
             return $isProject ? 'teacher/project.php?id=' . $id : 'teacher/research/view.php?id=' . $id;
@@ -133,7 +150,7 @@ class Notifier
         }
     }
 
-    // A message for the admins and the research managers.
+    // A message for the admins.
     public static function toAdmins(string $type, string $title, string $body, ?string $link, ?int $exceptId = null): void
     {
         try {

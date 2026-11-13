@@ -60,6 +60,8 @@ $breadcrumbs = [
             </div>
         </div>
 
+        <?php require(base_path('includes/research/admin_filter_row.php')); ?>
+
         <div class="table-responsive">
             <table class="table-custom">
 
@@ -86,33 +88,37 @@ $breadcrumbs = [
 
                     <template x-for="item in items" :key="item.id">
                         <tr>
-                        <td style="max-width: 340px; white-space: normal;">
-                            <div class="table-user-name" x-text="item.title"></div>
-                            <div class="table-user-sub" x-text="item.code + ' · ' + item.type + ' · ' + item.category_name + ' · ' + item.year"></div>
+                        <td style="min-width: 200px; max-width: 280px; white-space: normal;">
+                            <div class="table-user-name" x-text="item.title || 'The topic is not sent yet'"></div>
+                            <div class="table-user-sub" x-text="[item.code, item.title ? item.type : '', item.category_name, item.year].filter(Boolean).join(' · ')"></div>
                         </td>
 
-                        <td>
-                            <div class="table-user-name" x-text="Sobuj_authors(item)"></div>
-                            <div class="table-user-sub" x-text="item.supervisor_name ? 'Supervisor: ' + item.supervisor_name : 'No supervisor yet'"></div>
+                        <td style="min-width: 170px; max-width: 200px; white-space: normal;">
+                            <div class="table-user-name" x-text="item.team_name || 'No group/team'"></div>
+                            <div class="table-user-sub" x-show="item.batch_name" x-text="'Batch ' + item.batch_name"></div>
+                            <template x-for="student in (item.students || [])" :key="student.id">
+                                <div class="small" x-text="student.name"></div>
+                            </template>
+                            <div class="table-user-sub mt-1" x-text="item.supervisor_name ? 'Supervisor: ' + item.supervisor_name : 'No supervisor yet'"></div>
                         </td>
 
-                        <td style="min-width: 150px;">
-                            <div x-show="item.status === 'ongoing'">
+                        <td style="min-width: 140px; max-width: 170px; white-space: normal;">
+                            <div x-show="['assigned', 'ongoing'].includes(item.status)">
                                 <div class="small mb-1" x-text="item.percent + '% · ' + item.done + ' of ' + item.tasks + ' tasks · ' + item.milestones + ' milestones'"></div>
                                 <div class="progress" style="height: 6px;"><div class="progress-bar bg-primary" :style="'width: ' + item.percent + '%;'"></div></div>
                                 <div class="small text-muted mt-1" x-text="item.last_rating ? 'Last rating: ' + item.last_rating + ' of 5 (' + item.evaluations + ' evaluations)' : 'Not evaluated yet'"></div>
                             </div>
-                            <span class="text-muted small" x-show="item.status !== 'ongoing'">-</span>
+                            <span class="text-muted small" x-show="!['assigned', 'ongoing'].includes(item.status)">-</span>
                         </td>
 
                         <td>
                             <div x-text="item.last_activity.substring(0, 10)"></div>
-                            <span class="badge-table failed" x-show="item.status === 'ongoing' && item.quiet_days >= 14" x-text="'Quiet for ' + item.quiet_days + ' days'"></span>
+                            <span class="badge-table failed" x-show="['assigned', 'ongoing'].includes(item.status) && item.quiet_days >= 14" x-text="'Quiet for ' + item.quiet_days + ' days'"></span>
                         </td>
 
                         <td>
                             <span class="badge-table" :class="item.status === 'ongoing' ? 'success' : 'pending'"
-                                x-text="item.status === 'ongoing' ? 'Ongoing' : 'Needs supervisor'"></span>
+                                x-text="{ ongoing: 'Ongoing', assigned: 'Working, topic not sent', approved: 'Needs supervisor' }[item.status] || item.status"></span>
                             <div class="mt-1" x-show="item.finish_status">
                                 <span class="badge-table pending"
                                     x-text="{ teacher: 'Finish: supervisor to decide', team: 'Finish: team to confirm', admin: 'Finish: needs your decision' }[item.finish_status] || ''"></span>
@@ -120,12 +126,12 @@ $breadcrumbs = [
                         </td>
 
                         <td class="col-actions">
-                            <div class="d-flex justify-content-center gap-1">
+                            <div class="d-flex flex-wrap justify-content-center gap-1" style="max-width: 150px;">
                                 <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id" class="table-btn-action" title="Full details">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <a :href="'<?= url('admin/research/project.php?id=') ?>' + item.id" class="table-btn-action" title="Project work"
-                                    x-cloak x-show="item.status === 'ongoing'">
+                                    x-cloak x-show="['assigned', 'ongoing'].includes(item.status)">
                                     <i class="bi bi-kanban"></i>
                                 </a>
                                 <a :href="'<?= url('admin/research/view.php?id=') ?>' + item.id + '#activity'" class="table-btn-action" title="Activity">
@@ -135,15 +141,14 @@ $breadcrumbs = [
                                     x-cloak x-show="item.status === 'approved'">
                                     <i class="bi bi-person-check"></i>
                                 </button>
-                                <button type="button" class="table-btn-action" title="Mark as completed" @click="complete(item)"
-                                    x-cloak x-show="item.status === 'ongoing'">
-                                    <i class="bi bi-check2-circle"></i>
-                                </button>
                                 <a :href="'<?= url('admin/research/manage.php?action=update&id=') ?>' + item.id" class="table-btn-action" title="Edit">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <button type="button" class="table-btn-action delete" title="Delete" @click="remove(item)">
                                     <i class="bi bi-trash"></i>
+                                </button>
+                                <button type="button" class="table-btn-action delete" title="Delete for ever (with everything that belongs to it)" @click="purge(item)">
+                                    <i class="bi bi-x-octagon"></i>
                                 </button>
                             </div>
                         </td>

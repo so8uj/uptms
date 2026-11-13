@@ -66,7 +66,7 @@ $alertRole = 'teacher';
                         <td colspan="6" class="text-center text-muted py-4">Loading...</td>
                     </tr>
                     <tr x-cloak x-show="!loading && projects.length === 0">
-                        <td colspan="6" class="text-center text-muted py-4">No project yet. A research becomes your project when the administrator assigns you as its supervisor.</td>
+                        <td colspan="6" class="text-center text-muted py-4">No project yet. A research becomes your project when you are assigned as its supervisor.</td>
                     </tr>
                     <template x-for="project in recent()" :key="project.id">
                         <tr>

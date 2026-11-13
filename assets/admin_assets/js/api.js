@@ -163,3 +163,8 @@ function Sobuj_alert(message, options) {
 window.alert = function (message) {
     Sobuj_alert(String(message));
 };
+
+// After the page of a list changes, show the top of the page (the new list starts there, not at the bottom).
+function Sobuj_scrollTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
